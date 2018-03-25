@@ -7,4 +7,5 @@ setup(name='thermo',
       description='MD thermal properties functions',
       author='Alexander Gabourie',
       author_email='gabourie@stanford.edu',
+      packages=['functions']
      )
