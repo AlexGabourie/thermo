@@ -11,10 +11,46 @@ import traceback
 
 
 def get_GKTC(**kwargs):
-    '''Gets the thermal conductivity vs. time profile using the Green-Kubo formalism. 
+    """Gets the thermal conductivity vs. time profile using the Green-Kubo formalism. 
     thermal conductivity vector and time vector.
     Assumptions with no info given by user:
-    dt = 1 fs, vol = 1, T=300, rate=dt, tau=tot_time'''
+    dt = 1 fs, vol = 1, T=300, rate=dt, tau=tot_time
+
+    :Keyword Arguments:
+    * *directory* ('string') --
+        This is the directory in which the simulation results are located. 
+        If not provided, the current directory is used.
+
+    * *T* ('float') --
+        This is the temperature at which the equlibrium simulation was run at. 
+        If not provided, T=300 is used. Units are in [K]
+
+    * *vol* ('float') --
+        This is the volume of the simulation system.
+        If not provided, vol=1 is used. Units are [angstroms^3]
+
+    * *log* ('string') -- 
+        This is the path of the log file. This is only used if the *dt* keyword is not provided
+        as it tries to extract the timestep from the logs
+
+    * *dt* ('float') --
+        This is the timestep of the green-kubo part of the simulation. 
+        If not provided, dt=1 fs is used. units are in [ps]
+
+    * *rate* ('int') --
+        This is the rate at which the heat flux is sampled. This is in number of timesteps.
+        If not provided, we assume we sample once per timestep so, rate=dt
+
+    * *srate* ('float') --
+        This is related to rate, as it is the heat flux sampling rate in units of simulation time. 
+        This does not need to be provided if *rate* is already provided. Defaults are based on 
+        *rate* and *dt*. Units of [ns]
+
+    * *tau* ('int') --
+        max lag time to integrate over. This is in units of [ps]
+
+    """
+
     original_dir = os.getcwd()
 
     try:
@@ -77,9 +113,6 @@ def get_GKTC(**kwargs):
         jxjx = autocorr(np.squeeze(Jx).astype(np.complex128), max_lag)
         jyjy = autocorr(np.squeeze(Jy).astype(np.complex128), max_lag)
         jzjz = autocorr(np.squeeze(Jz).astype(np.complex128), max_lag)
-        print(np.shape(t))
-        print(np.shape(jxjx))
-        print(rate)
         
         ### INTEGRATION ###
         kx = integrate.cumtrapz(jxjx, t, initial=0)*scale
