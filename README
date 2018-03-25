@@ -1,3 +1,14 @@
+Installation Notes:
+
+Use the following command:
+
+pip install git+ssh://git@bitbucket.org/Gabory47/thermo.git
+
+This should install all of the dependencies and the thermo package in the virtual environment.
+
+
+Old Installation Notes:
+
 To get this module to work, I had to put a symbolic link in the following folder:
 /home/alex/eclipse_workspace/custom_lammps/cl/lib/python2.7/site-packages
 
