@@ -11,4 +11,12 @@ def extract_dt(log):
             elements = line.split()
             if len(elements) > 0 and ' '.join(elements[0:2]) == 'Time step':
                 dt.append(float(elements[3]))
+
+
+        if len(dt) == 0:
+            print('No timesteps found in', log)
+
+    else:
+        print(log, 'not found')
+        
     return dt
