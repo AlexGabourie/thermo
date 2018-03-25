@@ -7,5 +7,6 @@ setup(name='thermo',
       description='MD thermal properties functions',
       author='Alexander Gabourie',
       author_email='gabourie@stanford.edu',
-      packages=['thermo']
+      packages=['thermo'],
+      install_requires=['matplotlib', 'pyfftw', 'scipy'],
      )
