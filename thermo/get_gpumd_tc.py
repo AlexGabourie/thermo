@@ -60,4 +60,4 @@ def get_gpumd_tc(directory=''):
     out['tc_z'] = kz
     out['t'] = t
 
-
+    return out
