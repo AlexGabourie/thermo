@@ -1,3 +1,6 @@
+This repository is a collection of calculations or data processing functions that I find myself needing for thermal property calculations. The code is fairly specific to my research, but there may be some functions that are worth something to someone else.  With this repo, I can install the code in a virtual environment and always have access to these tools.
+
+
 Installation Notes:
 
 Use the following command:
