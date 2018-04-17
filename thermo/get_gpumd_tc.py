@@ -58,7 +58,7 @@ def get_gpumd_tc(directory=''):
     out['tc_o'] = (kx_o + ky_o)/2.
     out['tc_c'] = (kx_c + ky_c)/2.
     out['tc_z'] = kz
-    out['tc_t'] = tc_i+tc_o+tc_c+tc_z
+    out['tc_t'] = out['tc_i']+out['tc_o']+out['tc_c']+out['tc_z']
     out['t'] = t
 
     return out
