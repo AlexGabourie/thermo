@@ -6,3 +6,4 @@ from get_heat_flux import *
 from metalToSI_TC import *
 from get_sim_dimensions import *
 from gpumd_plotting import *
+from get_gpumd_tc import *
