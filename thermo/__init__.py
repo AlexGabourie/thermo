@@ -1,2 +1,2 @@
-from . import gpumd
-from . import lammps
+import gpumd
+import lammps
