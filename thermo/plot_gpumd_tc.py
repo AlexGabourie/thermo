@@ -1,4 +1,3 @@
-
 def plot_gpumd_tc():
     get_ipython().magic(u'matplotlib notebook')
     import matplotlib as plt
