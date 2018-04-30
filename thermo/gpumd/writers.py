@@ -83,9 +83,39 @@ def lammps2gpumd(filename, M, cutoff, style='atomic', gpumd_file='xyz.in'):
     -------
     
     """
-    
     # Load atoms
     atoms = read(filename, format='lammps-data', style=style)
+    atoms2gpumd(atoms, M, cutoff, gpumd_file=gpumd_file)
+    return
+
+
+def atoms2gpumd(atoms, M, cutoff, gpumd_file='xyz.in'):
+    """
+    Converts a lammps data file to GPUMD compatible position file
+
+    Parameters
+    ----------
+    arg1 : atoms
+        Atoms to write to gpumd file
+
+    arg2 : M
+        Maximum number of neighbors for one atom
+
+    arg3 : cutoff
+        initial cutoff distance for building the neighbor list
+
+    arg4 : style
+        atom style used in LAMMPS data file
+
+    arg5 : gpumd_file
+        file to save the structure data to
+
+    Returns
+    -------
+
+    """
+
+    # Load atoms
     types = list(set(atoms.get_chemical_symbols()))
     type_dict = dict()
     for i, type_ in enumerate(types):
@@ -93,19 +123,19 @@ def lammps2gpumd(filename, M, cutoff, style='atomic', gpumd_file='xyz.in'):
 
     N = len(atoms)
     pbc = [str(1) if val else str(0) for val in atoms.get_pbc()]
-    lx,ly,lz,a1,a2,a3 = tuple(atoms.get_cell_lengths_and_angles())
-    lx,ly,lz = str(lx), str(ly), str(lz)
+    lx, ly, lz, a1, a2, a3 = tuple(atoms.get_cell_lengths_and_angles())
+    lx, ly, lz = str(lx), str(ly), str(lz)
     if not (a1 == a2 == a3):
         raise ValueError('Structure must be orthorhombic.')
 
     with open(gpumd_file, 'w') as f:
-        f.writelines(' '.join([str(N), str(M), str(cutoff)])+'\n')
-        f.writelines(' '.join(pbc + [lx, ly, lz])+'\n')
+        f.writelines(' '.join([str(N), str(M), str(cutoff)]) + '\n')
+        f.writelines(' '.join(pbc + [lx, ly, lz]) + '\n')
         for atom in atoms[:-1]:
             type_ = [type_dict[atom.symbol], atom.tag, atom.mass] + list(atom.position)
-            f.writelines(' '.join([str(val) for val in type_])+'\n')
+            f.writelines(' '.join([str(val) for val in type_]) + '\n')
         # Last line
-        atom = atoms[-1]    
+        atom = atoms[-1]
         type_ = [type_dict[atom.symbol], atom.tag, atom.mass] + list(atom.position)
         f.writelines(' '.join([str(val) for val in type_]))
     return
