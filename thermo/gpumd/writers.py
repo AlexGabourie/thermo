@@ -91,7 +91,7 @@ def lammps2gpumd(filename, M, cutoff, style='atomic', gpumd_file='xyz.in'):
 
 def atoms2gpumd(atoms, M, cutoff, gpumd_file='xyz.in'):
     """
-    Converts a lammps data file to GPUMD compatible position file
+    Converts ASE atoms to GPUMD compatible position file
 
     Parameters
     ----------
