@@ -9,5 +9,5 @@ setup(name='thermo',
       author='Alexander Gabourie',
       author_email='gabourie@stanford.edu',
       packages=setuptools.find_packages(),
-      install_requires=['matplotlib', 'pyfftw', 'scipy', 'ase'],
+      install_requires=['matplotlib', 'pyfftw', 'scipy', 'ase', 'atomman'],
      )
