@@ -3,7 +3,7 @@ from pylab import *
 import numpy as np
 
 
-def load_forces(force_file, type):
+def load_forces(force_file, sim):
     '''
 
     :param force_file: If type == 'LAMMPS':
@@ -16,7 +16,7 @@ def load_forces(force_file, type):
     '''
 
     # Load force outputs
-    if type == 'LAMMPS':
+    if sim == 'LAMMPS':
         # LAMMPS
         with open(force_file, 'r') as f:
             llines = f.readlines()
@@ -34,7 +34,7 @@ def load_forces(force_file, type):
             yf[ID] = float(num[2])
             zf[ID] = float(num[3])
 
-    elif type == 'GPUMD':
+    elif sim == 'GPUMD':
         # GPUMD
         with open(force_file, 'r') as f:
             glines = f.readlines()
