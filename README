@@ -8,12 +8,3 @@ Use the following command:
 pip install git+ssh://git@github.com/AlexGabourie/thermo.git
 
 This should install all of the dependencies and the thermo package in the virtual environment.
-
-Install debegging:
-- If pyfftw fails to install, run the following line to install it:
-
-sudo apt-get install libfftw3-dev libfftw3-doc
-
-- If you get an error like: 'Failed building wheel for subprocess32,' run the following:
-
-sudo apt-get install python-dev
