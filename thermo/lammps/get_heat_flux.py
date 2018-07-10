@@ -31,7 +31,7 @@ def get_heat_flux(**kwargs):
             lines = hf_file.readlines()[2:]
          
         # Get timestep
-        rate = int(lines[1].split()[0])
+        rate = int(lines[0].split()[0])
 
         # read all data
         jx = list()

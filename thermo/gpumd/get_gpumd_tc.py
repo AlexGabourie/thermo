@@ -1,6 +1,5 @@
 
 def get_gpumd_tc(directory=''):
-    import matplotlib as plt
     import numpy as np
     import os
 
