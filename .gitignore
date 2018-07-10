@@ -2,3 +2,5 @@
 .idea/
 venv/
 test/
+
+notebooks/\.ipynb_checkpoints/
