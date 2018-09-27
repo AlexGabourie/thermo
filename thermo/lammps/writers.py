@@ -19,9 +19,10 @@ def atoms2lammps(atoms, out_file='atoms.data', add_masses = True):
     -------
 
     """
-    sys, elem = atomman.load_ase_Atoms(atoms)
+    sys = atomman.load_ase_Atoms(atoms)
+    elem = sys.symbols
     # write data file
-    atomman.lammps.atom_data.dump(sys, out_file)
+    atomman.dump_atom_data(sys, out_file)
 
     if add_masses:
         # Write block of string for mass inclusion
