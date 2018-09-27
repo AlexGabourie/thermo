@@ -19,7 +19,7 @@ def atoms2lammps(atoms, out_file='atoms.data', add_masses = True):
     -------
 
     """
-    sys, elem = atomman.load.ase_Atoms.load(atoms)
+    sys, elem = atomman.load_ase_Atoms(atoms)
     # write data file
     atomman.lammps.atom_data.dump(sys, out_file)
 
