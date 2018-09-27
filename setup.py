@@ -13,5 +13,5 @@ setup(name='thermo',
                         'pyfftw',
                         'scipy',
                         'ase',
-                        'atomman==1.1.5'],
+                        'atomman==1.2.3'],
      )
