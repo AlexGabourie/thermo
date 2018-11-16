@@ -2,8 +2,21 @@ import os
 import re
 import sys
 
-def get_sim_dimensions(lammpstrj):
-    if os.path.isfile(lammpstrj):  
+def get_sim_dimensions(lammpstrj_file):
+    '''
+    Reads a LAMMPS trajectory file and extracts simulation dimensions.
+
+    Parameters
+    ----------
+    arg1 : lammpstrj_file
+        LAMMPS trajectory file to extract dimensions from
+
+    Returns
+    -------
+    dictionary of x, y, z lengths as well as area and volume values. (lists)
+    '''
+
+    if os.path.isfile(lammpstrj_file):
         area = list()
         x = list()
         y = list()
@@ -11,12 +24,12 @@ def get_sim_dimensions(lammpstrj):
         volume = list()
         flag = 0
         cnt = 0
-        
+
         xdata = -1
         ydata = -1
         zdata = -1
-        
-        with open(lammpstrj, 'r') as trj:
+
+        with open(lammpstrj_file, 'r') as trj:
             for line in trj:
                 if flag == 1:
                     if cnt == 0:
@@ -47,9 +60,38 @@ def get_sim_dimensions(lammpstrj):
                         flag = 0
                 if not len(re.findall('BOX', line)) == 0:
                     flag = 1
-        
+
         return {'x':x, 'y':y, 'z':z, 'area':area, 'volume':volume}
     else:
-        raise Error('file {} not found'.format(lammpstrj))
-    
-    
+        raise Error('file {} not found'.format(lammpstrj_file))
+
+
+def extract_dt(log_file):
+    '''
+    Finds all time steps given in the lammps output log
+
+    Parameters
+    ----------
+    arg1 : log_file
+        LAMMPS log file to examine
+
+    Returns
+    -------
+    dt
+        the timesteps found in log_file
+    '''
+    dt = list()
+    if os.path.isfile(log_file):
+        with open(log_file, 'r') as log:
+            lines = log.readlines()
+
+        for line in lines:
+            elements = line.split()
+            if len(elements) > 0 and ' '.join(elements[0:2]) == 'Time step':
+                dt.append(float(elements[3]))
+        if len(dt) == 0:
+            print('No timesteps found in', log_file)
+    else:
+        print(log_file, 'not found')
+
+    return dt
