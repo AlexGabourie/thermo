@@ -5,14 +5,26 @@ import numpy as np
 
 def load_forces(force_file, sim):
     '''
+    Loads the forces from either GPUMD or LAMMPS output to facilitate a
+    comparison between techniques.
 
-    :param force_file: If type == 'LAMMPS':
+    Parameters
+    ----------
+    arg1 : force_file
+        Filename with forces
+
+    arg2 : sim
+        If type == 'LAMMPS':
         The file path for the LAMMPS output forces
          LAMMPS file should be in the format given by the following LAMMPS input command:
          force all custom 1 <file> id fx fy fz
         If type == 'GPUMD':
         the force output file (f.out) path when GPUMD is compiled with the force flag
-    :return: dictionary containing sorted force vectors
+
+    Returns
+    -------
+    out
+        dictionary containing sorted force vectors
     '''
 
     # Load force outputs
@@ -62,12 +74,22 @@ def load_forces(force_file, sim):
 
 def compare_forces(f1_dict, f2_dict):
     '''
-
-    :param f1_dict: dictionary containing extracted forces from a GPUMD or LAMMPS simulation
-    :param f2_dict: dictionary containing extracted forces from a GPUMD or LAMMPS simulation
-    :return: comparison dictionary
-
+    Compares the LAMMPS and GPUMD forces and returns dictionary of comparison
     Forces are dict2 - dict1 values
+
+    Parameters
+    ----------
+    arg1 : f1_dict
+        dictionary containing extracted forces from a GPUMD or LAMMPS simulation
+
+    arg2 : f2_dict
+        dictionary containing extracted forces from a GPUMD or LAMMPS simulation
+
+    Parameters
+    ----------
+    out
+        comparison dictionary
+
     '''
 
     out = dict()
@@ -78,4 +100,3 @@ def compare_forces(f1_dict, f2_dict):
     out['ynorm'] = np.linalg.norm(out['ydiff'])
     out['znorm'] = np.linalg.norm(out['zdiff'])
     return out
-
