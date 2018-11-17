@@ -1,7 +1,6 @@
 from ase.io import write
 from ase.io import read
 from ase import Atom, Atoms
-from readers import *
 from math import floor
 
 __author__ = "Alexander Gabourie"
