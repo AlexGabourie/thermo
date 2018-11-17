@@ -30,9 +30,9 @@ def get_heat_flux(**kwargs):
     try:
         # Get arguments
         directory = kwargs['directory'] if 'directory' in kwargs.keys() else './'
-        heatflux_file = kwargs['heatflux_file'] if 'heatflux_file' in
+        heatflux_file = kwargs['heatflux_file'] if 'heatflux_file' in \
             kwargs.keys() else os.path.join(directory, 'heat_out.heatflux')
-        mat_file = kwargs['mat_file'] if 'mat_file' in kwargs.keys()
+        mat_file = kwargs['mat_file'] if 'mat_file' in kwargs.keys() \
             else os.path.join(directory, 'heat_flux.mat')
 
         # Check that directory exists
