@@ -75,7 +75,7 @@ def assign_groups(split, atoms, direction):
     '''
     counts = [0]*(len(split)-1)
     for atom in atoms:
-        i = getGroup(split, atom.position, direction)
+        i = __get_group(split, atom.position, direction)
         atom.tag = i
         counts[i] += 1
     return counts
