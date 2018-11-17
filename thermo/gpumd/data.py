@@ -53,6 +53,8 @@ def load_kappa_output(directory=''):
         out['ky_out'][i] = float(nums[3])
         out['kz'][i] = float(nums[4])
 
+    return out
+
 def load_hac_output(directory=''):
     """
     Loads data from hac.out GPUMD output file which contains the
