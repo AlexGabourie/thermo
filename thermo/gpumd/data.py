@@ -8,6 +8,51 @@ __email__ = "gabourie@stanford.edu"
 # Data-loading Related
 #########################################
 
+def load_kappa_output(directory=''):
+    """
+    Loads data from kappa.out GPUMD output file which contains HNEMD kappa
+
+    out keys:
+    kx_in
+    kx_out
+    ky_in
+    ky_out
+    kz
+
+    Parameters
+    ----------
+    arg1 : directory
+        Directory to load 'kappa.out' file from (dir. of simulation)
+
+    Returns
+    -------
+    out
+        A dictionary with keys corresponding to the columns in 'kappa.out'
+    """
+
+    if directory=='':
+        kappa_path = os.path.join(os.getcwd(),'kappa.out')
+    else:
+        kappa_path = os.path.join(directory,'kappa.out')
+
+    with open(kappa_path, 'r') as f:
+        lines = f.readlines()
+
+    out = dict()
+    out['kx_in'] = np.zeros(len(lines))
+    out['kx_out'] = np.zeros(len(lines))
+    out['ky_in'] = np.zeros(len(lines))
+    out['ky_out'] = np.zeros(len(lines))
+    out['kz'] = np.zeros(len(lines))
+
+    for i, line in enumerate(lines):
+        nums = line.split()
+        out['kx_in'][i] = float(nums[0])
+        out['kx_out'][i] = float(nums[1])
+        out['ky_in'][i] = float(nums[2])
+        out['ky_out'][i] = float(nums[3])
+        out['kz'][i] = float(nums[4])
+
 def load_hac_output(directory=''):
     """
     Loads data from hac.out GPUMD output file which contains the
