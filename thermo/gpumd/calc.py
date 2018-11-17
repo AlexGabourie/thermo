@@ -25,7 +25,7 @@ def running_ave(kappa, time):
         running average of kappa input
     """
 
-    out = np.zeros(kappa.shape()[0])
+    out = np.zeros(kappa.shape[0])
     for i, t in enumerate(time):
         out[i] = (1./t*trapz(kappa[:i], time[:i]))
     return out
