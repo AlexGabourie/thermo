@@ -289,7 +289,7 @@ Default is None</dd>
 
 <dl class="function">
 <dt id="thermo.gpumd.io.convert_gpumd_atoms">
-<code class="descclassname">thermo.gpumd.io.</code><code class="descname">convert_gpumd_atoms</code><span class="sig-paren">(</span><em>in_file='xyz.in'</em>, <em>out_filename='in.xyz'</em>, <em>format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_atoms" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">convert_gpumd_atoms</code><span class="sig-paren">(</span><em>in_file='xyz.in'</em>, <em>out_filename='in.xyz'</em>, <em>format='xyz'</em>, <em>atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts the GPUMD input structure file to any compatible ASE
 output structure file</p>
 <dl class="docutils">
@@ -301,6 +301,8 @@ output structure file</p>
 <dd>Name of output file after conversion</dd>
 <dt>format (str):</dt>
 <dd>ASE supported output format</dd>
+<dt>atom_types (list(str)):</dt>
+<dd>List of atom types (elements).</dd>
 </dl>
 </dd>
 </dl>
@@ -380,7 +382,9 @@ type, mass, etc</dd>
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
 <dt>filename (str):</dt>
-<dd>name of structure file</dd>
+<dd>Name of structure file</dd>
+<dt>atom_types (list(str)):</dt>
+<dd>List of atom types (elements).</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>

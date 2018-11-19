@@ -17,7 +17,10 @@ def load_xyz(filename='xyz.in', atom_types=None):
 
     Args:
         filename (str):
-            name of structure file
+            Name of structure file
+
+        atom_types (list(str)):
+            List of atom types (elements).
 
     Returns:
         atoms (ase.Atoms):
@@ -128,6 +131,9 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
 
         format (str):
             ASE supported output format
+
+        atom_types (list(str)):
+            List of atom types (elements).
 
     """
     atoms, M, cutoff = load_xyz(in_file, atom_types)

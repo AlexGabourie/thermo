@@ -158,7 +158,10 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        filename (str):</span>
-<span class="sd">            name of structure file</span>
+<span class="sd">            Name of structure file</span>
+
+<span class="sd">        atom_types (list(str)):</span>
+<span class="sd">            List of atom types (elements).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        atoms (ase.Atoms):</span>
@@ -255,7 +258,7 @@
 <span class="c1">#########################################</span>
 
 <div class="viewcode-block" id="convert_gpumd_atoms"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.convert_gpumd_atoms">[docs]</a><span class="k">def</span> <span class="nf">convert_gpumd_atoms</span><span class="p">(</span><span class="n">in_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;in.xyz&#39;</span><span class="p">,</span>
-                            <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
+                            <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="n">atom_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts the GPUMD input structure file to any compatible ASE</span>
 <span class="sd">    output structure file</span>
@@ -270,8 +273,11 @@
 <span class="sd">        format (str):</span>
 <span class="sd">            ASE supported output format</span>
 
+<span class="sd">        atom_types (list(str)):</span>
+<span class="sd">            List of atom types (elements).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="n">load_xyz</span><span class="p">(</span><span class="n">in_file</span><span class="p">)</span>
+    <span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="n">load_xyz</span><span class="p">(</span><span class="n">in_file</span><span class="p">,</span> <span class="n">atom_types</span><span class="p">)</span>
     <span class="n">write</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
     <span class="k">return</span></div>
 
