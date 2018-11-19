@@ -7,16 +7,12 @@ def ase_atoms_to_lammps(atoms, out_file='atoms.data', add_masses = True):
     """
     Converts ASE atoms to a lammps data file
 
-    Parameters
-    ----------
-    arg1 : atoms
-        Atoms to write to lammps data file
+    Args:
+        atoms (ase.Atoms):
+            Atoms to write to lammps data file
 
-    arg2 : gpumd_file
-        file to save the structure data to
-
-    Returns
-    -------
+        gpumd_file (str): 
+            File to save the structure data to
 
     """
     sys = atomman.load_ase_Atoms(atoms)

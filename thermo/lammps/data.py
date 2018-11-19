@@ -6,14 +6,18 @@ def get_sim_dimensions(lammpstrj_file):
     '''
     Reads a LAMMPS trajectory file and extracts simulation dimensions.
 
-    Parameters
-    ----------
-    arg1 : lammpstrj_file
-        LAMMPS trajectory file to extract dimensions from
+    Args:
+        lammpstrj_file (str):
+            LAMMPS trajectory file to extract dimensions from
 
-    Returns
-    -------
-    dictionary of x, y, z lengths as well as area and volume values. (lists)
+    Returns:
+        out (dict):
+        - x (list(float)): x-dimension [angstroms]
+        - y (list(float)): y-dimension [angstroms]
+        - z (list(float)): z-dimension [angstroms]
+        - area (list(float)): [angstroms^2]
+        - volume (list(float)): [anstroms^3]
+
     '''
 
     if os.path.isfile(lammpstrj_file):
@@ -70,15 +74,13 @@ def extract_dt(log_file):
     '''
     Finds all time steps given in the lammps output log
 
-    Parameters
-    ----------
-    arg1 : log_file
-        LAMMPS log file to examine
+    Args:
+        log_file (str):
+            LAMMPS log file to examine
 
-    Returns
-    -------
-    dt
-        the timesteps found in log_file
+    Returns:
+        dt (list(flaat)):
+            The timesteps found in log_file in [ps]
     '''
     dt = list()
     if os.path.isfile(log_file):

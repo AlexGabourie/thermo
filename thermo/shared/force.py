@@ -1,5 +1,3 @@
-
-from pylab import *
 import numpy as np
 
 
@@ -8,23 +6,22 @@ def load_forces(force_file, sim):
     Loads the forces from either GPUMD or LAMMPS output to facilitate a
     comparison between techniques.
 
-    Parameters
-    ----------
-    arg1 : force_file
-        Filename with forces
+    Args:
+        arg1 (str) : force_file
+            Filename with forces
 
-    arg2 : sim
-        If type == 'LAMMPS':
-        The file path for the LAMMPS output forces
-         LAMMPS file should be in the format given by the following LAMMPS input command:
-         force all custom 1 <file> id fx fy fz
-        If type == 'GPUMD':
-        the force output file (f.out) path when GPUMD is compiled with the force flag
+        arg2 (str) : sim
+            If type == 'LAMMPS':
+            The file path should be for the LAMMPS output forces
+            LAMMPS file should be in the format given by the following LAMMPS input command:
+            force all custom 1 <file> id fx fy fz
+            If type == 'GPUMD':
+            the force output file (f.out) path when GPUMD is compiled with the force flag
 
-    Returns
-    -------
-    out
-        dictionary containing sorted force vectors
+    Returns:
+        out (dict)
+            dictionary containing sorted force vectors
+
     '''
 
     # Load force outputs
@@ -77,18 +74,18 @@ def compare_forces(f1_dict, f2_dict):
     Compares the LAMMPS and GPUMD forces and returns dictionary of comparison
     Forces are dict2 - dict1 values
 
-    Parameters
-    ----------
-    arg1 : f1_dict
-        dictionary containing extracted forces from a GPUMD or LAMMPS simulation
+    Args:
+        arg1 (dict): f1_dict
+            dictionary containing extracted forces from a GPUMD or
+            LAMMPS simulation
 
-    arg2 : f2_dict
-        dictionary containing extracted forces from a GPUMD or LAMMPS simulation
+        arg2 (dict): f2_dict
+            dictionary containing extracted forces from a GPUMD or
+            LAMMPS simulation
 
-    Parameters
-    ----------
-    out
-        comparison dictionary
+    Returns:
+        out (dict)
+            comparison dictionary
 
     '''
 

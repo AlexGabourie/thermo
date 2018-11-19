@@ -12,22 +12,20 @@ def load_kappa_output(directory=''):
     """
     Loads data from kappa.out GPUMD output file which contains HNEMD kappa
 
-    out keys:
-    kx_in
-    kx_out
-    ky_in
-    ky_out
-    kz
+    out keys:\n
+    - kx_in
+    - kx_out
+    - ky_in
+    - ky_out
+    - kz
 
-    Parameters
-    ----------
-    arg1 : directory
-        Directory to load 'kappa.out' file from (dir. of simulation)
+    Args:
+        directory (str):
+            Directory to load 'kappa.out' file from (dir. of simulation)
 
-    Returns
-    -------
-    out
-        A dictionary with keys corresponding to the columns in 'kappa.out'
+    Returns:
+        out (dict):
+            A dictionary with keys corresponding to the columns in 'kappa.out'
     """
 
     if directory=='':
@@ -66,7 +64,7 @@ def load_hac_output(directory=''):
     k - (W/m/K)
     t - (ps)
 
-    out keys:
+    out keys:\n
     - hacf_xi
     - hacf_xo
     - hacf_x: ave. of i/o components
@@ -86,16 +84,14 @@ def load_hac_output(directory=''):
     - k: ave of all in-plane components
     - t: correlation time
 
-    Parameters
-    ----------
-    arg1 : directory
-        Directory to load 'hac.out' file from (dir. of simulation)
+    Args:
+        directory (str):
+            Directory to load 'hac.out' file from (dir. of simulation)
 
-    Returns
-    -------
-    out
-        A dictionary with keys corresponding to the columns in 'hac.out'
-        with some additional keys for aggregated values (see description)
+    Returns:
+        out (dict):
+            A dictionary with keys corresponding to the columns in 'hac.out'
+            with some additional keys for aggregated values (see description)
     """
 
     if directory=='':

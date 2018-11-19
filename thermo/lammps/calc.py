@@ -13,17 +13,29 @@ import scipy.io as sio
 def get_heat_flux(**kwargs):
     """
     Gets the heat flux from a LAMMPS EMD simulation. Creates a compressed .mat
-    file if only in text form. Loads .mat form if exists
+    file if only in text form. Loads .mat form if exists.
 
-    :Keyword Arguments:
-    * *directory* ('string') -- This is the directory in which the simulation
-    results are located. If not provided, the current directory is used.
+    out keys:\n
 
-    * *heatflux_file* ('string') -- Filename of heatflux output. If not provided
-    'heat_out.heatflux' is used
 
-    * *mat_file* ('string') -- MATLAB file to load, if exists. If not provided,
-    'heat_flux.mat' will be used. Also used as filename for saved MATLAB file.
+    Args:
+        **kwargs (dict):\n
+        - directory (str):
+            This is the directory in which the simulation results are located. If
+            not provided, the current directory is used.
+        - heatflux_file (str):
+            Filename of heatflux output. If not provided 'heat_out.heatflux' is used
+        - mat_file (str):
+            MATLAB file to load, if exists. If not provided, 'heat_flux.mat' will
+            be used. Also used as filename for saved MATLAB file.
+
+    Returns:
+        out (dict):\n
+        - Jx (list)
+        - Jy (list)
+        - Jz (list)
+        - rate (float)
+
     """
     original_dir = os.getcwd()
 
@@ -75,43 +87,66 @@ def get_heat_flux(**kwargs):
         print(sys.exc_info()[0])
 
 def get_GKTC(**kwargs):
-    """Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
+    """
+    Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
     thermal conductivity vector and time vector.
     Assumptions with no info given by user:
     dt = 1 fs, vol = 1, T=300, rate=dt, tau=tot_time
 
-    :Keyword Arguments:
-    * *directory* ('string') --
+    Keyword Arguments: \n
+    - directory (string):
         This is the directory in which the simulation results are located.
         If not provided, the current directory is used.
 
-    * *T* ('float') --
+    - T (float):
         This is the temperature at which the equlibrium simulation was run at.
         If not provided, T=300 is used. Units are in [K]
 
-    * *vol* ('float') --
+    - vol (float):
         This is the volume of the simulation system.
         If not provided, vol=1 is used. Units are [angstroms^3]
 
-    * *log* ('string') --
+    - log (string):
         This is the path of the log file. This is only used if the *dt* keyword is not provided
         as it tries to extract the timestep from the logs
 
-    * *dt* ('float') --
+    - dt (float):
         This is the timestep of the green-kubo part of the simulation.
         If not provided, dt=1 fs is used. units are in [ps]
 
-    * *rate* ('int') --
+    - rate (int):
         This is the rate at which the heat flux is sampled. This is in number of timesteps.
         If not provided, we assume we sample once per timestep so, rate=dt
 
-    * *srate* ('float') --
+    - srate (float):
         This is related to rate, as it is the heat flux sampling rate in units of simulation time.
         This does not need to be provided if *rate* is already provided. Defaults are based on
         *rate* and *dt*. Units of [ns]
 
-    * *tau* ('int') --
+    - tau (int):
         max lag time to integrate over. This is in units of [ps]
+
+    Args:
+        **kwargs (dict):
+            List of args above
+
+    Returns:
+        out (dict):\n
+        - kx (ndarray): x-direction thermal conductivity [W/m/K]
+        - ky (ndarray): y-direction thermal conductivity [W/m/K]
+        - kz (ndarray): z-direction thermal conductivity [W/m/K]
+        - t (ndarra): time [ps]
+        - directory (str): directory of results
+        - log (str): name of log file
+        - dt (float): timestep [ps]
+        - tot_time (float): total simulated time [ps]
+        - tau (int): Lag time [ps]
+        - T (float): [K]
+        - vol (float): Volume of simulation cell  [angstroms^3]
+        - srate (float): See above
+        - jxjx (ndarray): x-direction heat flux autocorrelation
+        - jyjy (ndarray): y-direction heat flux autocorrelation
+        - jzjz (ndarray): z-direction heat flux autocorrelation
 
     """
 
@@ -198,17 +233,16 @@ def autocorr(f, max_lag):
     '''
     Computes a fast autocorrelation function and returns up to max_lag
 
-    Parameters
-    ----------
-    arg1 : f
-        vector for autocorrelation
+    Args:
+        f (ndarray):
+            Vector for autocorrelation
 
-    arg2 : max_lag
-        lag at which to calculate up to
+        max_lag (float):
+            Lag at which to calculate up to
 
-    Returns
-    -------
-    autocorrelation vector
+    Returns:
+        out (ndarray):
+            Autocorrelation vector
 
     '''
     N = len(f)
@@ -230,17 +264,16 @@ def metal_to_SI( vol, T ):
     '''
     Converts LAMMPS metal units to SI units for thermal conductivity calculations.
 
-    Parameters
-    ----------
-    arg1 : vol
-        volume in angstroms^3
+    Args:
+        vol (float):
+            Volume in angstroms^3
 
-    arg2 : T
-        temperature in K
+        T (float):
+            Temperature in K
 
-    Returns
-    -------
-    converted value
+    Returns:
+        out (float):
+            Converted value
     '''
     kb = 1.38064852e-23 #m^3*kg/(s^2*K)
     vol = vol/(1.0e10)**3 #to m^3

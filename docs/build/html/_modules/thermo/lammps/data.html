@@ -1,0 +1,291 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>thermo.lammps.data &mdash; thermoMD  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> thermoMD
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">thermoMD</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>thermo.lammps.data</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for thermo.lammps.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="get_sim_dimensions"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.data.get_sim_dimensions">[docs]</a><span class="k">def</span> <span class="nf">get_sim_dimensions</span><span class="p">(</span><span class="n">lammpstrj_file</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Reads a LAMMPS trajectory file and extracts simulation dimensions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lammpstrj_file (str):</span>
+<span class="sd">            LAMMPS trajectory file to extract dimensions from</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (dict):</span>
+<span class="sd">        - x (list(float)): x-dimension [angstroms]</span>
+<span class="sd">        - y (list(float)): y-dimension [angstroms]</span>
+<span class="sd">        - z (list(float)): z-dimension [angstroms]</span>
+<span class="sd">        - area (list(float)): [angstroms^2]</span>
+<span class="sd">        - volume (list(float)): [anstroms^3]</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">lammpstrj_file</span><span class="p">):</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">xdata</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">ydata</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">zdata</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">lammpstrj_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">trj</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">trj</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">xdata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[-+]?\d+\.\d+e.\d+&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">xdata</span><span class="p">:</span>
+                            <span class="n">xdata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[-+]?\d+\.\d+&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">cnt</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">ydata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[-+]?\d+\.\d+e.\d+&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">ydata</span><span class="p">:</span>
+                            <span class="n">ydata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[-+]?\d+\.\d+&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                            <span class="n">area</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xwidth</span><span class="o">*</span><span class="n">ywidth</span><span class="p">)</span>
+                        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">cnt</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">zdata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[-+]?\d+\.\d+e.\d+&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">zdata</span><span class="p">:</span>
+                            <span class="n">zdata</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;[-+]?\d+\.\d+&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ydata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">xdata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">zdata</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">xwidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xdata</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">xdata</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">ywidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ydata</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">ydata</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">zwidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">zdata</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">zdata</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="n">area</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xwidth</span><span class="o">*</span><span class="n">ywidth</span><span class="p">)</span>
+                            <span class="n">volume</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xwidth</span><span class="o">*</span><span class="n">ywidth</span><span class="o">*</span><span class="n">zwidth</span><span class="p">)</span>
+                            <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xwidth</span><span class="p">)</span>
+                            <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ywidth</span><span class="p">)</span>
+                            <span class="n">z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zwidth</span><span class="p">)</span>
+                        <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;BOX&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span><span class="n">z</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">:</span><span class="n">area</span><span class="p">,</span> <span class="s1">&#39;volume&#39;</span><span class="p">:</span><span class="n">volume</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Error</span><span class="p">(</span><span class="s1">&#39;file </span><span class="si">{}</span><span class="s1"> not found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lammpstrj_file</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="extract_dt"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.data.extract_dt">[docs]</a><span class="k">def</span> <span class="nf">extract_dt</span><span class="p">(</span><span class="n">log_file</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Finds all time steps given in the lammps output log</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        log_file (str):</span>
+<span class="sd">            LAMMPS log file to examine</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dt (list(flaat)):</span>
+<span class="sd">            The timesteps found in log_file in [ps]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">log_file</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="s1">&#39;Time step&#39;</span><span class="p">:</span>
+                <span class="n">dt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No timesteps found in&#39;</span><span class="p">,</span> <span class="n">log_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;not found&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dt</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alexander Gabourie
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

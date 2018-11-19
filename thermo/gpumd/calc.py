@@ -11,18 +11,16 @@ def running_ave(kappa, time):
 
     Reads and returns the structure input file from GPUMD.
 
-    Parameters
-    ----------
-    arg1 : kappa
-        raw thermal conductivity
+    Args:
+        kappa (ndarray):
+            Raw thermal conductivity
 
-    arg2 : time
-        time vector that kappa was sampled at
+        time (ndarray):
+            Time vector that kappa was sampled at
 
-    Returns
-    -------
-    out
-        running average of kappa input
+    Returns:
+        out (ndarray):
+            Running average of kappa input
     """
 
     out = np.zeros(kappa.shape[0])

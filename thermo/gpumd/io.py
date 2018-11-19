@@ -15,22 +15,20 @@ def load_xyz(filename='xyz.in', atom_types=None):
     """
     Reads and returns the structure input file from GPUMD.
 
-    Parameters
-    ----------
-    arg1 : filename
-        name of structure file
+    Args:
+        filename (str):
+            name of structure file
 
-    Returns
-    -------
-    atoms
-        ASE atoms object with x,y,z, mass, group, type, cell, and PBCs
-        from input file. group is stored in tag, atom type may not
-        correspond to correct atomic symbol
-    M
-        Max number of neighbor atoms
+    Returns:
+        atoms (ase.Atoms):
+            ASE atoms object with x,y,z, mass, group, type, cell, and PBCs
+            from input file. group is stored in tag, atom type may not
+            correspond to correct atomic symbol
+        M (int):
+            Max number of neighbor atoms
 
-    cutoff
-        initial cutoff for neighbor list build
+        cutoff (float):
+            Initial cutoff for neighbor list build
     """
     # read file
     with open(filename) as f:
@@ -62,13 +60,12 @@ def __set_atoms(atoms, types):
     Sets the atom symbols for atoms loaded from GPUMD where in.xyz does not
     contain that information
 
-    Parameters
-    ----------
-    arg1 : atoms
-        Atoms object to change symbols in
+    Args:
+        atoms (ase.Atoms):
+            Atoms object to change symbols in
 
-    arg2 : types
-        list of strings to assign to atomic symbols
+        types (list(str)):
+            List of strings to assign to atomic symbols
 
     """
     for atom in atoms:
@@ -78,19 +75,17 @@ def load_traj(traj_file='xyz.out', in_file='xyz.in'):
     """
     Reads the trajectory from GPUMD run and creates a list of ASE atoms.
 
-    Parameters
-    ----------
-    arg1 : traj_file
-        name of the file that hold the GPUMD trajectory
+    Args:
+        traj_file (str):
+            Name of the file that hold the GPUMD trajectory
 
-    arg2 : in_file
-        name of the original structure input file. Needed to get atom type, mass, etc
+        in_file (str):
+            Name of the original structure input file. Needed to get atom
+            type, mass, etc
 
-
-    Returns
-    -------
-    traj
-        A list of ASE atoms objects.
+    Returns:
+        traj (list(ase.Atoms)):
+            A list of ASE atoms objects.
     """
     # read trajectory file
     with open(traj_file, 'r') as f:
@@ -124,19 +119,15 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
     Converts the GPUMD input structure file to any compatible ASE
     output structure file
 
-    Parameters
-    ----------
-    arg1 : in_file
-        GPUMD position file to get structure from
+    Args:
+        in_file (str):
+            GPUMD position file to get structure from
 
-    arg2 : out_filename
-        name of output file after conversion
+        out_filename (str):
+            Name of output file after conversion
 
-    arg3 : format
-        ASE supported output format
-
-    Returns
-    -------
+        format (str):
+            ASE supported output format
 
     """
     atoms, M, cutoff = load_xyz(in_file)
@@ -148,22 +139,19 @@ def convert_gpumd_traj(traj_file='xyz.out', out_filename='out.xyz',
     """
     Converts GPUMD trajectory to any compatible ASE output. Default: xyz
 
-    Parameters
-    ----------
-    arg1 : traj_file
-        trajetory from GPUMD
+    Args:
+        traj_file (str):
+            Trajetory from GPUMD
 
-    arg2 : out_filename
-        file in which final trajectory should be saved
+        out_filename (str):
+            File in which final trajectory should be saved
 
-    arg3 : in_file
-        original stucture input file to GPUMD. Needed to get atom numbers/types
+        in_file (str):
+            Original stucture input file to GPUMD. Needed to get atom
+            numbers/types
 
-    arg4 : format
-        ASE supported format
-
-    Returns
-    -------
+        format (str):
+            ASE supported format
 
     """
     traj = load_traj(traj_file, in_file)
@@ -175,25 +163,21 @@ def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
     """
     Converts a lammps data file to GPUMD compatible position file
 
-    Parameters
-    ----------
-    arg1 : filename
-        LAMMPS data file name
+    Args:
+        filename (str):
+            LAMMPS data file name
 
-    arg2 : M
-        Maximum number of neighbors for one atom
+        M (int):
+            Maximum number of neighbors for one atom
 
-    arg3 : cutoff
-        initial cutoff distance for building the neighbor list
+        cutoff (float):
+            Initial cutoff distance for building the neighbor list
 
-    arg4 : style
-        atom style used in LAMMPS data file
+        style (str):
+            Atom style used in LAMMPS data file
 
-    arg5 : gpumd_file
-        file to save the structure data to
-
-    Returns
-    -------
+        gpumd_file (str):
+            File to save the structure data to
 
     """
     # Load atoms
@@ -206,14 +190,13 @@ def __atoms_sortkey(atom, atom_order=None):
     """
     Used as a key for sorting atoms into groups or types for GPUMD in.xyz files
 
-    Parameters
-    ----------
-    arg1 : atom
-        Atom object
+    Args:
+        atom (ase.Atom):
+            Atom object
 
-    arg2 : atom_order
-        A list of atomic symbol strings in the desired order.
-        If None, atom tag is used for sorting (NEMD)
+        atom_order (list(str)):
+            A list of atomic symbol strings in the desired order.
+            If None, atom tag is used for sorting (NEMD)
 
     """
     if atom_order:
@@ -228,29 +211,25 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
     """
     Converts ASE atoms to GPUMD compatible position file
 
-    Parameters
-    ----------
-    arg1 : atoms
-        Atoms to write to gpumd file
+    Args:
+        atoms (ase.Atoms):
+            Atoms to write to gpumd file
 
-    arg2 : M
-        Maximum number of neighbors for one atom
+        M (int):
+            Maximum number of neighbors for one atom
 
-    arg3 : cutoff
-        initial cutoff distance for building the neighbor list
+        cutoff (float):
+            Initial cutoff distance for building the neighbor list
 
-    arg4 : gpumd_file
-        file to save the structure data to
+        gpumd_file (str):
+            File to save the structure data to
 
-    arg5 : sort_key
-        How to sort atoms ('group', 'type'). Default is None.
+        sort_key (str):
+            How to sort atoms ('group', 'type'). Default is None.
 
-    arg6 : type_order
-        List of atomic symbols in order to be listed in GPUMD xyz file. Default
-        is None
-
-    Returns
-    -------
+        type_order (list(str)):
+            List of atomic symbols in order to be listed in GPUMD xyz file.
+            Default is None
 
     """
 

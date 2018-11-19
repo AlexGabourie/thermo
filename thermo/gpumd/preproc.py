@@ -16,21 +16,20 @@ def __get_group(split, pos, direction):
     Gets the group that an atom belongs to based on its position. Only works in
     one direction as it is used for NEMD.
 
-    Parameters
-    ----------
-    arg1 : split
-        List of boundaries. First element should be lower boundary of sim. box
-        in specified direction and the last the upper.
+    Args:
+        split (list(float)):
+            List of boundaries. First element should be lower boundary of
+            sim. box in specified direction and the last the upper.
 
-    arg2 : position
-        position of the atom
+        position (float):
+            Position of the atom
 
-    arg3 : direction
-        Which direction the split will work
+        direction (str):
+            Which direction the split will work
 
-    Returns
-    -------
-    group of atom
+    Returns:
+        out (int):
+            Group of atom
 
     '''
     if direction == 'x':
@@ -55,22 +54,20 @@ def assign_groups(split, atoms, direction):
     one direction as it is used for NEMD. ASE Atom tag is used as group ID.
     Returns a bookkeeping parameter, but atoms will be udated in place.
 
-    Parameters
-    ----------
-    arg1 : split
-        List of boundaries. First element should be lower boundary of sim. box
-        in specified direction and the last the upper.
+    Args:
+        split (list(float)):
+            List of boundaries. First element should be lower boundary of sim.
+            box in specified direction and the last the upper.
 
-    arg2 : atoms
-        atoms to group
+        atoms (ase.Atoms):
+            Atoms to group
 
-    arg3 : direction
-        Which direction the split will work
+        direction (str):
+            Which direction the split will work
 
-    Returns
-    -------
-    counts
-        a list of number of atoms in each group
+    Returns:
+        counts (int)
+            A list of number of atoms in each group
 
     '''
     counts = [0]*(len(split)-1)

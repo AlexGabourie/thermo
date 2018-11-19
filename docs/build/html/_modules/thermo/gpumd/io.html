@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>thermo.gpumd.io &mdash; thermoMD  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> thermoMD
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">thermoMD</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>thermo.gpumd.io</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for thermo.gpumd.io</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">ase.io</span> <span class="k">import</span> <span class="n">write</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="k">import</span> <span class="n">read</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atom</span><span class="p">,</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
+
+
+<span class="c1">#########################################</span>
+<span class="c1"># Read Related</span>
+<span class="c1">#########################################</span>
+
+<div class="viewcode-block" id="load_xyz"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.load_xyz">[docs]</a><span class="k">def</span> <span class="nf">load_xyz</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">atom_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads and returns the structure input file from GPUMD.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str):</span>
+<span class="sd">            name of structure file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        atoms (ase.Atoms):</span>
+<span class="sd">            ASE atoms object with x,y,z, mass, group, type, cell, and PBCs</span>
+<span class="sd">            from input file. group is stored in tag, atom type may not</span>
+<span class="sd">            correspond to correct atomic symbol</span>
+<span class="sd">        M (int):</span>
+<span class="sd">            Max number of neighbor atoms</span>
+
+<span class="sd">        cutoff (float):</span>
+<span class="sd">            Initial cutoff for neighbor list build</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># read file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">xyz_lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="c1"># get global structure params</span>
+    <span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span>
+    <span class="n">pbc_x</span><span class="p">,</span> <span class="n">pbc_y</span><span class="p">,</span> <span class="n">pbc_z</span><span class="p">,</span> <span class="n">L_x</span><span class="p">,</span> <span class="n">L_y</span><span class="p">,</span> <span class="n">L_z</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    <span class="n">pbc_x</span><span class="p">,</span> <span class="n">pbc_y</span><span class="p">,</span> <span class="n">pbc_z</span><span class="p">,</span> <span class="n">L_x</span><span class="p">,</span> <span class="n">L_y</span><span class="p">,</span> <span class="n">L_z</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pbc_x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pbc_y</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pbc_z</span><span class="p">),</span> \
+                                            <span class="nb">float</span><span class="p">(</span><span class="n">L_x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">L_y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">L_z</span><span class="p">)</span>
+
+    <span class="c1"># get atomic params</span>
+    <span class="n">atoms</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">()</span>
+    <span class="n">atoms</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">((</span><span class="n">pbc_x</span><span class="p">,</span> <span class="n">pbc_y</span><span class="p">,</span> <span class="n">pbc_z</span><span class="p">))</span>
+    <span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="n">L_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L_z</span><span class="p">)])</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">xyz_lines</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+        <span class="n">type_</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="n">atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Atom</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">type_</span><span class="p">),</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">)),</span>
+                          <span class="n">tag</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="n">mass</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">mass</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">atom_types</span><span class="p">:</span>
+        <span class="n">__set_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">atom_types</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span></div>
+
+<span class="k">def</span> <span class="nf">__set_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the atom symbols for atoms loaded from GPUMD where in.xyz does not</span>
+<span class="sd">    contain that information</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atoms (ase.Atoms):</span>
+<span class="sd">            Atoms object to change symbols in</span>
+
+<span class="sd">        types (list(str)):</span>
+<span class="sd">            List of strings to assign to atomic symbols</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+        <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">types</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">number</span><span class="p">]</span>
+
+<div class="viewcode-block" id="load_traj"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.load_traj">[docs]</a><span class="k">def</span> <span class="nf">load_traj</span><span class="p">(</span><span class="n">traj_file</span><span class="o">=</span><span class="s1">&#39;xyz.out&#39;</span><span class="p">,</span> <span class="n">in_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads the trajectory from GPUMD run and creates a list of ASE atoms.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        traj_file (str):</span>
+<span class="sd">            Name of the file that hold the GPUMD trajectory</span>
+
+<span class="sd">        in_file (str):</span>
+<span class="sd">            Name of the original structure input file. Needed to get atom</span>
+<span class="sd">            type, mass, etc</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        traj (list(ase.Atoms)):</span>
+<span class="sd">            A list of ASE atoms objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># read trajectory file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">traj_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">xyz_lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">atoms_in</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="n">load_xyz</span><span class="p">(</span><span class="n">in_file</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms_in</span><span class="p">)</span>
+
+    <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">num_frames</span> <span class="o">==</span> <span class="n">floor</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;load_traj warning: Non-integer number of frames base on number of atoms.&#39;</span> <span class="o">+</span>
+              <span class="s1">&#39; Only taking </span><span class="si">{}</span><span class="s1"> frames&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)))</span>
+
+    <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">num_frames</span><span class="p">))</span>
+    <span class="n">traj</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="n">frame</span><span class="o">*</span><span class="n">N</span><span class="p">:(</span><span class="n">frame</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="p">]):</span>
+            <span class="n">curr_atom</span> <span class="o">=</span> <span class="n">atoms_in</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">curr_atom</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+        <span class="n">traj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atoms_in</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">traj</span></div>
+
+<span class="c1">#########################################</span>
+<span class="c1"># Write Related</span>
+<span class="c1">#########################################</span>
+
+<div class="viewcode-block" id="convert_gpumd_atoms"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.convert_gpumd_atoms">[docs]</a><span class="k">def</span> <span class="nf">convert_gpumd_atoms</span><span class="p">(</span><span class="n">in_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;in.xyz&#39;</span><span class="p">,</span>
+                            <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts the GPUMD input structure file to any compatible ASE</span>
+<span class="sd">    output structure file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        in_file (str):</span>
+<span class="sd">            GPUMD position file to get structure from</span>
+
+<span class="sd">        out_filename (str):</span>
+<span class="sd">            Name of output file after conversion</span>
+
+<span class="sd">        format (str):</span>
+<span class="sd">            ASE supported output format</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="n">load_xyz</span><span class="p">(</span><span class="n">in_file</span><span class="p">)</span>
+    <span class="n">write</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="convert_gpumd_traj"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.convert_gpumd_traj">[docs]</a><span class="k">def</span> <span class="nf">convert_gpumd_traj</span><span class="p">(</span><span class="n">traj_file</span><span class="o">=</span><span class="s1">&#39;xyz.out&#39;</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;out.xyz&#39;</span><span class="p">,</span>
+                       <span class="n">in_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts GPUMD trajectory to any compatible ASE output. Default: xyz</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        traj_file (str):</span>
+<span class="sd">            Trajetory from GPUMD</span>
+
+<span class="sd">        out_filename (str):</span>
+<span class="sd">            File in which final trajectory should be saved</span>
+
+<span class="sd">        in_file (str):</span>
+<span class="sd">            Original stucture input file to GPUMD. Needed to get atom</span>
+<span class="sd">            numbers/types</span>
+
+<span class="sd">        format (str):</span>
+<span class="sd">            ASE supported format</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">traj</span> <span class="o">=</span> <span class="n">load_traj</span><span class="p">(</span><span class="n">traj_file</span><span class="p">,</span> <span class="n">in_file</span><span class="p">)</span>
+    <span class="n">write</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">traj</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="lammps_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.lammps_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">lammps_atoms_to_gpumd</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;atomic&#39;</span><span class="p">,</span>
+                        <span class="n">gpumd_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a lammps data file to GPUMD compatible position file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str):</span>
+<span class="sd">            LAMMPS data file name</span>
+
+<span class="sd">        M (int):</span>
+<span class="sd">            Maximum number of neighbors for one atom</span>
+
+<span class="sd">        cutoff (float):</span>
+<span class="sd">            Initial cutoff distance for building the neighbor list</span>
+
+<span class="sd">        style (str):</span>
+<span class="sd">            Atom style used in LAMMPS data file</span>
+
+<span class="sd">        gpumd_file (str):</span>
+<span class="sd">            File to save the structure data to</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load atoms</span>
+    <span class="n">atoms</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;lammps-data&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
+    <span class="n">ase_atoms_to_gpumd</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">gpumd_file</span><span class="o">=</span><span class="n">gpumd_file</span><span class="p">)</span>
+    <span class="k">return</span></div>
+
+
+<span class="k">def</span> <span class="nf">__atoms_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used as a key for sorting atoms into groups or types for GPUMD in.xyz files</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atom (ase.Atom):</span>
+<span class="sd">            Atom object</span>
+
+<span class="sd">        atom_order (list(str)):</span>
+<span class="sd">            A list of atomic symbol strings in the desired order.</span>
+<span class="sd">            If None, atom tag is used for sorting (NEMD)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">atom_order</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_order</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sym</span> <span class="o">==</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">tag</span>
+
+<div class="viewcode-block" id="ase_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.ase_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">ase_atoms_to_gpumd</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">gpumd_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">sort_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">type_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts ASE atoms to GPUMD compatible position file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atoms (ase.Atoms):</span>
+<span class="sd">            Atoms to write to gpumd file</span>
+
+<span class="sd">        M (int):</span>
+<span class="sd">            Maximum number of neighbors for one atom</span>
+
+<span class="sd">        cutoff (float):</span>
+<span class="sd">            Initial cutoff distance for building the neighbor list</span>
+
+<span class="sd">        gpumd_file (str):</span>
+<span class="sd">            File to save the structure data to</span>
+
+<span class="sd">        sort_key (str):</span>
+<span class="sd">            How to sort atoms (&#39;group&#39;, &#39;type&#39;). Default is None.</span>
+
+<span class="sd">        type_order (list(str)):</span>
+<span class="sd">            List of atomic symbols in order to be listed in GPUMD xyz file.</span>
+<span class="sd">            Default is None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atoms_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">atom_order</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atoms_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="n">atoms</span>
+
+    <span class="k">if</span> <span class="n">sort_key</span><span class="o">==</span><span class="s1">&#39;type&#39;</span> <span class="ow">and</span> <span class="n">type_order</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">type_order</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()))</span>
+
+    <span class="n">type_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">type_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">types</span><span class="p">):</span>
+        <span class="n">type_dict</span><span class="p">[</span><span class="n">type_</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
+    <span class="n">pbc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">val</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()]</span>
+    <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">lz</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_cell_lengths_and_angles</span><span class="p">())</span>
+    <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">lz</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">lx</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">ly</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">lz</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">a1</span> <span class="o">==</span> <span class="n">a2</span> <span class="o">==</span> <span class="n">a3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Structure must be orthorhombic.&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gpumd_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pbc</span> <span class="o">+</span> <span class="p">[</span><span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">lz</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">type_</span> <span class="o">=</span> <span class="p">[</span><span class="n">type_dict</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">],</span> <span class="n">atom</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">mass</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">type_</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># Last line</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">atoms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">type_</span> <span class="o">=</span> <span class="p">[</span><span class="n">type_dict</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">],</span> <span class="n">atom</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">mass</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">type_</span><span class="p">]))</span>
+    <span class="k">return</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alexander Gabourie
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

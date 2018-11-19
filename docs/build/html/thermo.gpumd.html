@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>thermo.gpumd package &mdash; thermoMD  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> thermoMD
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">thermo.gpumd package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-thermo.gpumd.calc">thermo.gpumd.calc module</a></li>
+<li><a class="reference internal" href="#module-thermo.gpumd.data">thermo.gpumd.data module</a></li>
+<li><a class="reference internal" href="#module-thermo.gpumd.io">thermo.gpumd.io module</a></li>
+<li><a class="reference internal" href="#module-thermo.gpumd.preproc">thermo.gpumd.preproc module</a></li>
+<li><a class="reference internal" href="#module-thermo.gpumd">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">thermoMD</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>thermo.gpumd package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/thermo.gpumd.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="thermo-gpumd-package">
+<h1>thermo.gpumd package<a class="headerlink" href="#thermo-gpumd-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-thermo.gpumd.calc">
+<span id="thermo-gpumd-calc-module"></span><h2>thermo.gpumd.calc module<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="thermo.gpumd.calc.running_ave">
+<code class="descclassname">thermo.gpumd.calc.</code><code class="descname">running_ave</code><span class="sig-paren">(</span><em>kappa</em>, <em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#running_ave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.running_ave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets running average</p>
+<p>Reads and returns the structure input file from GPUMD.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>kappa (ndarray):</dt>
+<dd>Raw thermal conductivity</dd>
+<dt>time (ndarray):</dt>
+<dd>Time vector that kappa was sampled at</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (ndarray):</dt>
+<dd>Running average of kappa input</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-thermo.gpumd.data">
+<span id="thermo-gpumd-data-module"></span><h2>thermo.gpumd.data module<a class="headerlink" href="#module-thermo.gpumd.data" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="thermo.gpumd.data.load_hac_output">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_hac_output</code><span class="sig-paren">(</span><em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from hac.out GPUMD output file which contains the
+heat-current autocorrelation and running thermal conductivity values</p>
+<p>Created for GPUMD-v1.9</p>
+<p>hacf - (ev^3/amu)
+k - (W/m/K)
+t - (ps)</p>
+<p>out keys:</p>
+<ul class="simple">
+<li>hacf_xi</li>
+<li>hacf_xo</li>
+<li>hacf_x: ave. of i/o components</li>
+<li>hacf_yi</li>
+<li>hacf_yo</li>
+<li>hacf_y: ave of i/o components</li>
+<li>hacf_z</li>
+<li>k_xi</li>
+<li>k_xo</li>
+<li>k_x: ave of i/o components</li>
+<li>k_yi</li>
+<li>k_yo</li>
+<li>k_y: ave of i/o components</li>
+<li>k_z</li>
+<li>k_i: ave of x/y components</li>
+<li>k_o: ave of x/y components</li>
+<li>k: ave of all in-plane components</li>
+<li>t: correlation time</li>
+</ul>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>directory (str):</dt>
+<dd>Directory to load ‘hac.out’ file from (dir. of simulation)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict):</dt>
+<dd>A dictionary with keys corresponding to the columns in ‘hac.out’
+with some additional keys for aggregated values (see description)</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_kappa_output">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_kappa_output</code><span class="sig-paren">(</span><em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappa_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappa_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from kappa.out GPUMD output file which contains HNEMD kappa</p>
+<p>out keys:</p>
+<ul class="simple">
+<li>kx_in</li>
+<li>kx_out</li>
+<li>ky_in</li>
+<li>ky_out</li>
+<li>kz</li>
+</ul>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>directory (str):</dt>
+<dd>Directory to load ‘kappa.out’ file from (dir. of simulation)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict):</dt>
+<dd>A dictionary with keys corresponding to the columns in ‘kappa.out’</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-thermo.gpumd.io">
+<span id="thermo-gpumd-io-module"></span><h2>thermo.gpumd.io module<a class="headerlink" href="#module-thermo.gpumd.io" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="thermo.gpumd.io.ase_atoms_to_gpumd">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">ase_atoms_to_gpumd</code><span class="sig-paren">(</span><em>atoms</em>, <em>M</em>, <em>cutoff</em>, <em>gpumd_file='xyz.in'</em>, <em>sort_key=None</em>, <em>type_order=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#ase_atoms_to_gpumd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.ase_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts ASE atoms to GPUMD compatible position file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>atoms (ase.Atoms):</dt>
+<dd>Atoms to write to gpumd file</dd>
+<dt>M (int):</dt>
+<dd>Maximum number of neighbors for one atom</dd>
+<dt>cutoff (float):</dt>
+<dd>Initial cutoff distance for building the neighbor list</dd>
+<dt>gpumd_file (str):</dt>
+<dd>File to save the structure data to</dd>
+<dt>sort_key (str):</dt>
+<dd>How to sort atoms (‘group’, ‘type’). Default is None.</dd>
+<dt>type_order (list(str)):</dt>
+<dd>List of atomic symbols in order to be listed in GPUMD xyz file.
+Default is None</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.io.convert_gpumd_atoms">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">convert_gpumd_atoms</code><span class="sig-paren">(</span><em>in_file='xyz.in'</em>, <em>out_filename='in.xyz'</em>, <em>format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the GPUMD input structure file to any compatible ASE
+output structure file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>in_file (str):</dt>
+<dd>GPUMD position file to get structure from</dd>
+<dt>out_filename (str):</dt>
+<dd>Name of output file after conversion</dd>
+<dt>format (str):</dt>
+<dd>ASE supported output format</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.io.convert_gpumd_traj">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">convert_gpumd_traj</code><span class="sig-paren">(</span><em>traj_file='xyz.out'</em>, <em>out_filename='out.xyz'</em>, <em>in_file='xyz.in'</em>, <em>format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_traj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts GPUMD trajectory to any compatible ASE output. Default: xyz</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>traj_file (str):</dt>
+<dd>Trajetory from GPUMD</dd>
+<dt>out_filename (str):</dt>
+<dd>File in which final trajectory should be saved</dd>
+<dt>in_file (str):</dt>
+<dd>Original stucture input file to GPUMD. Needed to get atom
+numbers/types</dd>
+<dt>format (str):</dt>
+<dd>ASE supported format</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.io.lammps_atoms_to_gpumd">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">lammps_atoms_to_gpumd</code><span class="sig-paren">(</span><em>filename</em>, <em>M</em>, <em>cutoff</em>, <em>style='atomic'</em>, <em>gpumd_file='xyz.in'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#lammps_atoms_to_gpumd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.lammps_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a lammps data file to GPUMD compatible position file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename (str):</dt>
+<dd>LAMMPS data file name</dd>
+<dt>M (int):</dt>
+<dd>Maximum number of neighbors for one atom</dd>
+<dt>cutoff (float):</dt>
+<dd>Initial cutoff distance for building the neighbor list</dd>
+<dt>style (str):</dt>
+<dd>Atom style used in LAMMPS data file</dd>
+<dt>gpumd_file (str):</dt>
+<dd>File to save the structure data to</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.io.load_traj">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">load_traj</code><span class="sig-paren">(</span><em>traj_file='xyz.out'</em>, <em>in_file='xyz.in'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#load_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.load_traj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the trajectory from GPUMD run and creates a list of ASE atoms.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>traj_file (str):</dt>
+<dd>Name of the file that hold the GPUMD trajectory</dd>
+<dt>in_file (str):</dt>
+<dd>Name of the original structure input file. Needed to get atom
+type, mass, etc</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>traj (list(ase.Atoms)):</dt>
+<dd>A list of ASE atoms objects.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.io.load_xyz">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">load_xyz</code><span class="sig-paren">(</span><em>filename='xyz.in'</em>, <em>atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#load_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.load_xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads and returns the structure input file from GPUMD.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename (str):</dt>
+<dd>name of structure file</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>atoms (ase.Atoms):</dt>
+<dd>ASE atoms object with x,y,z, mass, group, type, cell, and PBCs
+from input file. group is stored in tag, atom type may not
+correspond to correct atomic symbol</dd>
+<dt>M (int):</dt>
+<dd>Max number of neighbor atoms</dd>
+<dt>cutoff (float):</dt>
+<dd>Initial cutoff for neighbor list build</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-thermo.gpumd.preproc">
+<span id="thermo-gpumd-preproc-module"></span><h2>thermo.gpumd.preproc module<a class="headerlink" href="#module-thermo.gpumd.preproc" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="thermo.gpumd.preproc.assign_groups">
+<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">assign_groups</code><span class="sig-paren">(</span><em>split</em>, <em>atoms</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#assign_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.assign_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns groups to all atoms based on its position. Only works in
+one direction as it is used for NEMD. ASE Atom tag is used as group ID.
+Returns a bookkeeping parameter, but atoms will be udated in place.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>split (list(float)):</dt>
+<dd>List of boundaries. First element should be lower boundary of sim.
+box in specified direction and the last the upper.</dd>
+<dt>atoms (ase.Atoms):</dt>
+<dd>Atoms to group</dd>
+<dt>direction (str):</dt>
+<dd>Which direction the split will work</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>counts (int)</dt>
+<dd>A list of number of atoms in each group</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-thermo.gpumd">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-thermo.gpumd" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alexander Gabourie
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

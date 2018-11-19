@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>thermo.shared package &mdash; thermoMD  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> thermoMD
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">thermo.shared package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-thermo.shared.force">thermo.shared.force module</a></li>
+<li><a class="reference internal" href="#module-thermo.shared">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">thermoMD</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>thermo.shared package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/thermo.shared.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="thermo-shared-package">
+<h1>thermo.shared package<a class="headerlink" href="#thermo-shared-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-thermo.shared.force">
+<span id="thermo-shared-force-module"></span><h2>thermo.shared.force module<a class="headerlink" href="#module-thermo.shared.force" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="thermo.shared.force.compare_forces">
+<code class="descclassname">thermo.shared.force.</code><code class="descname">compare_forces</code><span class="sig-paren">(</span><em>f1_dict</em>, <em>f2_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/shared/force.html#compare_forces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.shared.force.compare_forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares the LAMMPS and GPUMD forces and returns dictionary of comparison
+Forces are dict2 - dict1 values</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>arg1 (dict): f1_dict</dt>
+<dd>dictionary containing extracted forces from a GPUMD or
+LAMMPS simulation</dd>
+<dt>arg2 (dict): f2_dict</dt>
+<dd>dictionary containing extracted forces from a GPUMD or
+LAMMPS simulation</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict)</dt>
+<dd>comparison dictionary</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.shared.force.load_forces">
+<code class="descclassname">thermo.shared.force.</code><code class="descname">load_forces</code><span class="sig-paren">(</span><em>force_file</em>, <em>sim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/shared/force.html#load_forces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.shared.force.load_forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the forces from either GPUMD or LAMMPS output to facilitate a
+comparison between techniques.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>arg1 (str) <span class="classifier-delimiter">:</span> <span class="classifier">force_file</span></dt>
+<dd>Filename with forces</dd>
+<dt>arg2 (str) <span class="classifier-delimiter">:</span> <span class="classifier">sim</span></dt>
+<dd>If type == ‘LAMMPS’:
+The file path should be for the LAMMPS output forces
+LAMMPS file should be in the format given by the following LAMMPS input command:
+force all custom 1 &lt;file&gt; id fx fy fz
+If type == ‘GPUMD’:
+the force output file (f.out) path when GPUMD is compiled with the force flag</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict)</dt>
+<dd>dictionary containing sorted force vectors</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-thermo.shared">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-thermo.shared" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alexander Gabourie
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
