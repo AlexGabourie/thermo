@@ -114,7 +114,7 @@ def load_traj(traj_file='xyz.out', in_file='xyz.in'):
 #########################################
 
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
-                            format='xyz'):
+                            format='xyz', atom_types=None):
     """
     Converts the GPUMD input structure file to any compatible ASE
     output structure file
@@ -130,7 +130,7 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
             ASE supported output format
 
     """
-    atoms, M, cutoff = load_xyz(in_file)
+    atoms, M, cutoff = load_xyz(in_file, atom_types)
     write(out_filename, atoms, format)
     return
 
