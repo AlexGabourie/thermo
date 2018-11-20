@@ -213,7 +213,7 @@ def __atoms_sortkey(atom, atom_order=None):
         return atom.tag
 
 def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
-        type_order=None):
+        atom_order=None):
     """
     Converts ASE atoms to GPUMD compatible position file
 
@@ -233,7 +233,7 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
         sort_key (str):
             How to sort atoms ('group', 'type'). Default is None.
 
-        type_order (list(str)):
+        atom_order (list(str)):
             List of atomic symbols in order to be listed in GPUMD xyz file.
             Default is None
 
