@@ -264,7 +264,7 @@ with some additional keys for aggregated values (see description)</dd>
 <span id="thermo-gpumd-io-module"></span><h2>thermo.gpumd.io module<a class="headerlink" href="#module-thermo.gpumd.io" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.io.ase_atoms_to_gpumd">
-<code class="descclassname">thermo.gpumd.io.</code><code class="descname">ase_atoms_to_gpumd</code><span class="sig-paren">(</span><em>atoms</em>, <em>M</em>, <em>cutoff</em>, <em>gpumd_file='xyz.in'</em>, <em>sort_key=None</em>, <em>type_order=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#ase_atoms_to_gpumd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.ase_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">ase_atoms_to_gpumd</code><span class="sig-paren">(</span><em>atoms</em>, <em>M</em>, <em>cutoff</em>, <em>gpumd_file='xyz.in'</em>, <em>sort_key=None</em>, <em>atom_order=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#ase_atoms_to_gpumd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.ase_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts ASE atoms to GPUMD compatible position file</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -279,7 +279,7 @@ with some additional keys for aggregated values (see description)</dd>
 <dd>File to save the structure data to</dd>
 <dt>sort_key (str):</dt>
 <dd>How to sort atoms (‘group’, ‘type’). Default is None.</dd>
-<dt>type_order (list(str)):</dt>
+<dt>atom_order (list(str)):</dt>
 <dd>List of atomic symbols in order to be listed in GPUMD xyz file.
 Default is None</dd>
 </dl>

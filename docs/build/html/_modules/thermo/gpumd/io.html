@@ -354,7 +354,7 @@
         <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">tag</span>
 
 <div class="viewcode-block" id="ase_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.ase_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">ase_atoms_to_gpumd</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">gpumd_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">sort_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">type_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts ASE atoms to GPUMD compatible position file</span>
 
@@ -374,7 +374,7 @@
 <span class="sd">        sort_key (str):</span>
 <span class="sd">            How to sort atoms (&#39;group&#39;, &#39;type&#39;). Default is None.</span>
 
-<span class="sd">        type_order (list(str)):</span>
+<span class="sd">        atom_order (list(str)):</span>
 <span class="sd">            List of atomic symbols in order to be listed in GPUMD xyz file.</span>
 <span class="sd">            Default is None</span>
 
