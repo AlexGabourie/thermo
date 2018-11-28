@@ -269,7 +269,7 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
             type_ = [type_dict[atom.symbol], atom.tag, atom.mass] + list(atom.position)
             f.writelines(' '.join([str(val) for val in type_]) + '\n')
         # Last line
-        atom = atoms[-1]
+        atom = atoms_list[-1]
         type_ = [type_dict[atom.symbol], atom.tag, atom.mass] + list(atom.position)
         f.writelines(' '.join([str(val) for val in type_]))
     return
