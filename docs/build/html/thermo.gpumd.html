@@ -353,7 +353,7 @@ numbers/types</dd>
 
 <dl class="function">
 <dt id="thermo.gpumd.io.load_traj">
-<code class="descclassname">thermo.gpumd.io.</code><code class="descname">load_traj</code><span class="sig-paren">(</span><em>traj_file='xyz.out'</em>, <em>in_file='xyz.in'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#load_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.load_traj" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">load_traj</code><span class="sig-paren">(</span><em>traj_file='xyz.out'</em>, <em>in_file='xyz.in'</em>, <em>atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#load_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.load_traj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the trajectory from GPUMD run and creates a list of ASE atoms.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -363,6 +363,8 @@ numbers/types</dd>
 <dt>in_file (str):</dt>
 <dd>Name of the original structure input file. Needed to get atom
 type, mass, etc</dd>
+<dt>atom_types (list(str)):</dt>
+<dd>List of atom types (elements).</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>

@@ -86,6 +86,9 @@ def load_traj(traj_file='xyz.out', in_file='xyz.in', atom_types=None):
             Name of the original structure input file. Needed to get atom
             type, mass, etc
 
+        atom_types (list(str)):
+            List of atom types (elements).
+
     Returns:
         traj (list(ase.Atoms)):
             A list of ASE atoms objects.
