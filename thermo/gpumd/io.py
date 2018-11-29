@@ -74,7 +74,7 @@ def __set_atoms(atoms, types):
     for atom in atoms:
         atom.symbol = types[atom.number]
 
-def load_traj(traj_file='xyz.out', in_file='xyz.in'):
+def load_traj(traj_file='xyz.out', in_file='xyz.in', atom_types=None):
     """
     Reads the trajectory from GPUMD run and creates a list of ASE atoms.
 
@@ -94,7 +94,7 @@ def load_traj(traj_file='xyz.out', in_file='xyz.in'):
     with open(traj_file, 'r') as f:
         xyz_lines = f.readlines()
 
-    atoms_in, M, cutoff = load_xyz(in_file)
+    atoms_in, M, cutoff = load_xyz(in_file, atom_types)
     N = len(atoms_in)
 
     num_frames = len(xyz_lines)/float(N)
