@@ -8,6 +8,8 @@ Installation Notes:
 Use the following command:
 
 pip install git+ssh://git@github.com/AlexGabourie/thermo.git
+or
+pip install git+https://github.com/AlexGabourie/thermo.git
 
 This should install all of the dependencies and the thermo package in the virtual environment.
 
