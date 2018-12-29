@@ -142,6 +142,7 @@
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="k">import</span> <span class="n">trapz</span>
+<span class="kn">from</span> <span class="nn">data</span> <span class="k">import</span> <span class="n">load_shc_out</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
@@ -167,6 +168,78 @@
     <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">kappa</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
         <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">t</span><span class="o">*</span><span class="n">trapz</span><span class="p">(</span><span class="n">kappa</span><span class="p">[:</span><span class="n">i</span><span class="p">],</span> <span class="n">time</span><span class="p">[:</span><span class="n">i</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="hnemd_spectral_decomp"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.calc.hnemd_spectral_decomp">[docs]</a><span class="k">def</span> <span class="nf">hnemd_spectral_decomp</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">Nc</span><span class="p">,</span> <span class="n">Fmax</span><span class="p">,</span> <span class="n">Fe</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">Nc_conv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">shc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the spectral decomposition from HNEMD between two groups</span>
+<span class="sd">    of atoms.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dt (float):</span>
+<span class="sd">            Sample period (in fs) of SHC method</span>
+
+<span class="sd">        Nc (int):</span>
+<span class="sd">            Maximum number of correlation steps</span>
+
+<span class="sd">        Fmax (float):</span>
+<span class="sd">            Maximum frequency (THz) to compute spectral decomposition to</span>
+
+<span class="sd">        Fe (float):</span>
+<span class="sd">            HNEMD force in (1/A)</span>
+
+<span class="sd">        T (float):</span>
+<span class="sd">            HNEMD run temperature (in K)</span>
+
+<span class="sd">        A (float):</span>
+<span class="sd">            Area (nm^2) that heat flows over</span>
+
+<span class="sd">        Nc_conv (int):</span>
+<span class="sd">            Number of correlations steps to use for calculation</span>
+
+<span class="sd">        shc (dict):</span>
+<span class="sd">            Dictionary from load_shc_out if already created</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load &#39;shc.out&#39; file from (dir. of simulation)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (dict):</span>
+<span class="sd">            Dictionary with the spectral decomposition</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">shc</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
+        <span class="n">shc</span> <span class="o">=</span> <span class="n">load_shc_out</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">directory</span><span class="p">)</span>
+
+    <span class="n">dt_in_ps</span> <span class="o">=</span> <span class="n">dt</span><span class="o">/</span><span class="mf">1000.</span> <span class="c1"># ps</span>
+    <span class="n">nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">Fmax</span><span class="o">+</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Nc_conv</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Nc</span> <span class="o">=</span> <span class="n">Nc_conv</span>
+
+    <span class="n">ki</span> <span class="o">=</span> <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;shc_in&#39;</span><span class="p">]</span>
+    <span class="n">ko</span> <span class="o">=</span> <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;shc_out&#39;</span><span class="p">]</span>
+
+    <span class="n">hann</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nc_conv</span><span class="p">)</span><span class="o">/</span><span class="n">Nc_conv</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mf">0.5</span>
+    <span class="n">ki</span> <span class="o">=</span> <span class="p">(</span><span class="n">ki</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">Nc</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">Nc</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">hann</span>
+    <span class="n">ko</span> <span class="o">=</span> <span class="p">(</span><span class="n">ko</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">Nc</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">Nc</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">hann</span>
+
+    <span class="n">qi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nu</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">qo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nu</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nu</span><span class="p">):</span>
+        <span class="n">qi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">dt_in_ps</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ki</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nc_conv</span><span class="p">)</span><span class="o">*</span><span class="n">dt_in_ps</span><span class="p">))</span>
+        <span class="n">qo</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">dt_in_ps</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ko</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nc_conv</span><span class="p">)</span><span class="o">*</span><span class="n">dt_in_ps</span><span class="p">))</span>
+
+    <span class="n">convert</span> <span class="o">=</span> <span class="mf">16.0217662</span>
+    <span class="n">ki</span> <span class="o">=</span> <span class="n">convert</span><span class="o">*</span><span class="n">qi</span><span class="o">/</span><span class="n">A</span><span class="o">/</span><span class="n">T</span><span class="o">/</span><span class="n">Fe</span>
+    <span class="n">ko</span> <span class="o">=</span> <span class="n">convert</span><span class="o">*</span><span class="n">qo</span><span class="o">/</span><span class="n">A</span><span class="o">/</span><span class="n">T</span><span class="o">/</span><span class="n">Fe</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;ki&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ki</span>
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;ko&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ko</span>
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nu</span>
     <span class="k">return</span> <span class="n">out</span></div>
 </pre></div>
 
@@ -205,6 +278,7 @@
         <script type="text/javascript" src="../../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
     
 
   

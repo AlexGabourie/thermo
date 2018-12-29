@@ -8,6 +8,46 @@ __email__ = "gabourie@stanford.edu"
 # Data-loading Related
 #########################################
 
+def load_shc_out(Nc, directory=''):
+    """
+    Loads the data from shc.out GPUMD output file
+
+    Args:
+        Nc (int):
+            Maximum number of correlation steps
+
+        directory (str):
+            Directory to load 'shc.out' file from (dir. of simulation)
+
+    Returns:
+        out (dict):
+            Dictionary of in- and out-of-plane shc results (average)
+    """
+    if directory=='':
+        shc_path = os.path.join(os.getcwd(),'shc.out')
+    else:
+        shc_path = os.path.join(directory,'shc.out')
+
+    with open(shc_path, 'r') as f:
+        lines = f.readlines()
+
+    shc = np.zeros((len(lines), 2))
+    for i, line in enumerate(lines):
+        data = line.split()
+        shc[i, 0] = float(data[0])
+        shc[i, 1] = float(data[1])
+
+    Ns = shc.shape[0]/Nc
+    shc_in = np.reshape(shc[:,0], (Ns, Nc))
+    shc_out = np.reshape(shc[:,1], (Ns, Nc))
+    shc_in = np.mean(shc_in,0)*1000./10.18 # eV/ps
+    shc_out = np.mean(shc_out,0)*1000./10.18
+
+    out = dict()
+    out['shc_in'] = shc_in
+    out['shc_out'] = shc_out
+    return out
+
 def load_kappa_output(directory=''):
     """
     Loads data from kappa.out GPUMD output file which contains HNEMD kappa
