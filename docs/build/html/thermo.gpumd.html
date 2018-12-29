@@ -159,6 +159,43 @@
 <div class="section" id="module-thermo.gpumd.calc">
 <span id="thermo-gpumd-calc-module"></span><h2>thermo.gpumd.calc module<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="thermo.gpumd.calc.hnemd_spectral_decomp">
+<code class="descclassname">thermo.gpumd.calc.</code><code class="descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em>dt</em>, <em>Nc</em>, <em>Fmax</em>, <em>Fe</em>, <em>T</em>, <em>A</em>, <em>Nc_conv=None</em>, <em>shc=None</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_decomp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the spectral decomposition from HNEMD between two groups
+of atoms.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>dt (float):</dt>
+<dd>Sample period (in fs) of SHC method</dd>
+<dt>Nc (int):</dt>
+<dd>Maximum number of correlation steps</dd>
+<dt>Fmax (float):</dt>
+<dd>Maximum frequency (THz) to compute spectral decomposition to</dd>
+<dt>Fe (float):</dt>
+<dd>HNEMD force in (1/A)</dd>
+<dt>T (float):</dt>
+<dd>HNEMD run temperature (in K)</dd>
+<dt>A (float):</dt>
+<dd>Area (nm^2) that heat flows over</dd>
+<dt>Nc_conv (int):</dt>
+<dd>Number of correlations steps to use for calculation</dd>
+<dt>shc (dict):</dt>
+<dd>Dictionary from load_shc_out if already created</dd>
+<dt>directory (str):</dt>
+<dd>Directory to load ‘shc.out’ file from (dir. of simulation)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict):</dt>
+<dd>Dictionary with the spectral decomposition</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="thermo.gpumd.calc.running_ave">
 <code class="descclassname">thermo.gpumd.calc.</code><code class="descname">running_ave</code><span class="sig-paren">(</span><em>kappa</em>, <em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#running_ave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.running_ave" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets running average</p>
@@ -254,6 +291,28 @@ with some additional keys for aggregated values (see description)</dd>
 <dd><dl class="first last docutils">
 <dt>out (dict):</dt>
 <dd>A dictionary with keys corresponding to the columns in ‘kappa.out’</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_shc_out">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_shc_out</code><span class="sig-paren">(</span><em>Nc</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_shc_out"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_shc_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data from shc.out GPUMD output file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>Nc (int):</dt>
+<dd>Maximum number of correlation steps</dd>
+<dt>directory (str):</dt>
+<dd>Directory to load ‘shc.out’ file from (dir. of simulation)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict):</dt>
+<dd>Dictionary of in- and out-of-plane shc results (average)</dd>
 </dl>
 </dd>
 </dl>
@@ -476,6 +535,7 @@ box in specified direction and the last the upper.</dd>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
 
   
