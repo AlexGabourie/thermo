@@ -28,7 +28,7 @@ def load_shc_out(Nc, directory=''):
     else:
         shc_path = os.path.join(directory,'shc.out')
 
-    with open('shc.out', 'r') as f:
+    with open(shc_path, 'r') as f:
         lines = f.readlines()
 
     shc = np.zeros((len(lines), 2))
