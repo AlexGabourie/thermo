@@ -2,6 +2,7 @@ from ase.io import write
 from ase.io import read
 from ase import Atom, Atoms
 from math import floor
+import numpy as np
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
