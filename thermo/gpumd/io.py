@@ -206,17 +206,17 @@ def load_xyz(filename='xyz.in', atom_types=None):
 
     return atoms, M, cutoff
 
-def load_traj(traj_file='xyz.out', in_file='xyz.in', atom_types=None):
+def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
     """
     Reads the trajectory from GPUMD run and creates a list of ASE atoms.
 
     Args:
-        traj_file (str):
-            Name of the file that hold the GPUMD trajectory
+        filename (str):
+            Name of the file that holds the GPUMD trajectory.
 
         in_file (str):
-            Name of the original structure input file. Needed to get atom
-            type, mass, etc
+            Name of the original structure input file. Not required, but
+            can help load extra information not included in trajectory output.
 
         atom_types (list(str)):
             List of atom types (elements).
@@ -225,27 +225,38 @@ def load_traj(traj_file='xyz.out', in_file='xyz.in', atom_types=None):
         traj (list(ase.Atoms)):
             A list of ASE atoms objects.
     """
-    # read trajectory file
-    with open(traj_file, 'r') as f:
-        xyz_lines = f.readlines()
+    # get extra information about system if wanted
+    if in_file:
+        atoms, _, _ = load_xyz(in_file,atom_types)
+        pbc = atoms.get_pbc()
+    else:
+        pbc = None
 
-    atoms_in, M, cutoff = load_xyz(in_file, atom_types)
-    N = len(atoms_in)
+    with open(filename, 'r') as f:
+        xyz_line = f.readlines()
 
-    num_frames = len(xyz_lines)/float(N)
-    if not (num_frames == floor(num_frames)):
-        print('load_traj warning: Non-integer number of frames base on number of atoms.' +
-              ' Only taking {} frames'.format(floor(num_frames)))
+        num_atoms = int(xyz_line[0])
+        block_size = num_atoms + 2
+        num_blocks = len(xyz_line)/block_size
+        traj = list()
+        for block in range(num_blocks):
+            types = []
+            positions = []
+            ## TODO Loop may be inefficient in accessing xyz_line
+            for entry in xyz_line[block_size*block+2:block_size*(block+1)]:
+                # type_ can be an atom number or index to atom_types
+                type_, x, y, z = entry.split()[:4]
+                positions.append([float(x), float(y), float(z)])
+                if atom_types:
+                    types.append(atom_types[int(type_)])
+                else:
+                    types.append(int(type_))
+            if atom_types:
+                traj.append(Atoms(symbols=types, positions=positions, pbc=pbc))
+            else:
+                traj.append(Atoms(numbers=types, positions=positions, pbc=pbc))
+        return traj
 
-    num_frames = int(floor(num_frames))
-    traj = list()
-    for frame in range(num_frames):
-        for i, line in enumerate(xyz_lines[frame*N:(frame+1)*N]):
-            curr_atom = atoms_in[i]
-            curr_atom.position = tuple([float(val) for val in line.split()])
-        traj.append(atoms_in.copy())
-
-    return traj
 
 #########################################
 # Write Related
@@ -276,7 +287,7 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
     write(out_filename, atoms, format)
     return
 
-def convert_gpumd_traj(traj_file='xyz.out', out_filename='out.xyz',
+def convert_gpumd_trajectory(traj_file='xyz.out', out_filename='out.xyz',
                        in_file='xyz.in', format='xyz'):
     """
     Converts GPUMD trajectory to any compatible ASE output. Default: xyz
