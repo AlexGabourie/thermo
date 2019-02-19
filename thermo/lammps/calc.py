@@ -9,9 +9,11 @@ from math import floor
 from data import extract_dt
 import scipy.io as sio
 
+__author__ = "Alexander Gabourie"
+__email__ = "gabourie@stanford.edu"
 
 def get_heat_flux(**kwargs):
-    """
+    '''
     Gets the heat flux from a LAMMPS EMD simulation. Creates a compressed .mat
     file if only in text form. Loads .mat form if exists.
 
@@ -36,7 +38,7 @@ def get_heat_flux(**kwargs):
         - Jz (list)
         - rate (float)
 
-    """
+    '''
     original_dir = os.getcwd()
 
     try:
@@ -87,7 +89,7 @@ def get_heat_flux(**kwargs):
         print(sys.exc_info()[0])
 
 def get_GKTC(**kwargs):
-    """
+    '''
     Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
     thermal conductivity vector and time vector.
     Assumptions with no info given by user:
@@ -148,7 +150,7 @@ def get_GKTC(**kwargs):
         - jyjy (ndarray): y-direction heat flux autocorrelation
         - jzjz (ndarray): z-direction heat flux autocorrelation
 
-    """
+    '''
 
     original_dir = os.getcwd()
 

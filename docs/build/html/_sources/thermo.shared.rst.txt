@@ -1,10 +1,11 @@
-thermo.shared package
+shared
 =====================
 
-Submodules
-----------
+..
+	Submodules
+	----------
 
-thermo.shared.force module
+Force Comparison - force
 --------------------------
 
 .. automodule:: thermo.shared.force
@@ -12,11 +13,11 @@ thermo.shared.force module
     :undoc-members:
     :show-inheritance:
 
+..
+	Module contents
+	---------------
 
-Module contents
----------------
-
-.. automodule:: thermo.shared
-    :members:
-    :undoc-members:
-    :show-inheritance:
+	.. automodule:: thermo.shared
+	    :members:
+	    :undoc-members:
+	    :show-inheritance:

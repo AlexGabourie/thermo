@@ -76,8 +76,11 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Documentation</a></li>
+</ul>
+
             
           
         </div>
@@ -150,9 +153,11 @@
 <span class="kn">from</span> <span class="nn">data</span> <span class="k">import</span> <span class="n">extract_dt</span>
 <span class="kn">import</span> <span class="nn">scipy.io</span> <span class="k">as</span> <span class="nn">sio</span>
 
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
 <div class="viewcode-block" id="get_heat_flux"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.get_heat_flux">[docs]</a><span class="k">def</span> <span class="nf">get_heat_flux</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Gets the heat flux from a LAMMPS EMD simulation. Creates a compressed .mat</span>
 <span class="sd">    file if only in text form. Loads .mat form if exists.</span>
 
@@ -177,7 +182,7 @@
 <span class="sd">        - Jz (list)</span>
 <span class="sd">        - rate (float)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">original_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -228,7 +233,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="get_GKTC"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.get_GKTC">[docs]</a><span class="k">def</span> <span class="nf">get_GKTC</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.</span>
 <span class="sd">    thermal conductivity vector and time vector.</span>
 <span class="sd">    Assumptions with no info given by user:</span>
@@ -289,7 +294,7 @@
 <span class="sd">        - jyjy (ndarray): y-direction heat flux autocorrelation</span>
 <span class="sd">        - jzjz (ndarray): z-direction heat flux autocorrelation</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">original_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
 

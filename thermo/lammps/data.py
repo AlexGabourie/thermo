@@ -2,6 +2,9 @@ import os
 import re
 import sys
 
+__author__ = "Alexander Gabourie"
+__email__ = "gabourie@stanford.edu"
+
 def get_sim_dimensions(lammpstrj_file):
     '''
     Reads a LAMMPS trajectory file and extracts simulation dimensions.

@@ -2,6 +2,8 @@ from ase.io import read
 import atomman
 from ase import Atom, Atoms
 
+__author__ = "Alexander Gabourie"
+__email__ = "gabourie@stanford.edu"
 
 def ase_atoms_to_lammps(atoms, out_file='atoms.data', add_masses = True):
     """
@@ -11,7 +13,7 @@ def ase_atoms_to_lammps(atoms, out_file='atoms.data', add_masses = True):
         atoms (ase.Atoms):
             Atoms to write to lammps data file
 
-        gpumd_file (str): 
+        gpumd_file (str):
             File to save the structure data to
 
     """

@@ -1,10 +1,11 @@
-thermo.gpumd package
+gpumd
 ====================
 
-Submodules
-----------
+.. 
+    Submodules
+    ----------
 
-thermo.gpumd.calc module
+Calculations - calc
 ------------------------
 
 .. automodule:: thermo.gpumd.calc
@@ -12,7 +13,7 @@ thermo.gpumd.calc module
     :undoc-members:
     :show-inheritance:
 
-thermo.gpumd.data module
+Data Loaders - data
 ------------------------
 
 .. automodule:: thermo.gpumd.data
@@ -20,7 +21,7 @@ thermo.gpumd.data module
     :undoc-members:
     :show-inheritance:
 
-thermo.gpumd.io module
+Input/Output - io 
 ----------------------
 
 .. automodule:: thermo.gpumd.io
@@ -28,7 +29,7 @@ thermo.gpumd.io module
     :undoc-members:
     :show-inheritance:
 
-thermo.gpumd.preproc module
+Preprocessing - preproc 
 ---------------------------
 
 .. automodule:: thermo.gpumd.preproc
@@ -37,10 +38,11 @@ thermo.gpumd.preproc module
     :show-inheritance:
 
 
-Module contents
----------------
+.. 
+    Module contents
+    ---------------
 
-.. automodule:: thermo.gpumd
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    .. automodule:: thermo.gpumd
+        :members:
+        :undoc-members:
+        :show-inheritance:

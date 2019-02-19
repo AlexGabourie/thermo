@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>thermo.gpumd package &mdash; thermoMD  documentation</title>
+  <title>gpumd &mdash; thermoMD  documentation</title>
   
 
   
@@ -27,7 +27,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="lammps" href="thermo.lammps.html" />
+    <link rel="prev" title="thermo" href="thermo.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -76,19 +78,25 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">thermo.gpumd package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-thermo.gpumd.calc">thermo.gpumd.calc module</a></li>
-<li><a class="reference internal" href="#module-thermo.gpumd.data">thermo.gpumd.data module</a></li>
-<li><a class="reference internal" href="#module-thermo.gpumd.io">thermo.gpumd.io module</a></li>
-<li><a class="reference internal" href="#module-thermo.gpumd.preproc">thermo.gpumd.preproc module</a></li>
-<li><a class="reference internal" href="#module-thermo.gpumd">Module contents</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="thermo.html">thermo</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gpumd</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-thermo.gpumd.calc">Calculations - calc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-thermo.gpumd.data">Data Loaders - data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-thermo.gpumd.io">Input/Output - io</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-thermo.gpumd.preproc">Preprocessing - preproc</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="thermo.lammps.html">lammps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="thermo.shared.html">shared</a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+</ul>
+
             
           
         </div>
@@ -132,7 +140,11 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>thermo.gpumd package</li>
+          <li><a href="modules.html">Documentation</a> &raquo;</li>
+        
+          <li><a href="thermo.html">thermo</a> &raquo;</li>
+        
+      <li>gpumd</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -151,13 +163,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="thermo-gpumd-package">
-<h1>thermo.gpumd package<a class="headerlink" href="#thermo-gpumd-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
+  <div class="section" id="gpumd">
+<h1>gpumd<a class="headerlink" href="#gpumd" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-thermo.gpumd.calc">
-<span id="thermo-gpumd-calc-module"></span><h2>thermo.gpumd.calc module<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
+<span id="calculations-calc"></span><h2>Calculations - calc<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.calc.hnemd_spectral_decomp">
 <code class="descclassname">thermo.gpumd.calc.</code><code class="descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em>dt</em>, <em>Nc</em>, <em>Fmax</em>, <em>Fe</em>, <em>T</em>, <em>A</em>, <em>Nc_conv=None</em>, <em>shc=None</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_decomp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
@@ -220,7 +229,7 @@ of atoms.</p>
 
 </div>
 <div class="section" id="module-thermo.gpumd.data">
-<span id="thermo-gpumd-data-module"></span><h2>thermo.gpumd.data module<a class="headerlink" href="#module-thermo.gpumd.data" title="Permalink to this headline">¶</a></h2>
+<span id="data-loaders-data"></span><h2>Data Loaders - data<a class="headerlink" href="#module-thermo.gpumd.data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.data.load_hac_output">
 <code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_hac_output</code><span class="sig-paren">(</span><em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac_output" title="Permalink to this definition">¶</a></dt>
@@ -320,7 +329,7 @@ with some additional keys for aggregated values (see description)</dd>
 
 </div>
 <div class="section" id="module-thermo.gpumd.io">
-<span id="thermo-gpumd-io-module"></span><h2>thermo.gpumd.io module<a class="headerlink" href="#module-thermo.gpumd.io" title="Permalink to this headline">¶</a></h2>
+<span id="input-output-io"></span><h2>Input/Output - io<a class="headerlink" href="#module-thermo.gpumd.io" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.io.ase_atoms_to_gpumd">
 <code class="descclassname">thermo.gpumd.io.</code><code class="descname">ase_atoms_to_gpumd</code><span class="sig-paren">(</span><em>atoms</em>, <em>M</em>, <em>cutoff</em>, <em>gpumd_file='xyz.in'</em>, <em>sort_key=None</em>, <em>atom_order=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#ase_atoms_to_gpumd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.ase_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
@@ -466,7 +475,7 @@ correspond to correct atomic symbol</dd>
 
 </div>
 <div class="section" id="module-thermo.gpumd.preproc">
-<span id="thermo-gpumd-preproc-module"></span><h2>thermo.gpumd.preproc module<a class="headerlink" href="#module-thermo.gpumd.preproc" title="Permalink to this headline">¶</a></h2>
+<span id="preprocessing-preproc"></span><h2>Preprocessing - preproc<a class="headerlink" href="#module-thermo.gpumd.preproc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.preproc.add_group_by_position">
 <code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">add_group_by_position</code><span class="sig-paren">(</span><em>split</em>, <em>atoms</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_position" title="Permalink to this definition">¶</a></dt>
@@ -575,7 +584,7 @@ starting at 0 and increasing in steps of 1. Ex. range(0,10)</dd>
 <dl class="function">
 <dt id="thermo.gpumd.preproc.set_velocities">
 <code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">set_velocities</code><span class="sig-paren">(</span><em>atoms</em>, <em>custom=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#set_velocities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.set_velocities" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the ‘velocity’ part of the atoms to be used in GPUMD. 
+<dd><p>Sets the ‘velocity’ part of the atoms to be used in GPUMD.
 Custom velocities must be provided. They must also be in
 the units of eV^(1/2) amu^(-1/2)</p>
 <dl class="docutils">
@@ -592,9 +601,6 @@ a 3-element list for [vx, vy, vz]</dd>
 </dd></dl>
 
 </div>
-<div class="section" id="module-thermo.gpumd">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-thermo.gpumd" title="Permalink to this headline">¶</a></h2>
-</div>
 </div>
 
 
@@ -602,6 +608,15 @@ a 3-element list for [vx, vy, vz]</dd>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="thermo.lammps.html" class="btn btn-neutral float-right" title="lammps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="thermo.html" class="btn btn-neutral" title="thermo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

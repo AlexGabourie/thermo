@@ -76,8 +76,11 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Documentation</a></li>
+</ul>
+
             
           
         </div>
@@ -143,6 +146,8 @@
 <span class="kn">import</span> <span class="nn">atomman</span>
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atom</span><span class="p">,</span> <span class="n">Atoms</span>
 
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
 <div class="viewcode-block" id="ase_atoms_to_lammps"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.io.ase_atoms_to_lammps">[docs]</a><span class="k">def</span> <span class="nf">ase_atoms_to_lammps</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">out_file</span><span class="o">=</span><span class="s1">&#39;atoms.data&#39;</span><span class="p">,</span> <span class="n">add_masses</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -152,7 +157,7 @@
 <span class="sd">        atoms (ase.Atoms):</span>
 <span class="sd">            Atoms to write to lammps data file</span>
 
-<span class="sd">        gpumd_file (str): </span>
+<span class="sd">        gpumd_file (str):</span>
 <span class="sd">            File to save the structure data to</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>

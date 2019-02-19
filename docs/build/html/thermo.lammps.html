@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>thermo.lammps package &mdash; thermoMD  documentation</title>
+  <title>lammps &mdash; thermoMD  documentation</title>
   
 
   
@@ -27,7 +27,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="shared" href="thermo.shared.html" />
+    <link rel="prev" title="gpumd" href="thermo.gpumd.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -76,18 +78,24 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">thermo.lammps package</a><ul>
-<li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-thermo.lammps.calc">thermo.lammps.calc module</a></li>
-<li><a class="reference internal" href="#module-thermo.lammps.data">thermo.lammps.data module</a></li>
-<li><a class="reference internal" href="#module-thermo.lammps.io">thermo.lammps.io module</a></li>
-<li><a class="reference internal" href="#module-thermo.lammps">Module contents</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="thermo.html">thermo</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="thermo.gpumd.html">gpumd</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">lammps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-thermo.lammps.calc">Calculations - calc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-thermo.lammps.data">Data Loaders - data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-thermo.lammps.io">Input/Output - io</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="thermo.shared.html">shared</a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+</ul>
+
             
           
         </div>
@@ -131,7 +139,11 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>thermo.lammps package</li>
+          <li><a href="modules.html">Documentation</a> &raquo;</li>
+        
+          <li><a href="thermo.html">thermo</a> &raquo;</li>
+        
+      <li>lammps</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -150,13 +162,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="thermo-lammps-package">
-<h1>thermo.lammps package<a class="headerlink" href="#thermo-lammps-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
+  <div class="section" id="lammps">
+<h1>lammps<a class="headerlink" href="#lammps" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-thermo.lammps.calc">
-<span id="thermo-lammps-calc-module"></span><h2>thermo.lammps.calc module<a class="headerlink" href="#module-thermo.lammps.calc" title="Permalink to this headline">¶</a></h2>
+<span id="calculations-calc"></span><h2>Calculations - calc<a class="headerlink" href="#module-thermo.lammps.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.lammps.calc.autocorr">
 <code class="descclassname">thermo.lammps.calc.</code><code class="descname">autocorr</code><span class="sig-paren">(</span><em>f</em>, <em>max_lag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#autocorr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.autocorr" title="Permalink to this definition">¶</a></dt>
@@ -332,7 +341,7 @@ be used. Also used as filename for saved MATLAB file.</dd>
 
 </div>
 <div class="section" id="module-thermo.lammps.data">
-<span id="thermo-lammps-data-module"></span><h2>thermo.lammps.data module<a class="headerlink" href="#module-thermo.lammps.data" title="Permalink to this headline">¶</a></h2>
+<span id="data-loaders-data"></span><h2>Data Loaders - data<a class="headerlink" href="#module-thermo.lammps.data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.lammps.data.extract_dt">
 <code class="descclassname">thermo.lammps.data.</code><code class="descname">extract_dt</code><span class="sig-paren">(</span><em>log_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/data.html#extract_dt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.data.extract_dt" title="Permalink to this definition">¶</a></dt>
@@ -376,7 +385,7 @@ be used. Also used as filename for saved MATLAB file.</dd>
 
 </div>
 <div class="section" id="module-thermo.lammps.io">
-<span id="thermo-lammps-io-module"></span><h2>thermo.lammps.io module<a class="headerlink" href="#module-thermo.lammps.io" title="Permalink to this headline">¶</a></h2>
+<span id="input-output-io"></span><h2>Input/Output - io<a class="headerlink" href="#module-thermo.lammps.io" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.lammps.io.ase_atoms_to_lammps">
 <code class="descclassname">thermo.lammps.io.</code><code class="descname">ase_atoms_to_lammps</code><span class="sig-paren">(</span><em>atoms</em>, <em>out_file='atoms.data'</em>, <em>add_masses=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/io.html#ase_atoms_to_lammps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.io.ase_atoms_to_lammps" title="Permalink to this definition">¶</a></dt>
@@ -386,16 +395,13 @@ be used. Also used as filename for saved MATLAB file.</dd>
 <dd><dl class="first last docutils">
 <dt>atoms (ase.Atoms):</dt>
 <dd>Atoms to write to lammps data file</dd>
-<dt>gpumd_file (str): </dt>
+<dt>gpumd_file (str):</dt>
 <dd>File to save the structure data to</dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-thermo.lammps">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-thermo.lammps" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -404,6 +410,15 @@ be used. Also used as filename for saved MATLAB file.</dd>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="thermo.shared.html" class="btn btn-neutral float-right" title="shared" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="thermo.gpumd.html" class="btn btn-neutral" title="gpumd" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

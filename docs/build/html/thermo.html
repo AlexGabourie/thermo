@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>thermo package &mdash; thermoMD  documentation</title>
+  <title>thermo &mdash; thermoMD  documentation</title>
   
 
   
@@ -27,7 +27,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gpumd" href="thermo.gpumd.html" />
+    <link rel="prev" title="Documentation" href="modules.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -76,15 +78,19 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">thermo package</a><ul>
-<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
-<li><a class="reference internal" href="#module-thermo">Module contents</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">thermo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="thermo.gpumd.html">gpumd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="thermo.lammps.html">lammps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="thermo.shared.html">shared</a></li>
 </ul>
 </li>
 </ul>
-</div>
+</li>
+</ul>
+
             
           
         </div>
@@ -128,7 +134,9 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>thermo package</li>
+          <li><a href="modules.html">Documentation</a> &raquo;</li>
+        
+      <li>thermo</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,40 +155,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="thermo-package">
-<h1>thermo package<a class="headerlink" href="#thermo-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="thermo">
+<h1>thermo<a class="headerlink" href="#thermo" title="Permalink to this headline">¶</a></h1>
+<div class="line-block">
+<div class="line">This package contains three subpackages:</div>
+<div class="line">1. <strong>gpumd</strong> : Python interface specific to <a class="reference external" href="https://github.com/brucefan1983/GPUMD">GPUMD</a>.</div>
+<div class="line">2. <strong>lammps</strong> : Python interface specific to <a class="reference external" href="https://lammps.sandia.gov/">LAMMPS</a>.</div>
+<div class="line">3. <strong>shared</strong> : Used strictly to compare <a class="reference external" href="https://github.com/brucefan1983/GPUMD">GPUMD</a> and <a class="reference external" href="https://lammps.sandia.gov/">LAMMPS</a>.</div>
+</div>
+<div class="line-block">
+<div class="line">Each subpackage has multiple corresponding modules. They will be listed as:</div>
+<div class="line">&lt;short description&gt; - &lt;module name&gt;</div>
+</div>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="thermo.gpumd.html">thermo.gpumd package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.calc">thermo.gpumd.calc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.data">thermo.gpumd.data module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.io">thermo.gpumd.io module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.preproc">thermo.gpumd.preproc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.gpumd.html">gpumd</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.calc">Calculations - calc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.data">Data Loaders - data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.io">Input/Output - io</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.preproc">Preprocessing - preproc</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="thermo.lammps.html">thermo.lammps package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.calc">thermo.lammps.calc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.data">thermo.lammps.data module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.io">thermo.lammps.io module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.lammps.html">lammps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.calc">Calculations - calc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.data">Data Loaders - data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.io">Input/Output - io</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="thermo.shared.html">thermo.shared package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="thermo.shared.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.shared.html#module-thermo.shared.force">thermo.shared.force module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="thermo.shared.html#module-thermo.shared">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.shared.html">shared</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="thermo.shared.html#module-thermo.shared.force">Force Comparison - force</a></li>
 </ul>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-thermo">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-thermo" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -189,6 +195,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="thermo.gpumd.html" class="btn btn-neutral float-right" title="gpumd" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules.html" class="btn btn-neutral" title="Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

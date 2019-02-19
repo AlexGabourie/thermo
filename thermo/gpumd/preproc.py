@@ -245,7 +245,7 @@ def assign_layer_by_type(atoms, layers):
 
 def set_velocities(atoms, custom=None):
     """
-    Sets the 'velocity' part of the atoms to be used in GPUMD. 
+    Sets the 'velocity' part of the atoms to be used in GPUMD.
     Custom velocities must be provided. They must also be in
     the units of eV^(1/2) amu^(-1/2)
 

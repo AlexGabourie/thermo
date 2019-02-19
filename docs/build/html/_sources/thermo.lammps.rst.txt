@@ -1,10 +1,14 @@
-thermo.lammps package
+lammps
 =====================
 
-Submodules
-----------
+..
+    Submodules
+    ----------
 
-thermo.lammps.calc module
+    thermo.lammps.calc module
+    -------------------------
+
+Calculations - calc
 -------------------------
 
 .. automodule:: thermo.lammps.calc
@@ -12,7 +16,7 @@ thermo.lammps.calc module
     :undoc-members:
     :show-inheritance:
 
-thermo.lammps.data module
+Data Loaders - data
 -------------------------
 
 .. automodule:: thermo.lammps.data
@@ -20,7 +24,7 @@ thermo.lammps.data module
     :undoc-members:
     :show-inheritance:
 
-thermo.lammps.io module
+Input/Output - io
 -----------------------
 
 .. automodule:: thermo.lammps.io
@@ -28,11 +32,11 @@ thermo.lammps.io module
     :undoc-members:
     :show-inheritance:
 
+..
+    Module contents
+    ---------------
 
-Module contents
----------------
-
-.. automodule:: thermo.lammps
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    .. automodule:: thermo.lammps
+        :members:
+        :undoc-members:
+        :show-inheritance:
