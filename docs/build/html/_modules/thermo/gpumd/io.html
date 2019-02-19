@@ -143,10 +143,132 @@
 <span class="kn">from</span> <span class="nn">ase.io</span> <span class="k">import</span> <span class="n">read</span>
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atom</span><span class="p">,</span> <span class="n">Atoms</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
+<span class="c1">#########################################</span>
+<span class="c1"># Helper Functions</span>
+<span class="c1">#########################################</span>
+
+<span class="k">def</span> <span class="nf">__get_atom_line</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">type_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Constructs an atom&#39;s line in an xyz.in file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atom (ase.Atom):</span>
+<span class="sd">            Atom object to write to file.</span>
+
+<span class="sd">        velocity (bool):</span>
+<span class="sd">            If velocities need to be added.</span>
+
+<span class="sd">        layer (bool):</span>
+<span class="sd">            If the layer number needs to be added.</span>
+
+<span class="sd">        groups (bool):</span>
+<span class="sd">            If the groups need to be added.</span>
+
+<span class="sd">        type_dict (dict):</span>
+<span class="sd">            Dictionary to convert symbol to type number.</span>
+
+<span class="sd">        info (dict):</span>
+<span class="sd">            Dictionary that stores all velocity, layer, and groups data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (str)</span>
+<span class="sd">            The line to be printed to file.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">option</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="n">required</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">type_dict</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">])]</span> <span class="o">+</span> \
+                    <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">position</span><span class="p">)]</span> <span class="o">+</span> \
+                    <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">mass</span><span class="p">)])</span>
+    <span class="n">optional</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
+        <span class="n">optional</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="n">layer</span><span class="p">:</span>
+        <span class="n">optional</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="n">optional</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">required</span> <span class="o">+</span> <span class="n">optional</span>
+
+<span class="k">def</span> <span class="nf">__set_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the atom symbols for atoms loaded from GPUMD where in.xyz does not</span>
+<span class="sd">    contain that information</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atoms (ase.Atoms):</span>
+<span class="sd">            Atoms object to change symbols in</span>
+
+<span class="sd">        types (list(str)):</span>
+<span class="sd">            List of strings to assign to atomic symbols</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+        <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">types</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">number</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">__atom_type_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used as a key for sorting atom type for GPUMD in.xyz files</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atom (ase.Atom):</span>
+<span class="sd">            Atom object</span>
+
+<span class="sd">        atom_order (list(str)):</span>
+<span class="sd">            A list of atomic symbol strings in the desired order.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">atom_order</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_order</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sym</span> <span class="o">==</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;type sortkey error: Missing atom_order.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">__atom_group_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used as a key for sorting atom groups for GPUMD in.xyz files</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atom (ase.Atom):</span>
+<span class="sd">            Atom object</span>
+
+<span class="sd">        info (dict):</span>
+<span class="sd">            Info dictionary for Atoms object that &#39;atom&#39; belongs to. Stores velocity,</span>
+<span class="sd">            groups, &amp; layer information</span>
+
+<span class="sd">        group_index (int):</span>
+<span class="sd">            Index of the grouping list that is part of the &#39;groups&#39; key for the atom.index</span>
+<span class="sd">            element from the info dictionary.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">group_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">][</span><span class="n">group_index</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;group sortkey error: Missing either info or group_index.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<span class="k">def</span> <span class="nf">__atom_layer_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used as a key for sorting atom layers for GPUMD in.xyz files</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atom (ase.Atom):</span>
+<span class="sd">            Atom object</span>
+
+<span class="sd">        info (dict):</span>
+<span class="sd">            Info dictionary for Atoms object that &#39;atom&#39; belongs to. Stores velocity,</span>
+<span class="sd">            groups, &amp; layer information</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;layer sortkey error: Missing info.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
 
 <span class="c1">#########################################</span>
 <span class="c1"># Read Related</span>
@@ -179,53 +301,63 @@
         <span class="n">xyz_lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
     <span class="c1"># get global structure params</span>
-    <span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-    <span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span>
-    <span class="n">pbc_x</span><span class="p">,</span> <span class="n">pbc_y</span><span class="p">,</span> <span class="n">pbc_z</span><span class="p">,</span> <span class="n">L_x</span><span class="p">,</span> <span class="n">L_y</span><span class="p">,</span> <span class="n">L_z</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-    <span class="n">pbc_x</span><span class="p">,</span> <span class="n">pbc_y</span><span class="p">,</span> <span class="n">pbc_z</span><span class="p">,</span> <span class="n">L_x</span><span class="p">,</span> <span class="n">L_y</span><span class="p">,</span> <span class="n">L_z</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pbc_x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pbc_y</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pbc_z</span><span class="p">),</span> \
-                                            <span class="nb">float</span><span class="p">(</span><span class="n">L_x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">L_y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">L_z</span><span class="p">)</span>
+    <span class="n">l1</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="c1"># first line</span>
+    <span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">use_triclinic</span><span class="p">,</span> <span class="n">has_velocity</span><span class="p">,</span> \
+        <span class="n">has_layer</span><span class="p">,</span> <span class="n">num_of_groups</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">l1</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">l1</span><span class="p">[</span><span class="mi">3</span><span class="p">:]]</span>
+    <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l1</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">l2</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="c1"># second line</span>
+    <span class="k">if</span> <span class="n">use_triclinic</span><span class="p">:</span>
+        <span class="n">pbc</span><span class="p">,</span> <span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">l2</span><span class="p">[:</span><span class="mi">3</span><span class="p">]],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">l2</span><span class="p">[</span><span class="mi">3</span><span class="p">:]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pbc</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">l2</span><span class="p">[:</span><span class="mi">3</span><span class="p">]],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">l2</span><span class="p">[</span><span class="mi">3</span><span class="p">:]]</span>
 
     <span class="c1"># get atomic params</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">atoms</span> <span class="o">=</span> <span class="n">Atoms</span><span class="p">()</span>
-    <span class="n">atoms</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">((</span><span class="n">pbc_x</span><span class="p">,</span> <span class="n">pbc_y</span><span class="p">,</span> <span class="n">pbc_z</span><span class="p">))</span>
-    <span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="n">L_x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L_z</span><span class="p">)])</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">xyz_lines</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
-        <span class="n">type_</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
-        <span class="n">atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Atom</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">type_</span><span class="p">),</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">)),</span>
-                          <span class="n">tag</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">),</span> <span class="n">mass</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">mass</span><span class="p">)))</span>
+    <span class="n">atoms</span><span class="o">.</span><span class="n">set_pbc</span><span class="p">((</span><span class="n">pbc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pbc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pbc</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="k">if</span> <span class="n">use_triclinic</span><span class="p">:</span>
+        <span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">atoms</span><span class="o">.</span><span class="n">set_cell</span><span class="p">([(</span><span class="n">L</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">[</span><span class="mi">2</span><span class="p">])])</span>
 
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">2</span><span class="p">:]):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">lc</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="c1"># current line</span>
+        <span class="n">type_</span><span class="p">,</span> <span class="n">mass</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">lc</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">lc</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]]</span>
+        <span class="n">atom</span> <span class="o">=</span> <span class="n">Atom</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="n">mass</span><span class="p">)</span>
+        <span class="n">lc</span> <span class="o">=</span> <span class="n">lc</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span> <span class="c1"># reduce list length for easier indexing</span>
+        <span class="k">if</span> <span class="n">has_velocity</span><span class="p">:</span>
+            <span class="n">velocity</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">lc</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+            <span class="n">lc</span> <span class="o">=</span> <span class="n">lc</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocity</span>
+        <span class="k">if</span> <span class="n">has_layer</span><span class="p">:</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">lc</span> <span class="o">=</span> <span class="n">lc</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer</span>
+        <span class="k">if</span> <span class="n">num_of_groups</span><span class="p">:</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">lc</span><span class="p">]</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">groups</span>
+        <span class="n">atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom</span><span class="p">)</span>
+        <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
     <span class="k">if</span> <span class="n">atom_types</span><span class="p">:</span>
         <span class="n">__set_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">atom_types</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span></div>
 
-<span class="k">def</span> <span class="nf">__set_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Sets the atom symbols for atoms loaded from GPUMD where in.xyz does not</span>
-<span class="sd">    contain that information</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        atoms (ase.Atoms):</span>
-<span class="sd">            Atoms object to change symbols in</span>
-
-<span class="sd">        types (list(str)):</span>
-<span class="sd">            List of strings to assign to atomic symbols</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
-        <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">types</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">number</span><span class="p">]</span>
-
-<div class="viewcode-block" id="load_traj"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.load_traj">[docs]</a><span class="k">def</span> <span class="nf">load_traj</span><span class="p">(</span><span class="n">traj_file</span><span class="o">=</span><span class="s1">&#39;xyz.out&#39;</span><span class="p">,</span> <span class="n">in_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">atom_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="import_trajectory"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.import_trajectory">[docs]</a><span class="k">def</span> <span class="nf">import_trajectory</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;movie.xyz&#39;</span><span class="p">,</span> <span class="n">in_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">atom_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads the trajectory from GPUMD run and creates a list of ASE atoms.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        traj_file (str):</span>
-<span class="sd">            Name of the file that hold the GPUMD trajectory</span>
+<span class="sd">        filename (str):</span>
+<span class="sd">            Name of the file that holds the GPUMD trajectory.</span>
 
 <span class="sd">        in_file (str):</span>
-<span class="sd">            Name of the original structure input file. Needed to get atom</span>
-<span class="sd">            type, mass, etc</span>
+<span class="sd">            Name of the original structure input file. Not required, but</span>
+<span class="sd">            can help load extra information not included in trajectory output.</span>
 
 <span class="sd">        atom_types (list(str)):</span>
 <span class="sd">            List of atom types (elements).</span>
@@ -234,27 +366,38 @@
 <span class="sd">        traj (list(ase.Atoms)):</span>
 <span class="sd">            A list of ASE atoms objects.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># read trajectory file</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">traj_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">xyz_lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="c1"># get extra information about system if wanted</span>
+    <span class="k">if</span> <span class="n">in_file</span><span class="p">:</span>
+        <span class="n">atoms</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">load_xyz</span><span class="p">(</span><span class="n">in_file</span><span class="p">,</span><span class="n">atom_types</span><span class="p">)</span>
+        <span class="n">pbc</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pbc</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">atoms_in</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="n">load_xyz</span><span class="p">(</span><span class="n">in_file</span><span class="p">,</span> <span class="n">atom_types</span><span class="p">)</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms_in</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">xyz_line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
-    <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">num_frames</span> <span class="o">==</span> <span class="n">floor</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;load_traj warning: Non-integer number of frames base on number of atoms.&#39;</span> <span class="o">+</span>
-              <span class="s1">&#39; Only taking </span><span class="si">{}</span><span class="s1"> frames&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)))</span>
+        <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xyz_line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">block_size</span> <span class="o">=</span> <span class="n">num_atoms</span> <span class="o">+</span> <span class="mi">2</span>
+        <span class="n">num_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xyz_line</span><span class="p">)</span><span class="o">/</span><span class="n">block_size</span>
+        <span class="n">traj</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_blocks</span><span class="p">):</span>
+            <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1">## TODO Loop may be inefficient in accessing xyz_line</span>
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">xyz_line</span><span class="p">[</span><span class="n">block_size</span><span class="o">*</span><span class="n">block</span><span class="o">+</span><span class="mi">2</span><span class="p">:</span><span class="n">block_size</span><span class="o">*</span><span class="p">(</span><span class="n">block</span><span class="o">+</span><span class="mi">1</span><span class="p">)]:</span>
+                <span class="c1"># type_ can be an atom number or index to atom_types</span>
+                <span class="n">type_</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="mi">4</span><span class="p">]</span>
+                <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">z</span><span class="p">)])</span>
+                <span class="k">if</span> <span class="n">atom_types</span><span class="p">:</span>
+                    <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atom_types</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">type_</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">type_</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">atom_types</span><span class="p">:</span>
+                <span class="n">traj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Atoms</span><span class="p">(</span><span class="n">symbols</span><span class="o">=</span><span class="n">types</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="n">pbc</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">traj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Atoms</span><span class="p">(</span><span class="n">numbers</span><span class="o">=</span><span class="n">types</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="n">pbc</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">traj</span></div>
 
-    <span class="n">num_frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">num_frames</span><span class="p">))</span>
-    <span class="n">traj</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="n">frame</span><span class="o">*</span><span class="n">N</span><span class="p">:(</span><span class="n">frame</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">N</span><span class="p">]):</span>
-            <span class="n">curr_atom</span> <span class="o">=</span> <span class="n">atoms_in</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">curr_atom</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
-        <span class="n">traj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">atoms_in</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
-
-    <span class="k">return</span> <span class="n">traj</span></div>
 
 <span class="c1">#########################################</span>
 <span class="c1"># Write Related</span>
@@ -264,7 +407,8 @@
                             <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="n">atom_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts the GPUMD input structure file to any compatible ASE</span>
-<span class="sd">    output structure file</span>
+<span class="sd">    output structure file.</span>
+<span class="sd">    Warning: Info dictionary may not be preserved.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        in_file (str):</span>
@@ -284,7 +428,7 @@
     <span class="n">write</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
     <span class="k">return</span></div>
 
-<div class="viewcode-block" id="convert_gpumd_traj"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.convert_gpumd_traj">[docs]</a><span class="k">def</span> <span class="nf">convert_gpumd_traj</span><span class="p">(</span><span class="n">traj_file</span><span class="o">=</span><span class="s1">&#39;xyz.out&#39;</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;out.xyz&#39;</span><span class="p">,</span>
+<div class="viewcode-block" id="convert_gpumd_trajectory"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.convert_gpumd_trajectory">[docs]</a><span class="k">def</span> <span class="nf">convert_gpumd_trajectory</span><span class="p">(</span><span class="n">traj_file</span><span class="o">=</span><span class="s1">&#39;xyz.out&#39;</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;out.xyz&#39;</span><span class="p">,</span>
                        <span class="n">in_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts GPUMD trajectory to any compatible ASE output. Default: xyz</span>
@@ -335,26 +479,6 @@
     <span class="n">ase_atoms_to_gpumd</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">gpumd_file</span><span class="o">=</span><span class="n">gpumd_file</span><span class="p">)</span>
     <span class="k">return</span></div>
 
-
-<span class="k">def</span> <span class="nf">__atoms_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Used as a key for sorting atoms into groups or types for GPUMD in.xyz files</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        atom (ase.Atom):</span>
-<span class="sd">            Atom object</span>
-
-<span class="sd">        atom_order (list(str)):</span>
-<span class="sd">            A list of atomic symbol strings in the desired order.</span>
-<span class="sd">            If None, atom tag is used for sorting (NEMD)</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">atom_order</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_order</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">sym</span> <span class="o">==</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">i</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">atom</span><span class="o">.</span><span class="n">tag</span>
 
 <div class="viewcode-block" id="ase_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.ase_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">ase_atoms_to_gpumd</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">gpumd_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">sort_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

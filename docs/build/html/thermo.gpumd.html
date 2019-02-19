@@ -350,7 +350,8 @@ Default is None</dd>
 <dt id="thermo.gpumd.io.convert_gpumd_atoms">
 <code class="descclassname">thermo.gpumd.io.</code><code class="descname">convert_gpumd_atoms</code><span class="sig-paren">(</span><em>in_file='xyz.in'</em>, <em>out_filename='in.xyz'</em>, <em>format='xyz'</em>, <em>atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts the GPUMD input structure file to any compatible ASE
-output structure file</p>
+output structure file.
+Warning: Info dictionary may not be preserved.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
@@ -368,8 +369,8 @@ output structure file</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="thermo.gpumd.io.convert_gpumd_traj">
-<code class="descclassname">thermo.gpumd.io.</code><code class="descname">convert_gpumd_traj</code><span class="sig-paren">(</span><em>traj_file='xyz.out'</em>, <em>out_filename='out.xyz'</em>, <em>in_file='xyz.in'</em>, <em>format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_traj" title="Permalink to this definition">¶</a></dt>
+<dt id="thermo.gpumd.io.convert_gpumd_trajectory">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">convert_gpumd_trajectory</code><span class="sig-paren">(</span><em>traj_file='xyz.out'</em>, <em>out_filename='out.xyz'</em>, <em>in_file='xyz.in'</em>, <em>format='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts GPUMD trajectory to any compatible ASE output. Default: xyz</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -383,6 +384,31 @@ output structure file</p>
 numbers/types</dd>
 <dt>format (str):</dt>
 <dd>ASE supported format</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.io.import_trajectory">
+<code class="descclassname">thermo.gpumd.io.</code><code class="descname">import_trajectory</code><span class="sig-paren">(</span><em>filename='movie.xyz'</em>, <em>in_file=None</em>, <em>atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#import_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.import_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the trajectory from GPUMD run and creates a list of ASE atoms.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename (str):</dt>
+<dd>Name of the file that holds the GPUMD trajectory.</dd>
+<dt>in_file (str):</dt>
+<dd>Name of the original structure input file. Not required, but
+can help load extra information not included in trajectory output.</dd>
+<dt>atom_types (list(str)):</dt>
+<dd>List of atom types (elements).</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>traj (list(ase.Atoms)):</dt>
+<dd>A list of ASE atoms objects.</dd>
 </dl>
 </dd>
 </dl>
@@ -405,31 +431,6 @@ numbers/types</dd>
 <dd>Atom style used in LAMMPS data file</dd>
 <dt>gpumd_file (str):</dt>
 <dd>File to save the structure data to</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="thermo.gpumd.io.load_traj">
-<code class="descclassname">thermo.gpumd.io.</code><code class="descname">load_traj</code><span class="sig-paren">(</span><em>traj_file='xyz.out'</em>, <em>in_file='xyz.in'</em>, <em>atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#load_traj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.load_traj" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the trajectory from GPUMD run and creates a list of ASE atoms.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>traj_file (str):</dt>
-<dd>Name of the file that hold the GPUMD trajectory</dd>
-<dt>in_file (str):</dt>
-<dd>Name of the original structure input file. Needed to get atom
-type, mass, etc</dd>
-<dt>atom_types (list(str)):</dt>
-<dd>List of atom types (elements).</dd>
-</dl>
-</dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>traj (list(ase.Atoms)):</dt>
-<dd>A list of ASE atoms objects.</dd>
 </dl>
 </dd>
 </dl>
@@ -467,11 +468,11 @@ correspond to correct atomic symbol</dd>
 <div class="section" id="module-thermo.gpumd.preproc">
 <span id="thermo-gpumd-preproc-module"></span><h2>thermo.gpumd.preproc module<a class="headerlink" href="#module-thermo.gpumd.preproc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="thermo.gpumd.preproc.assign_groups">
-<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">assign_groups</code><span class="sig-paren">(</span><em>split</em>, <em>atoms</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#assign_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.assign_groups" title="Permalink to this definition">¶</a></dt>
+<dt id="thermo.gpumd.preproc.add_group_by_position">
+<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">add_group_by_position</code><span class="sig-paren">(</span><em>split</em>, <em>atoms</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_position" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns groups to all atoms based on its position. Only works in
-one direction as it is used for NEMD. ASE Atom tag is used as group ID.
-Returns a bookkeeping parameter, but atoms will be udated in place.</p>
+one direction as it is used for NEMD.
+Returns a bookkeeping parameter, but atoms will be udated in-place.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
@@ -481,13 +482,110 @@ box in specified direction and the last the upper.</dd>
 <dt>atoms (ase.Atoms):</dt>
 <dd>Atoms to group</dd>
 <dt>direction (str):</dt>
+<dd>Which direction the split will work.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>counts (int)</dt>
+<dd>A list of number of atoms in each group.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.preproc.add_group_by_type">
+<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">add_group_by_type</code><span class="sig-paren">(</span><em>atoms</em>, <em>groups</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns groups to all atoms based on atom types. Returns a
+bookkeeping parameter, but atoms will be udated in-place.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>atoms (ase.Atoms):</dt>
+<dd>Atoms to group</dd>
+<dt>types (dict):</dt>
+<dd>Dictionary with types for keys and group as a value.
+Only one group allowed per atom. Assumed groups are integers
+starting at 0 and increasing in steps of 1. Ex. range(0,10).</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>counts (int)</dt>
+<dd>A list of number of atoms in each group.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.preproc.assign_layer_by_position">
+<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">assign_layer_by_position</code><span class="sig-paren">(</span><em>split</em>, <em>atoms</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#assign_layer_by_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.assign_layer_by_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns layers to all atoms based on its position. Only works in
+one direction. Similar to group but only one layer can be assigned
+to an atom.
+Returns a bookkeeping parameter, but atoms will be udated in-place.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>split (list(float)):</dt>
+<dd>List of boundaries. First element should be lower boundary of sim.
+box in specified direction and the last the upper.</dd>
+<dt>atoms (ase.Atoms):</dt>
+<dd>Atoms to assign layers to</dd>
+<dt>direction (str):</dt>
 <dd>Which direction the split will work</dd>
 </dl>
 </dd>
 <dt>Returns:</dt>
 <dd><dl class="first last docutils">
 <dt>counts (int)</dt>
-<dd>A list of number of atoms in each group</dd>
+<dd>A list of number of atoms in each layer</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.preproc.assign_layer_by_type">
+<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">assign_layer_by_type</code><span class="sig-paren">(</span><em>atoms</em>, <em>layers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#assign_layer_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.assign_layer_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns a layer to all atoms based on atom types. Returns a
+bookkeeping parameter, but atoms will be udated in-place.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>atoms (ase.Atoms):</dt>
+<dd>Atoms to assign layer to.</dd>
+<dt>types (dict):</dt>
+<dd>Dictionary with types for keys and layer as a value.
+Only one layer allowed per atom. Assumed layers are integers
+starting at 0 and increasing in steps of 1. Ex. range(0,10)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>counts (int)</dt>
+<dd>A list of number of atoms in each layer.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.preproc.set_velocities">
+<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">set_velocities</code><span class="sig-paren">(</span><em>atoms</em>, <em>custom=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#set_velocities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.set_velocities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the ‘velocity’ part of the atoms to be used in GPUMD. 
+Custom velocities must be provided. They must also be in
+the units of eV^(1/2) amu^(-1/2)</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>atoms (ase.Atoms):</dt>
+<dd>Atoms to assign velocities to.</dd>
+<dt>custom (list(list)):</dt>
+<dd>list of len(atoms) with each element made from
+a 3-element list for [vx, vy, vz]</dd>
 </dl>
 </dd>
 </dl>
