@@ -38,17 +38,22 @@ def __get_atom_line(atom, velocity, layer, groups, type_dict, info):
         out (str)
             The line to be printed to file.
     '''
-    option = info[atom.index]
+    optional = ''
+    if info:
+        try:
+            option = info[atom.index]
+            if velocity:
+                optional += ' ' + ' '.join([str(val) for val in option['velocity']])
+            if layer:
+                optional += ' ' + str(option['layer'])
+            if groups:
+                optional += ' ' + ' '.join([str(val) for val in option['groups']])
+        except KeyError:
+            pass
     required = ' '.join([str(type_dict[atom.symbol])] + \
                     [str(val) for val in list(atom.position)] + \
                     [str(atom.mass)])
-    optional = ''
-    if velocity:
-        optional += ' ' + ' '.join([str(val) for val in option['velocity']])
-    if layer:
-        optional += ' ' + str(option['layer'])
-    if groups:
-        optional += ' ' + ' '.join([str(val) for val in option['groups']])
+
     return required + optional
 
 def __set_atoms(atoms, types):
