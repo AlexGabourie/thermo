@@ -345,7 +345,7 @@ def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
 
 
 def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
-        atom_order=None):
+        atom_order=None, group_index=None):
     """
     Converts ASE atoms to GPUMD compatible position file
 
@@ -369,15 +369,23 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
             List of atomic symbols in order to be listed in GPUMD xyz file.
             Default is None
 
+        group_index (list(int)):
+            A list of integers representing the order of groups in the output.
+
     """
 
+    info = atoms.info # info dictionary that stores velocities, groups, layers
+    # sort atoms by desired property
     if sort_key == 'type':
-        atoms_list = sorted(atoms, key=lambda x: __atoms_sortkey(x, atom_order))
+        atoms_list = sorted(atoms, key=lambda x: __atom_type_sortkey(x, atom_order))
     elif sort_key == 'group':
-        atoms_list = sorted(atoms, key=lambda x: __atoms_sortkey(x))
+        atoms_list = sorted(atoms, key=lambda x: __atom_group_sortkey(x, info, group_index))
+    elif sort_key == 'layer':
+        atoms_list = sorted(atoms, key=lambda x: __atom_layer_sortkey(x, info))
     else:
         atoms_list = atoms
 
+    # set order of types
     if sort_key=='type' and atom_order:
         types = atom_order
     else:
@@ -387,21 +395,49 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
     for i, type_ in enumerate(types):
         type_dict[type_] = i
 
+    # assume info[0] has same keys and number of groups as all other indices
+    num_groups = 0
+    if info and (0 in info.keys()):
+        infokeys = info[0].keys()
+        velocity = 'velocity' in infokeys
+        layer = 'layer' in infokeys
+        if 'groups' in infokeys:
+            groups = True
+            num_groups = str(len(info[0]['groups']))
+        else:
+            groups = False
+    else:
+        velocity = 0
+        layer = 0
+        groups = 0
+
+    # prepare cell to write
     N = len(atoms)
     pbc = [str(1) if val else str(0) for val in atoms.get_pbc()]
     lx, ly, lz, a1, a2, a3 = tuple(atoms.get_cell_lengths_and_angles())
-    lx, ly, lz = str(lx), str(ly), str(lz)
-    if not (a1 == a2 == a3):
-        raise ValueError('Structure must be orthorhombic.')
+    summary = ' '.join([str(N), str(M), str(cutoff), '@', \
+               '1' if velocity else '0', \
+               '1' if layer else '0', \
+               num_groups if groups else '0','\n'])
 
+    # if orthorhombic
+    if (a1 == a2 == a3):
+        summary = summary.replace('@', '0')
+        lx, ly, lz = str(lx), str(ly), str(lz)
+        summary += ' '.join(pbc + [lx, ly, lz] + ['\n'])
+    else: # if triclinic
+        summary = summary.replace('@', '1')
+        cell_str_vec = [str(val) for val in atoms.get_cell().flatten()]
+        summary += ' '.join(pbc + cell_str_vec + ['\n'])
+
+    # write structure
     with open(gpumd_file, 'w') as f:
-        f.writelines(' '.join([str(N), str(M), str(cutoff)]) + '\n')
-        f.writelines(' '.join(pbc + [lx, ly, lz]) + '\n')
+        f.writelines(summary)
         for atom in atoms_list[:-1]:
-            type_ = [type_dict[atom.symbol], atom.tag, atom.mass] + list(atom.position)
-            f.writelines(' '.join([str(val) for val in type_]) + '\n')
+            line = __get_atom_line(atom, velocity, layer, groups, type_dict, info)
+            f.writelines(line + '\n')
         # Last line
         atom = atoms_list[-1]
-        type_ = [type_dict[atom.symbol], atom.tag, atom.mass] + list(atom.position)
-        f.writelines(' '.join([str(val) for val in type_]))
+        line = __get_atom_line(atom, velocity, layer, groups, type_dict, info)
+        f.writelines(line)
     return
