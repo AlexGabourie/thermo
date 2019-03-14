@@ -1,7 +1,7 @@
 import numpy as np
 import os
 from scipy.integrate import trapz
-from data import load_shc_out
+from data import load_shc
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -58,7 +58,7 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
             Number of correlations steps to use for calculation
 
         shc (dict):
-            Dictionary from load_shc_out if already created
+            Dictionary from load_shc if already created
 
         directory (str):
             Directory to load 'shc.out' file from (dir. of simulation)
@@ -69,7 +69,7 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
 
     """
     if shc==None:
-        shc = load_shc_out(Nc, directory)
+        shc = load_shc(Nc, directory)
 
     dt_in_ps = dt/1000. # ps
     nu = np.arange(0.01, Fmax+0.01, 0.01)
