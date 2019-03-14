@@ -8,6 +8,103 @@ __email__ = "gabourie@stanford.edu"
 # Data-loading Related
 #########################################
 
+def load_vac(Nc, num_run=1, average=False, directory=''):
+    """
+    Loads data from mvac.out GPUMD output file
+
+    Args:
+        Nc (int or list(int)):
+            Number of time correlation points the VAC is computed for. For num_run>1,
+            a list can be provided to specify number of points in each run if they
+            are different. Otherwise, it is assumed that the same number of points
+            are used per run
+
+        num_run (int):
+            Number of VAC runs in the mvac.out file
+
+        average (bool):
+            Averages all of the runs to a single output. Default is False. Only works
+            if points_per_run is an int.
+
+        directory (str):
+            Directory to load 'mvac.out' file from (dir. of simulation)
+
+    Returns:
+        out (dict(dict)):
+            Dictonary with VAC data. The outermost dictionary stores each individual run.
+            Each run is a dictionary with keys:\n
+            - t (ps)
+            - VAC_x (Angstrom^2/ps^2)
+            - VAC_y (Angstrom^2/ps^2)
+            - VAC_z (Angstrom^2/ps^2)
+            If average=True, this will also be stored as a run with the same run keys.
+    """
+    is_int = type(Nc) == int
+    # do input checks
+    if ( not is_int and average):
+        raise ValueError('average cannot be used if points_per_run is not an int.')
+
+    if (not is_int and len(Nc) != num_run):
+        raise ValueError('length of points_per_run must be equal to num_run.')
+
+    if (not is_int and len(Nc) == 1):
+        points_per_run = points_per_run[0]
+
+    if directory=='':
+        vac_path = os.path.join(os.getcwd(), 'mvac.out')
+    else:
+        vac_path = os.path.join(directory, 'mvac.out')
+
+    with open(vac_path, 'r') as f:
+        lines = f.readlines()
+
+    out = dict()
+    idx_shift = 0
+    for run_num in range(num_run):
+        if is_int:
+            pt_rng = Nc
+        else:
+            pt_rng = Nc[run_num]
+
+        run = dict()
+        run['t'] = np.zeros((pt_rng))
+        run['VAC_x'] = np.zeros((pt_rng))
+        run['VAC_y'] = np.zeros((pt_rng))
+        run['VAC_z'] = np.zeros((pt_rng))
+        for point in range(pt_rng):
+            data = lines[idx_shift + point].split()
+            run['t'][point] = float(data[0])
+            run['VAC_x'][point] = float(data[1])
+            run['VAC_y'][point] = float(data[2])
+            run['VAC_z'][point] = float(data[3])
+        idx_shift += pt_rng
+
+        out['run'+str(run_num)] = run
+
+    if average:
+        ave = dict()
+        ave['t'] = np.zeros((pt_rng))
+        ave['VAC_x'] = np.zeros((pt_rng))
+        ave['VAC_y'] = np.zeros((pt_rng))
+        ave['VAC_z'] = np.zeros((pt_rng))
+
+        for key in out.keys():
+            run = out[key]
+            ave['t'] += run['t']
+            ave['VAC_x'] += run['VAC_x']
+            ave['VAC_y'] += run['VAC_y']
+            ave['VAC_z'] += run['VAC_z']
+
+        ave['t'] /= num_run
+        ave['VAC_x'] /= num_run
+        ave['VAC_y'] /= num_run
+        ave['VAC_z'] /= num_run
+
+        out['ave'] = ave
+
+    return out
+
+
 def load_dos(points_per_run, num_run=1, average=False, directory=''):
     """
     Loads data from dos.out GPUMD output file
@@ -105,7 +202,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory=''):
     return out
 
 
-def load_shc_out(Nc, directory=''):
+def load_shc(Nc, directory=''):
     """
     Loads the data from shc.out GPUMD output file
 
@@ -145,7 +242,7 @@ def load_shc_out(Nc, directory=''):
     out['shc_out'] = shc_out
     return out
 
-def load_kappa_out(directory=''):
+def load_kappa(directory=''):
     """
     Loads data from kappa.out GPUMD output file which contains HNEMD kappa
 
@@ -190,7 +287,7 @@ def load_kappa_out(directory=''):
 
     return out
 
-def load_hac_out(directory=''):
+def load_hac(directory=''):
     """
     Loads data from hac.out GPUMD output file which contains the
     heat-current autocorrelation and running thermal conductivity values
