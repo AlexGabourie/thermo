@@ -190,7 +190,7 @@ of atoms.</p>
 <dt>Nc_conv (int):</dt>
 <dd>Number of correlations steps to use for calculation</dd>
 <dt>shc (dict):</dt>
-<dd>Dictionary from load_shc_out if already created</dd>
+<dd>Dictionary from load_shc if already created</dd>
 <dt>directory (str):</dt>
 <dd>Directory to load ‘shc.out’ file from (dir. of simulation)</dd>
 </dl>
@@ -231,8 +231,47 @@ of atoms.</p>
 <div class="section" id="module-thermo.gpumd.data">
 <span id="data-loaders-data"></span><h2>Data Loaders - data<a class="headerlink" href="#module-thermo.gpumd.data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="thermo.gpumd.data.load_hac_output">
-<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_hac_output</code><span class="sig-paren">(</span><em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac_output" title="Permalink to this definition">¶</a></dt>
+<dt id="thermo.gpumd.data.load_dos">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_dos</code><span class="sig-paren">(</span><em>points_per_run</em>, <em>num_run=1</em>, <em>average=False</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from dos.out GPUMD output file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>points_per_run (int or list(int)):</dt>
+<dd>Number of frequency points the DOS is computed for. For num_run&gt;1,
+a list can be provided to specify number of points in each run if they
+are different. Otherwise, it is assumed that the same number of points
+are used per run</dd>
+<dt>num_run (int):</dt>
+<dd>Number of DOS runs in the dos.out file</dd>
+<dt>average (bool):</dt>
+<dd>Averages all of the runs to a single output. Default is False. Only works
+if points_per_run is an int.</dd>
+<dt>directory (str):</dt>
+<dd>Directory to load ‘dos.out’ file from (dir. of simulation)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict(dict)):</dt>
+<dd><p class="first">Dictonary with DOS data. The outermost dictionary stores each individual run.
+Each run is a dictionary with keys:</p>
+<ul class="simple">
+<li>nu (THz)</li>
+<li>DOS_x (1/THz)</li>
+<li>DOS_y (1/THz)</li>
+<li>DOS_z (1/THz)</li>
+</ul>
+<p class="last">If average=True, this will also be stored as a run with the same run keys.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_hac">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_hac</code><span class="sig-paren">(</span><em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from hac.out GPUMD output file which contains the
 heat-current autocorrelation and running thermal conductivity values</p>
 <p>Created for GPUMD-v1.9</p>
@@ -278,8 +317,8 @@ with some additional keys for aggregated values (see description)</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="thermo.gpumd.data.load_kappa_output">
-<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_kappa_output</code><span class="sig-paren">(</span><em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappa_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappa_output" title="Permalink to this definition">¶</a></dt>
+<dt id="thermo.gpumd.data.load_kappa">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_kappa</code><span class="sig-paren">(</span><em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from kappa.out GPUMD output file which contains HNEMD kappa</p>
 <p>out keys:</p>
 <ul class="simple">
@@ -306,8 +345,58 @@ with some additional keys for aggregated values (see description)</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="thermo.gpumd.data.load_shc_out">
-<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_shc_out</code><span class="sig-paren">(</span><em>Nc</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_shc_out"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_shc_out" title="Permalink to this definition">¶</a></dt>
+<dt id="thermo.gpumd.data.load_sdc">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_sdc</code><span class="sig-paren">(</span><em>Nc</em>, <em>num_run=1</em>, <em>average=False</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_sdc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_sdc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from sdc.out GPUMD output file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>Nc (int or list(int)):</dt>
+<dd>Number of time correlation points the VAC/SDC is computed for. For num_run&gt;1,
+a list can be provided to specify number of points in each run if they
+are different. Otherwise, it is assumed that the same number of points
+are used per run</dd>
+<dt>num_run (int):</dt>
+<dd>Number of SDC runs in the sdc.out file</dd>
+<dt>average (bool):</dt>
+<dd>Averages all of the runs to a single output. Default is False. Only works
+if points_per_run is an int.</dd>
+<dt>directory (str):</dt>
+<dd>Directory to load ‘sdc.out’ file from (dir. of simulation)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>sdc (dict(dict)):</dt>
+<dd><p class="first">Dictionary with SDC data. The outermost dictionary stores each individual run.
+Each run is a dictionary with keys:</p>
+<ul class="simple">
+<li>t (ps)</li>
+<li>SDC_x (Angstrom^2/ps)</li>
+<li>SDC_y (Angstrom^2/ps)</li>
+<li>SDC_z (Angstrom^2/ps)</li>
+</ul>
+<p class="last">If average=True, this will also be stored as a run with the same run keys.</p>
+</dd>
+<dt>vac (dict(dict)):</dt>
+<dd><p class="first">Dictonary with VAC data. The outermost dictionary stores each individual run.
+Each run is a dictionary with keys:</p>
+<ul class="simple">
+<li>t (ps)</li>
+<li>VAC_x (Angstrom^2/ps^2)</li>
+<li>VAC_y (Angstrom^2/ps^2)</li>
+<li>VAC_z (Angstrom^2/ps^2)</li>
+</ul>
+<p class="last">If average=True, this will also be stored as a run with the same run keys.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_shc">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_shc</code><span class="sig-paren">(</span><em>Nc</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_shc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_shc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the data from shc.out GPUMD output file</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -322,6 +411,45 @@ with some additional keys for aggregated values (see description)</dd>
 <dd><dl class="first last docutils">
 <dt>out (dict):</dt>
 <dd>Dictionary of in- and out-of-plane shc results (average)</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_vac">
+<code class="descclassname">thermo.gpumd.data.</code><code class="descname">load_vac</code><span class="sig-paren">(</span><em>Nc</em>, <em>num_run=1</em>, <em>average=False</em>, <em>directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_vac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_vac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from mvac.out GPUMD output file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>Nc (int or list(int)):</dt>
+<dd>Number of time correlation points the VAC is computed for. For num_run&gt;1,
+a list can be provided to specify number of points in each run if they
+are different. Otherwise, it is assumed that the same number of points
+are used per run</dd>
+<dt>num_run (int):</dt>
+<dd>Number of VAC runs in the mvac.out file</dd>
+<dt>average (bool):</dt>
+<dd>Averages all of the runs to a single output. Default is False. Only works
+if points_per_run is an int.</dd>
+<dt>directory (str):</dt>
+<dd>Directory to load ‘mvac.out’ file from (dir. of simulation)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>out (dict(dict)):</dt>
+<dd><p class="first">Dictonary with VAC data. The outermost dictionary stores each individual run.
+Each run is a dictionary with keys:</p>
+<ul class="simple">
+<li>t (ps)</li>
+<li>VAC_x (Angstrom^2/ps^2)</li>
+<li>VAC_y (Angstrom^2/ps^2)</li>
+<li>VAC_z (Angstrom^2/ps^2)</li>
+</ul>
+<p class="last">If average=True, this will also be stored as a run with the same run keys.</p>
+</dd>
 </dl>
 </dd>
 </dl>
