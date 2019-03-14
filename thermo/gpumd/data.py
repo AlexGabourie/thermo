@@ -37,6 +37,7 @@ def load_sdc(Nc, num_run=1, average=False, directory=''):
             - SDC_x (Angstrom^2/ps)
             - SDC_y (Angstrom^2/ps)
             - SDC_z (Angstrom^2/ps)
+            
             If average=True, this will also be stored as a run with the same run keys.
 
         vac (dict(dict)):
@@ -46,6 +47,7 @@ def load_sdc(Nc, num_run=1, average=False, directory=''):
             - VAC_x (Angstrom^2/ps^2)
             - VAC_y (Angstrom^2/ps^2)
             - VAC_z (Angstrom^2/ps^2)
+
             If average=True, this will also be stored as a run with the same run keys.
 
     """
@@ -149,7 +151,7 @@ def load_sdc(Nc, num_run=1, average=False, directory=''):
 
     return sdc, vac
 
-    
+
 
 def load_vac(Nc, num_run=1, average=False, directory=''):
     """
@@ -180,6 +182,7 @@ def load_vac(Nc, num_run=1, average=False, directory=''):
             - VAC_x (Angstrom^2/ps^2)
             - VAC_y (Angstrom^2/ps^2)
             - VAC_z (Angstrom^2/ps^2)
+
             If average=True, this will also be stored as a run with the same run keys.
     """
     is_int = type(Nc) == int
@@ -277,6 +280,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory=''):
             - DOS_x (1/THz)
             - DOS_y (1/THz)
             - DOS_z (1/THz)
+
             If average=True, this will also be stored as a run with the same run keys.
     """
     is_int = type(points_per_run) == int

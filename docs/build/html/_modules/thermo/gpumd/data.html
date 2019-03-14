@@ -152,7 +152,348 @@
 <span class="c1"># Data-loading Related</span>
 <span class="c1">#########################################</span>
 
-<div class="viewcode-block" id="load_shc_out"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_shc_out">[docs]</a><span class="k">def</span> <span class="nf">load_shc_out</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_sdc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_sdc">[docs]</a><span class="k">def</span> <span class="nf">load_sdc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data from sdc.out GPUMD output file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Nc (int or list(int)):</span>
+<span class="sd">            Number of time correlation points the VAC/SDC is computed for. For num_run&gt;1,</span>
+<span class="sd">            a list can be provided to specify number of points in each run if they</span>
+<span class="sd">            are different. Otherwise, it is assumed that the same number of points</span>
+<span class="sd">            are used per run</span>
+
+<span class="sd">        num_run (int):</span>
+<span class="sd">            Number of SDC runs in the sdc.out file</span>
+
+<span class="sd">        average (bool):</span>
+<span class="sd">            Averages all of the runs to a single output. Default is False. Only works</span>
+<span class="sd">            if points_per_run is an int.</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load &#39;sdc.out&#39; file from (dir. of simulation)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        sdc (dict(dict)):</span>
+<span class="sd">            Dictionary with SDC data. The outermost dictionary stores each individual run.</span>
+<span class="sd">            Each run is a dictionary with keys:\n</span>
+<span class="sd">            - t (ps)</span>
+<span class="sd">            - SDC_x (Angstrom^2/ps)</span>
+<span class="sd">            - SDC_y (Angstrom^2/ps)</span>
+<span class="sd">            - SDC_z (Angstrom^2/ps)</span>
+<span class="sd">            </span>
+<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+
+<span class="sd">        vac (dict(dict)):</span>
+<span class="sd">            Dictonary with VAC data. The outermost dictionary stores each individual run.</span>
+<span class="sd">            Each run is a dictionary with keys:\n</span>
+<span class="sd">            - t (ps)</span>
+<span class="sd">            - VAC_x (Angstrom^2/ps^2)</span>
+<span class="sd">            - VAC_y (Angstrom^2/ps^2)</span>
+<span class="sd">            - VAC_z (Angstrom^2/ps^2)</span>
+
+<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
+    <span class="c1"># do input checks</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if points_per_run is not an int.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of points_per_run must be equal to num_run.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">points_per_run</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;sdc.out&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;sdc.out&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sdc_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">vac</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">sdc</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">idx_shift</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">run_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_run</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_int</span><span class="p">:</span>
+            <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">Nc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">Nc</span><span class="p">[</span><span class="n">run_num</span><span class="p">]</span>
+
+        <span class="n">vrun</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">srun</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx_shift</span> <span class="o">+</span> <span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">idx_shift</span> <span class="o">+=</span> <span class="n">pt_rng</span>
+
+        <span class="n">vac</span><span class="p">[</span><span class="s1">&#39;run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run_num</span><span class="p">)]</span> <span class="o">=</span> <span class="n">vrun</span>
+        <span class="n">sdc</span><span class="p">[</span><span class="s1">&#39;run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run_num</span><span class="p">)]</span> <span class="o">=</span> <span class="n">srun</span>
+
+    <span class="k">if</span> <span class="n">average</span><span class="p">:</span>
+        <span class="n">vave</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">save</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sdc</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">vrun</span> <span class="o">=</span> <span class="n">vac</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">srun</span> <span class="o">=</span> <span class="n">sdc</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span>
+            <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span>
+            <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span>
+            <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span>
+
+            <span class="n">save</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span>
+            <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span>
+            <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span>
+            <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span>
+
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+
+        <span class="n">sdc</span><span class="p">[</span><span class="s1">&#39;ave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">save</span>
+        <span class="n">vac</span><span class="p">[</span><span class="s1">&#39;ave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vave</span>
+
+    <span class="k">return</span> <span class="n">sdc</span><span class="p">,</span> <span class="n">vac</span></div>
+
+
+
+<div class="viewcode-block" id="load_vac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_vac">[docs]</a><span class="k">def</span> <span class="nf">load_vac</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data from mvac.out GPUMD output file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Nc (int or list(int)):</span>
+<span class="sd">            Number of time correlation points the VAC is computed for. For num_run&gt;1,</span>
+<span class="sd">            a list can be provided to specify number of points in each run if they</span>
+<span class="sd">            are different. Otherwise, it is assumed that the same number of points</span>
+<span class="sd">            are used per run</span>
+
+<span class="sd">        num_run (int):</span>
+<span class="sd">            Number of VAC runs in the mvac.out file</span>
+
+<span class="sd">        average (bool):</span>
+<span class="sd">            Averages all of the runs to a single output. Default is False. Only works</span>
+<span class="sd">            if points_per_run is an int.</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load &#39;mvac.out&#39; file from (dir. of simulation)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (dict(dict)):</span>
+<span class="sd">            Dictonary with VAC data. The outermost dictionary stores each individual run.</span>
+<span class="sd">            Each run is a dictionary with keys:\n</span>
+<span class="sd">            - t (ps)</span>
+<span class="sd">            - VAC_x (Angstrom^2/ps^2)</span>
+<span class="sd">            - VAC_y (Angstrom^2/ps^2)</span>
+<span class="sd">            - VAC_z (Angstrom^2/ps^2)</span>
+
+<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
+    <span class="c1"># do input checks</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if points_per_run is not an int.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of points_per_run must be equal to num_run.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">points_per_run</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">vac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;mvac.out&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;mvac.out&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">vac_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">idx_shift</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">run_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_run</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_int</span><span class="p">:</span>
+            <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">Nc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">Nc</span><span class="p">[</span><span class="n">run_num</span><span class="p">]</span>
+
+        <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx_shift</span> <span class="o">+</span> <span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">idx_shift</span> <span class="o">+=</span> <span class="n">pt_rng</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run_num</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
+
+    <span class="k">if</span> <span class="n">average</span><span class="p">:</span>
+        <span class="n">ave</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span>
+
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;ave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ave</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="load_dos"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_dos">[docs]</a><span class="k">def</span> <span class="nf">load_dos</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data from dos.out GPUMD output file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        points_per_run (int or list(int)):</span>
+<span class="sd">            Number of frequency points the DOS is computed for. For num_run&gt;1,</span>
+<span class="sd">            a list can be provided to specify number of points in each run if they</span>
+<span class="sd">            are different. Otherwise, it is assumed that the same number of points</span>
+<span class="sd">            are used per run</span>
+
+<span class="sd">        num_run (int):</span>
+<span class="sd">            Number of DOS runs in the dos.out file</span>
+
+<span class="sd">        average (bool):</span>
+<span class="sd">            Averages all of the runs to a single output. Default is False. Only works</span>
+<span class="sd">            if points_per_run is an int.</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load &#39;dos.out&#39; file from (dir. of simulation)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (dict(dict)):</span>
+<span class="sd">            Dictonary with DOS data. The outermost dictionary stores each individual run.</span>
+<span class="sd">            Each run is a dictionary with keys:\n</span>
+<span class="sd">            - nu (THz)</span>
+<span class="sd">            - DOS_x (1/THz)</span>
+<span class="sd">            - DOS_y (1/THz)</span>
+<span class="sd">            - DOS_z (1/THz)</span>
+
+<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
+    <span class="c1"># do input checks</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if points_per_run is not an int.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of points_per_run must be equal to num_run.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">points_per_run</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">dos_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">&#39;dos.out&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dos_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;dos.out&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dos_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">idx_shift</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">run_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_run</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_int</span><span class="p">:</span>
+            <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">points_per_run</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="n">run_num</span><span class="p">]</span>
+
+        <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx_shift</span> <span class="o">+</span> <span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pi</span><span class="p">)</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">idx_shift</span> <span class="o">+=</span> <span class="n">pt_rng</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run_num</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
+
+    <span class="k">if</span> <span class="n">average</span><span class="p">:</span>
+        <span class="n">ave</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span>
+            <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span>
+
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_run</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;ave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ave</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="load_shc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_shc">[docs]</a><span class="k">def</span> <span class="nf">load_shc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the data from shc.out GPUMD output file</span>
 
@@ -192,7 +533,7 @@
     <span class="n">out</span><span class="p">[</span><span class="s1">&#39;shc_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shc_out</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="load_kappa_output"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_kappa_output">[docs]</a><span class="k">def</span> <span class="nf">load_kappa_output</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_kappa"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_kappa">[docs]</a><span class="k">def</span> <span class="nf">load_kappa</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from kappa.out GPUMD output file which contains HNEMD kappa</span>
 
@@ -237,7 +578,7 @@
 
     <span class="k">return</span> <span class="n">out</span></div>
 
-<div class="viewcode-block" id="load_hac_output"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_hac_output">[docs]</a><span class="k">def</span> <span class="nf">load_hac_output</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_hac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_hac">[docs]</a><span class="k">def</span> <span class="nf">load_hac</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from hac.out GPUMD output file which contains the</span>
 <span class="sd">    heat-current autocorrelation and running thermal conductivity values</span>
