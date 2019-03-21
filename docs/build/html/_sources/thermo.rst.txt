@@ -1,10 +1,11 @@
 thermo
 ==============
 
-| This package contains three subpackages:
+| This package contains four subpackages:
 | 1. **gpumd** : Python interface specific to `GPUMD`_. 
 | 2. **lammps** : Python interface specific to `LAMMPS`_.
 | 3. **shared** : Used strictly to compare `GPUMD`_ and `LAMMPS`_.
+| 4. **tools** : Extra support for more general MD related content.
 
 | Each subpackage has multiple corresponding modules. They will be listed as:
 | <short description> - <module name>
