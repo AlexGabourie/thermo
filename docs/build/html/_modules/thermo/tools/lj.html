@@ -1,0 +1,594 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>thermo.tools.lj &mdash; thermoMD  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> thermoMD
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">thermoMD</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>thermo.tools.lj</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for thermo.tools.lj</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
+
+<span class="c1">###################################</span>
+<span class="c1"># UFF</span>
+<span class="c1">###################################</span>
+
+<div class="viewcode-block" id="load_UFF"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.load_UFF">[docs]</a><span class="k">def</span> <span class="nf">load_UFF</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads dictionary that stores relevant LJ from UFF.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (dict):</span>
+<span class="sd">            Dictionary with atom symbols as the key and a tuple of epsilon and</span>
+<span class="sd">            sigma in units of eV and Angstroms, respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../../data/UFF.params&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">))</span></div>
+
+<span class="c1">#################################</span>
+<span class="c1"># Lorentz-Berthelot Mixing</span>
+<span class="c1">#################################</span>
+
+<div class="viewcode-block" id="lb_mixing"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.lb_mixing">[docs]</a><span class="k">def</span> <span class="nf">lb_mixing</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies Lorentz-Berthelot mixing rules on two atoms.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a1 (tuple):</span>
+<span class="sd">            Tuple of (epsilon, sigma)</span>
+
+<span class="sd">        a2 (tuple):</span>
+<span class="sd">            Tuple of (epsilon, sigma)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">a2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">a2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span>
+    <span class="k">return</span> <span class="n">eps</span><span class="p">,</span> <span class="n">sigma</span></div>
+
+<span class="c1">#################################</span>
+<span class="c1"># LJ Object</span>
+<span class="c1">#################################</span>
+
+<div class="viewcode-block" id="LJ"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ">[docs]</a><span class="k">class</span> <span class="nc">LJ</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Stores all atoms for a simulation with their LJ parameters.</span>
+
+<span class="sd">    A special dictionary with atom symbols for keys and the epsilon and</span>
+<span class="sd">    sigma LJ parameters for the values. This object interfaces with the UFF</span>
+<span class="sd">    LJ potential parameters but can also accept arbitrary parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        symbols (str or list(str)):</span>
+<span class="sd">            Optional input. A single symbol or a list of symbols to add to</span>
+<span class="sd">            the initial LJ list.</span>
+
+<span class="sd">        ignore_pairs (list(sets)):</span>
+<span class="sd">            List of sets where each set has two elements. Each element</span>
+<span class="sd">            is a string for the symbol of the atom to ignore in that pair.</span>
+<span class="sd">            Order in set is not important.</span>
+
+<span class="sd">        cut_scale (float):</span>
+<span class="sd">            Specifies the multiplicative factor to use on the sigma parameter</span>
+<span class="sd">            to define the cutoffs. Default is 2.5.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_pairs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_scale</span><span class="o">=</span><span class="mf">2.5</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_cutoff</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cut_scale</span> <span class="o">=</span> <span class="n">cut_scale</span>
+        <span class="k">if</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_UFF_params</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ignore_pairs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ignore_pairs</span><span class="p">(</span><span class="n">ignore_pairs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LJ.add_UFF_params"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.add_UFF_params">[docs]</a>    <span class="k">def</span> <span class="nf">add_UFF_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbols</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds UFF parameters to the LJ object. Will replace existing parameters</span>
+<span class="sd">        if &#39;replace&#39; is set to True. UFF parameters are loaded from the package.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            symbols (str or list(str)):</span>
+<span class="sd">                A single symbol or a list of symbols to add to the initial LJ list.</span>
+
+<span class="sd">            replace (bool):</span>
+<span class="sd">                Whether or not to replace existing symbols</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbols</span><span class="p">]</span> <span class="c1"># convert to list if one string</span>
+        <span class="n">UFF</span> <span class="o">=</span> <span class="n">load_UFF</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">replace</span> <span class="ow">and</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: </span><span class="si">{}</span><span class="s2"> is already in LJ list and will not be&quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;included.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;To include, use &quot;</span> <span class="o">+</span> \
+                <span class="s2">&quot;replace_UFF_params or toggle &#39;replace&#39; boolean.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">UFF</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="LJ.replace_UFF_params"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.replace_UFF_params">[docs]</a>    <span class="k">def</span> <span class="nf">replace_UFF_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbols</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replaces UFF parameters in the LJ object. Will add new entries if &#39;add&#39;</span>
+<span class="sd">        is set to True. UFF parameters are loaded from the package.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            symbols (str or list(str)):</span>
+<span class="sd">                A single symbol or a list of symbols to add to the initial LJ list.</span>
+
+<span class="sd">            add (bool):</span>
+<span class="sd">                Whether or not to replace existing symbols</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbols</span><span class="p">]</span> <span class="c1"># convert to list if one string</span>
+        <span class="n">UFF</span> <span class="o">=</span> <span class="n">load_UFF</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">add</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">UFF</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: </span><span class="si">{}</span><span class="s2"> is not in LJ list and will not be &quot;</span> <span class="o">+</span>\
+                <span class="s2">&quot;included.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;To include, use &quot;</span> <span class="o">+</span>\
+                <span class="s2">&quot;add_UFF_params or toggle &#39;add&#39; boolean.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LJ.add_param"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.add_param">[docs]</a>    <span class="k">def</span> <span class="nf">add_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a custom parameter to the LJ object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            symbol (str):</span>
+<span class="sd">                Symbol of atom type to add.</span>
+
+<span class="sd">            data (tuple(float)):</span>
+<span class="sd">                A two-element tuple of numbers to represent the epsilon and</span>
+<span class="sd">                sigma LJ values.</span>
+
+<span class="sd">            replace (bool):</span>
+<span class="sd">                Whether or not to replace the item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># check params</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="p">(</span><span class="nb">tuple</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> \
+            <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">long</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span> <span class="ow">and</span> \
+            <span class="nb">type</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">good</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: </span><span class="si">{}</span><span class="s2"> exists and cannot be added.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">symbol</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid data parameter.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LJ.remove_param"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.remove_param">[docs]</a>    <span class="k">def</span> <span class="nf">remove_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes an element from the LJ object. If item does not exist, nothing</span>
+<span class="sd">        happens.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            symbol (str):</span>
+<span class="sd">                Symbol of atom type to remove.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># remove symbol from object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># remove any ignore statements with symbol</span>
+        <span class="n">remove_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">pair</span><span class="p">:</span>
+                <span class="n">remove_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">remove_list</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="LJ.ignore_pair"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.ignore_pair">[docs]</a>    <span class="k">def</span> <span class="nf">ignore_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a pair to the list of pairs that will be ignored when output to file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pair (set):</span>
+<span class="sd">                A two-element set where each entry is a string of the symbol in</span>
+<span class="sd">                the pair to ignore.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_pair</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+
+        <span class="c1"># check if pair exists already</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">curr_pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">curr_pair</span> <span class="o">==</span> <span class="n">pair</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LJ.ignore_pairs"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.ignore_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">ignore_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pairs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a list of pairs that will be ignored when output to file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pairs (list(set)):</span>
+<span class="sd">                A list of two-element sets where each entry of each set is a</span>
+<span class="sd">                string of the symbol in the pair to ignore.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ignore_pair</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LJ.acknowledge_pair"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.acknowledge_pair">[docs]</a>    <span class="k">def</span> <span class="nf">acknowledge_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the pair from the ignore list and acknowledges it during the output.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pair (set):</span>
+<span class="sd">                A two-element set where each entry is a string of the symbol in the</span>
+<span class="sd">                pair to un-ignore.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_pair</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+
+        <span class="c1"># check if pair exists already</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">curr_pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">curr_pair</span> <span class="o">==</span> <span class="n">pair</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">return</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Pair not found.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LJ.acknowledge_pairs"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.acknowledge_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">acknowledge_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pairs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes pairs from the ignore list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pairs (list(set)):</span>
+<span class="sd">                A list of two-elements sets where each entry in each set is a string of</span>
+<span class="sd">                the symbol in the pair to un-ignore.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acknowledge_pair</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LJ.custom_cutoff"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.custom_cutoff">[docs]</a>    <span class="k">def</span> <span class="nf">custom_cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets a custom cutoff for a specific pair of atoms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pair (set):</span>
+<span class="sd">                A two-element set where each entry is a string of the symbol in the</span>
+<span class="sd">                pair.</span>
+
+<span class="sd">            cutoff (float):</span>
+<span class="sd">                Custom cutoff to use. In Angstroms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_pair</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_cutoff</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_cutkey</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cutoff</span></div>
+
+<div class="viewcode-block" id="LJ.remove_custom_cutoff"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.remove_custom_cutoff">[docs]</a>    <span class="k">def</span> <span class="nf">remove_custom_cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes a custom cutoff for a pair of atoms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pair (set):</span>
+<span class="sd">                A two-element set where each entry is a string of the symbol in the</span>
+<span class="sd">                pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_pair</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_cutkey</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LJ.set_global_cutoff"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.set_global_cutoff">[docs]</a>    <span class="k">def</span> <span class="nf">set_global_cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets a global cutoff for all pairs.</span>
+<span class="sd">        Warning: setting this will remove all other cutoff parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cutoff (float):</span>
+<span class="sd">                Custom cutoff to use. In Angstroms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_cutoff</span><span class="p">(</span><span class="n">cutoff</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cut_scale</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="LJ.set_cut_scale"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.set_cut_scale">[docs]</a>    <span class="k">def</span> <span class="nf">set_cut_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut_scale</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the amount to scale the sigma values of each pair by to set the cutoff.</span>
+<span class="sd">        Warning: setting this will remove any global cutoff, but leave custom cutoffs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cut_scale (float):</span>
+<span class="sd">                Scaling factor to be used on sigma</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_cutoff</span><span class="p">(</span><span class="n">cut_scale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_cutoff</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cut_scale</span> <span class="o">=</span> <span class="n">cut_scale</span></div>
+
+<div class="viewcode-block" id="LJ.create_file"><a class="viewcode-back" href="../../../thermo.tools.html#thermo.tools.lj.LJ.create_file">[docs]</a>    <span class="k">def</span> <span class="nf">create_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;ljparams.txt&#39;</span><span class="p">,</span> <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Outputs a GPUMD style LJ parameters file using the atoms defined in atom_order</span>
+<span class="sd">        in the order defined in atom_order.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str):</span>
+<span class="sd">                The filename or full path with filename of the output.</span>
+
+<span class="sd">            atom_order (list(str)):</span>
+<span class="sd">                List of atom symbols to include LJ params output file. The order will</span>
+<span class="sd">                determine the order in the output file. *Required*</span>
+<span class="sd">                Ex. [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;] = pairs =&gt; &#39;aa&#39;, &#39;ab&#39;, &#39;ac&#39;, &#39;ba&#39;, &#39;bb&#39;, &#39;bc&#39;, &#39;ca&#39;,</span>
+<span class="sd">                &#39;cb&#39; &#39;cc&#39; in this order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check if atoms in atom_order exist in LJ</span>
+        <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">atom_order</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> atom does not exist in LJ&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">symbol</span><span class="p">))</span>
+        <span class="n">out_txt</span> <span class="o">=</span> <span class="s1">&#39;lj</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">atom_order</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_order</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sym2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_order</span><span class="p">):</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="p">{</span><span class="n">sym1</span><span class="p">,</span> <span class="n">sym2</span><span class="p">}</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">:</span>
+                    <span class="n">out_txt</span> <span class="o">+=</span> <span class="s1">&#39;0 0 0</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="k">continue</span>
+
+                <span class="n">a1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="p">[</span><span class="n">sym1</span><span class="p">]</span>
+                <span class="n">a2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="p">[</span><span class="n">sym2</span><span class="p">]</span>
+
+                <span class="n">eps</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">lb_mixing</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">)</span>
+
+                <span class="n">cutkey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_cutkey</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_cutoff</span><span class="p">:</span>
+                    <span class="n">cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_cutoff</span>
+                <span class="k">elif</span> <span class="n">cutkey</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">[</span><span class="n">cutkey</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_scale</span><span class="o">*</span><span class="n">sig</span>
+
+                <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">atom_order</span><span class="p">)</span> <span class="ow">and</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">atom_order</span><span class="p">):</span>
+                    <span class="n">out_txt</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out_txt</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">out_txt</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__get_cutkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
+        <span class="n">keylist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">pair</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keylist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">keylist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">keylist</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keylist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">key</span>
+
+    <span class="k">def</span> <span class="nf">__check_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
+        <span class="c1"># check params</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid pair.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># check pair</span>
+        <span class="n">good</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">pair</span><span class="p">):</span>
+            <span class="n">good</span> <span class="o">=</span> <span class="n">good</span> <span class="ow">and</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">good</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Elements in pair not found in LJ object.&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__check_cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="n">cutoff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid cutoff.&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out_str</span> <span class="o">=</span> <span class="s1">&#39;Symbol: Epsilon (eV), Sigma (Angs.)</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ljdict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">out_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">cur</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cur</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_scale</span><span class="p">:</span>
+            <span class="n">out_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Cutoff scaling factor = </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut_scale</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># Global cutoff</span>
+            <span class="n">out_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Global cutoff = </span><span class="si">{}</span><span class="s2"> Angstroms</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_cutoff</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">out_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Custom Cutoffs</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">lpair</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">out_str</span> <span class="o">+=</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">] : </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lpair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lpair</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">[</span><span class="n">pair</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">out_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Ignored Pairs (Order not important)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore</span><span class="p">:</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">pair</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">out_str</span> <span class="o">+=</span> <span class="s2">&quot;[</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">out_str</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alexander Gabourie
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
