@@ -37,7 +37,7 @@ def load_sdc(Nc, num_run=1, average=False, directory=''):
             - SDC_x (Angstrom^2/ps)
             - SDC_y (Angstrom^2/ps)
             - SDC_z (Angstrom^2/ps)
-            
+
             If average=True, this will also be stored as a run with the same run keys.
 
         vac (dict(dict)):
@@ -317,7 +317,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory=''):
         run['DOS_z'] = np.zeros((pt_rng))
         for point in range(pt_rng):
             data = lines[idx_shift + point].split()
-            run['nu'][point] = float(data[0])/(2*pi)
+            run['nu'][point] = float(data[0])/(6.283185307179586)
             run['DOS_x'][point] = float(data[1])
             run['DOS_y'][point] = float(data[2])
             run['DOS_z'][point] = float(data[3])
