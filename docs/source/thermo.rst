@@ -21,6 +21,7 @@ thermo
     thermo.gpumd
     thermo.lammps
     thermo.shared
+    thermo.tools
 
 ..
 	Module contents

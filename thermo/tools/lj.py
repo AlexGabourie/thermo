@@ -36,7 +36,7 @@ def lb_mixing(a1, a2):
     """
     eps = (a1[0]*a2[0])**(1./2)
     sigma = (a1[1] + a2[1])/2.
-    return eps, sigma   
+    return eps, sigma
 
 #################################
 # LJ Object
@@ -48,23 +48,23 @@ class LJ(object):
     A special dictionary with atom symbols for keys and the epsilon and
     sigma LJ parameters for the values. This object interfaces with the UFF
     LJ potential parameters but can also accept arbitrary parameters.
+
+    Args:
+        symbols (str or list(str)):
+            Optional input. A single symbol or a list of symbols to add to
+            the initial LJ list.
+
+        ignore_pairs (list(sets)):
+            List of sets where each set has two elements. Each element
+            is a string for the symbol of the atom to ignore in that pair.
+            Order in set is not important.
+
+        cut_scale (float):
+            Specifies the multiplicative factor to use on the sigma parameter
+            to define the cutoffs. Default is 2.5.
     """
+
     def __init__(self, symbols=None, ignore_pairs=None, cut_scale=2.5):
-        """
-        Args:
-            symbols (str or list(str)):
-                Optional input. A single symbol or a list of symbols to add to
-                the initial LJ list.
-
-            ignore_pairs (list(sets)):
-                List of sets where each set has two elements. Each element
-                is a string for the symbol of the atom to ignore in that pair.
-                Order in set is not important.
-
-            cut_scale (float):
-                Specifies the multiplicative factor to use on the sigma parameter
-                to define the cutoffs. Default is 2.5.
-        """
         self.ljdict = dict()
         self.ignore = list()
         self.cutoff = dict()
