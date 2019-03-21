@@ -93,8 +93,8 @@ class LJ(object):
         UFF = load_UFF()
         for symbol in symbols:
             if not replace and symbol in self.ljdict.keys():
-                print("Warning: {} is already in LJ list and will not be" + \
-                "included.\n".format(symbol) + "To include, use " + \
+                print("Warning: {} is already in LJ list and".format(symbol) +\
+                " will not be included.\nTo include, use " + \
                 "replace_UFF_params or toggle 'replace' boolean.\n")
             else:
                 self.ljdict[symbol] = UFF[symbol]
@@ -118,9 +118,9 @@ class LJ(object):
             if symbol in self.ljdict.keys() or add:
                 self.ljdict[symbol] = UFF[symbol]
             else:
-                print("Warning: {} is not in LJ list and will not be " +\
-                "included.\n".format(symbol) + "To include, use " +\
-                "add_UFF_params or toggle 'add' boolean.\n")
+                print("Warning: {} is already in LJ list and".format(symbol) +\
+                " will not be included.\nTo include, use " + \
+                "replace_UFF_params or toggle 'replace' boolean.\n")
 
 
     def add_param(self, symbol, data, replace=True):
@@ -318,9 +318,11 @@ class LJ(object):
         for i, sym1 in enumerate(atom_order):
             for j, sym2 in enumerate(atom_order):
                 pair = {sym1, sym2}
-                print(pair)
                 if pair in self.ignore:
-                    out_txt += '0 0 0\n'
+                    if i+1==len(atom_order) and j+1==len(atom_order):
+                        out_txt += '0 0 0\n'
+                    else:
+                        out_txt += '0 0 0'
                     continue
 
                 a1 = self.ljdict[sym1]
