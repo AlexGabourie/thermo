@@ -44,7 +44,7 @@ def autocorr(f, max_lag):
     acf = acf[:N]/d
     return np.real(acf[:max_lag+1])
 
-def metal_to_SI( vol, T ):
+def __metal_to_SI( vol, T ):
     '''
     Converts LAMMPS metal units to SI units for thermal conductivity calculations.
 
@@ -226,7 +226,7 @@ def get_GKTC(**kwargs):
 
         T = kwargs['T'] if 'T' in kwargs.keys() else 300.
         vol = kwargs['vol'] if 'vol' in kwargs.keys() else 1.
-        scale = metalToSI_TC(vol, T)
+        scale = __metal_to_SI(vol, T)
 
         Jx = Jx/vol
         Jy = Jy/vol
