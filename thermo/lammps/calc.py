@@ -12,6 +12,59 @@ import scipy.io as sio
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
 
+
+def autocorr(f, max_lag):
+    '''
+    Computes a fast autocorrelation function and returns up to max_lag
+
+    Args:
+        f (ndarray):
+            Vector for autocorrelation
+
+        max_lag (float):
+            Lag at which to calculate up to
+
+    Returns:
+        out (ndarray):
+            Autocorrelation vector
+
+    '''
+    N = len(f)
+    d = N - np.arange(N)
+    # https://dsp.stackexchange.com/questions/741/why-should-i-zero-pad-a-signal-before-taking-the-fourier-transform
+    f = np.lib.pad(f, (0,N), 'constant', constant_values=(0,0))
+    fvi = np.zeros(2*N, dtype=type(f[0]))
+    fwd = pyfftw.FFTW(f, fvi, flags=('FFTW_ESTIMATE',), threads=multiprocessing.cpu_count())
+    fwd()
+    inv_arg = fvi*np.conjugate(fvi)
+    acf = np.zeros_like(inv_arg)
+    rev = pyfftw.FFTW(inv_arg, acf, direction='FFTW_BACKWARD',
+                      flags=('FFTW_ESTIMATE', ), threads=multiprocessing.cpu_count())
+    rev()
+    acf = acf[:N]/d
+    return np.real(acf[:max_lag+1])
+
+def metal_to_SI( vol, T ):
+    '''
+    Converts LAMMPS metal units to SI units for thermal conductivity calculations.
+
+    Args:
+        vol (float):
+            Volume in angstroms^3
+
+        T (float):
+            Temperature in K
+
+    Returns:
+        out (float):
+            Converted value
+    '''
+    kb = 1.38064852e-23 #m^3*kg/(s^2*K)
+    vol = vol/(1.0e10)**3 #to m^3
+    #eV^2*ns/(ps^2*angstrom^4) to J^2/(s*m^4)
+    to_SI = (1.602e-19)**2.*1.0e12*(1.0e10)**4.0*1000.
+    return vol*to_SI/(kb*T**2)
+
 def get_heat_flux(**kwargs):
     '''
     Gets the heat flux from a LAMMPS EMD simulation. Creates a compressed .mat
@@ -230,55 +283,3 @@ def get_GKTC(**kwargs):
     except Exception as e:
         os.chdir(original_dir)
         print(traceback.format_exc())
-
-def autocorr(f, max_lag):
-    '''
-    Computes a fast autocorrelation function and returns up to max_lag
-
-    Args:
-        f (ndarray):
-            Vector for autocorrelation
-
-        max_lag (float):
-            Lag at which to calculate up to
-
-    Returns:
-        out (ndarray):
-            Autocorrelation vector
-
-    '''
-    N = len(f)
-    d = N - np.arange(N)
-    # https://dsp.stackexchange.com/questions/741/why-should-i-zero-pad-a-signal-before-taking-the-fourier-transform
-    f = np.lib.pad(f, (0,N), 'constant', constant_values=(0,0))
-    fvi = np.zeros(2*N, dtype=type(f[0]))
-    fwd = pyfftw.FFTW(f, fvi, flags=('FFTW_ESTIMATE',), threads=multiprocessing.cpu_count())
-    fwd()
-    inv_arg = fvi*np.conjugate(fvi)
-    acf = np.zeros_like(inv_arg)
-    rev = pyfftw.FFTW(inv_arg, acf, direction='FFTW_BACKWARD',
-                      flags=('FFTW_ESTIMATE', ), threads=multiprocessing.cpu_count())
-    rev()
-    acf = acf[:N]/d
-    return np.real(acf[:max_lag+1])
-
-def metal_to_SI( vol, T ):
-    '''
-    Converts LAMMPS metal units to SI units for thermal conductivity calculations.
-
-    Args:
-        vol (float):
-            Volume in angstroms^3
-
-        T (float):
-            Temperature in K
-
-    Returns:
-        out (float):
-            Converted value
-    '''
-    kb = 1.38064852e-23 #m^3*kg/(s^2*K)
-    vol = vol/(1.0e10)**3 #to m^3
-    #eV^2*ns/(ps^2*angstrom^4) to J^2/(s*m^4)
-    to_SI = (1.602e-19)**2.*1.0e12*(1.0e10)**4.0*1000.
-    return vol*to_SI/(kb*T**2)
