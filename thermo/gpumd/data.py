@@ -8,7 +8,7 @@ __email__ = "gabourie@stanford.edu"
 # Data-loading Related
 #########################################
 
-def load_sdc(Nc, num_run=1, average=False, directory=''):
+def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
     """
     Loads data from sdc.out GPUMD output file
 
@@ -28,6 +28,9 @@ def load_sdc(Nc, num_run=1, average=False, directory=''):
 
         directory (str):
             Directory to load 'sdc.out' file from (dir. of simulation)
+
+        filename (str):
+            File to load SDC from. Default is sdc.out
 
     Returns:
         sdc (dict(dict)):
@@ -63,9 +66,9 @@ def load_sdc(Nc, num_run=1, average=False, directory=''):
         points_per_run = points_per_run[0]
 
     if directory=='':
-        sdc_path = os.path.join(os.getcwd(), 'sdc.out')
+        sdc_path = os.path.join(os.getcwd(), filename)
     else:
-        sdc_path = os.path.join(directory, 'sdc.out')
+        sdc_path = os.path.join(directory, filename)
 
     with open(sdc_path, 'r') as f:
         lines = f.readlines()
@@ -153,7 +156,7 @@ def load_sdc(Nc, num_run=1, average=False, directory=''):
 
 
 
-def load_vac(Nc, num_run=1, average=False, directory=''):
+def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
     """
     Loads data from mvac.out GPUMD output file
 
@@ -173,6 +176,9 @@ def load_vac(Nc, num_run=1, average=False, directory=''):
 
         directory (str):
             Directory to load 'mvac.out' file from (dir. of simulation)
+
+        filename (str):
+            File to load VAC from. Default is mvac.out
 
     Returns:
         out (dict(dict)):
@@ -197,9 +203,9 @@ def load_vac(Nc, num_run=1, average=False, directory=''):
         points_per_run = points_per_run[0]
 
     if directory=='':
-        vac_path = os.path.join(os.getcwd(), 'mvac.out')
+        vac_path = os.path.join(os.getcwd(), filename)
     else:
-        vac_path = os.path.join(directory, 'mvac.out')
+        vac_path = os.path.join(directory, filename)
 
     with open(vac_path, 'r') as f:
         lines = f.readlines()
@@ -251,7 +257,7 @@ def load_vac(Nc, num_run=1, average=False, directory=''):
     return out
 
 
-def load_dos(points_per_run, num_run=1, average=False, directory=''):
+def load_dos(points_per_run, num_run=1, average=False, directory='', filename='dos.out'):
     """
     Loads data from dos.out GPUMD output file
 
@@ -271,6 +277,9 @@ def load_dos(points_per_run, num_run=1, average=False, directory=''):
 
         directory (str):
             Directory to load 'dos.out' file from (dir. of simulation)
+
+        filename (str):
+            File to load DOS from. Default is dos.out
 
     Returns:
         out (dict(dict)):
@@ -295,9 +304,9 @@ def load_dos(points_per_run, num_run=1, average=False, directory=''):
         points_per_run = points_per_run[0]
 
     if directory=='':
-        dos_path = os.path.join(os.getcwd(), 'dos.out')
+        dos_path = os.path.join(os.getcwd(), filename)
     else:
-        dos_path = os.path.join(directory, 'dos.out')
+        dos_path = os.path.join(directory, filename)
 
     with open(dos_path, 'r') as f:
         lines = f.readlines()
@@ -349,7 +358,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory=''):
     return out
 
 
-def load_shc(Nc, directory=''):
+def load_shc(Nc, directory='', filename='shc.out'):
     """
     Loads the data from shc.out GPUMD output file
 
@@ -360,14 +369,17 @@ def load_shc(Nc, directory=''):
         directory (str):
             Directory to load 'shc.out' file from (dir. of simulation)
 
+        filename (str):
+            File to load SHC from. Default is shc.out
+
     Returns:
         out (dict):
             Dictionary of in- and out-of-plane shc results (average)
     """
     if directory=='':
-        shc_path = os.path.join(os.getcwd(),'shc.out')
+        shc_path = os.path.join(os.getcwd(),filename)
     else:
-        shc_path = os.path.join(directory,'shc.out')
+        shc_path = os.path.join(directory,filename)
 
     with open(shc_path, 'r') as f:
         lines = f.readlines()
@@ -389,7 +401,7 @@ def load_shc(Nc, directory=''):
     out['shc_out'] = shc_out
     return out
 
-def load_kappa(directory=''):
+def load_kappa(directory='', filename='kappa.out'):
     """
     Loads data from kappa.out GPUMD output file which contains HNEMD kappa
 
@@ -404,15 +416,18 @@ def load_kappa(directory=''):
         directory (str):
             Directory to load 'kappa.out' file from (dir. of simulation)
 
+        filename (str):
+            File to load kappa from. Default is kappa.out
+
     Returns:
         out (dict):
             A dictionary with keys corresponding to the columns in 'kappa.out'
     """
 
     if directory=='':
-        kappa_path = os.path.join(os.getcwd(),'kappa.out')
+        kappa_path = os.path.join(os.getcwd(),filename)
     else:
-        kappa_path = os.path.join(directory,'kappa.out')
+        kappa_path = os.path.join(directory,filename)
 
     with open(kappa_path, 'r') as f:
         lines = f.readlines()
@@ -434,10 +449,13 @@ def load_kappa(directory=''):
 
     return out
 
-def load_hac(directory=''):
+def load_hac(directory='',filename='hac.out'):
     """
     Loads data from hac.out GPUMD output file which contains the
     heat-current autocorrelation and running thermal conductivity values
+
+    filename (str):
+        File to load hac from. Default is hac.out
 
     Created for GPUMD-v1.9
 
@@ -476,9 +494,9 @@ def load_hac(directory=''):
     """
 
     if directory=='':
-        hac_path = os.path.join(os.getcwd(),'hac.out')
+        hac_path = os.path.join(os.getcwd(),filename)
     else:
-        hac_path = os.path.join(directory,'hac.out')
+        hac_path = os.path.join(directory,filename)
 
     with open(hac_path, 'r') as f:
         lines = f.readlines()
