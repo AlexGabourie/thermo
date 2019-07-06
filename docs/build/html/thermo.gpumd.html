@@ -489,10 +489,9 @@ Each run is a dictionary with keys:</p>
 <dt>gpumd_file (str):</dt>
 <dd>File to save the structure data to</dd>
 <dt>sort_key (str):</dt>
-<dd>How to sort atoms (‘group’, ‘type’, ‘layer’). Default is None.</dd>
+<dd>How to sort atoms (‘group’, ‘type’). Default is None.</dd>
 <dt>order (list(type)):</dt>
-<dd>List to sort by. Provide str for ‘type’, and int for ‘group’
-and ‘layer’</dd>
+<dd>List to sort by. Provide str for ‘type’, and int for ‘group’</dd>
 <dt>group_index (int):</dt>
 <dd>Selects the group to sort in the output.</dd>
 </dl>
@@ -668,59 +667,6 @@ starting at 0 and increasing in steps of 1. Ex. range(0,10).</dd>
 <dd><dl class="first last docutils">
 <dt>counts (int)</dt>
 <dd>A list of number of atoms in each group.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="thermo.gpumd.preproc.assign_layer_by_position">
-<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">assign_layer_by_position</code><span class="sig-paren">(</span><em>split</em>, <em>atoms</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#assign_layer_by_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.assign_layer_by_position" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns layers to all atoms based on its position. Only works in
-one direction. Similar to group but only one layer can be assigned
-to an atom.
-Returns a bookkeeping parameter, but atoms will be udated in-place.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>split (list(float)):</dt>
-<dd>List of boundaries. First element should be lower boundary of sim.
-box in specified direction and the last the upper.</dd>
-<dt>atoms (ase.Atoms):</dt>
-<dd>Atoms to assign layers to</dd>
-<dt>direction (str):</dt>
-<dd>Which direction the split will work</dd>
-</dl>
-</dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>counts (int)</dt>
-<dd>A list of number of atoms in each layer</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="thermo.gpumd.preproc.assign_layer_by_type">
-<code class="descclassname">thermo.gpumd.preproc.</code><code class="descname">assign_layer_by_type</code><span class="sig-paren">(</span><em>atoms</em>, <em>layers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#assign_layer_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.assign_layer_by_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Assigns a layer to all atoms based on atom types. Returns a
-bookkeeping parameter, but atoms will be udated in-place.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>atoms (ase.Atoms):</dt>
-<dd>Atoms to assign layer to.</dd>
-<dt>types (dict):</dt>
-<dd>Dictionary with types for keys and layer as a value.
-Only one layer allowed per atom. Assumed layers are integers
-starting at 0 and increasing in steps of 1. Ex. range(0,10)</dd>
-</dl>
-</dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>counts (int)</dt>
-<dd>A list of number of atoms in each layer.</dd>
 </dl>
 </dd>
 </dl>
