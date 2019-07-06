@@ -404,8 +404,8 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
         atoms_list = atoms
 
     # set order of types
-    if sort_key=='type' and atom_order:
-        types = atom_order
+    if sort_key=='type' and order:
+        types = order
     else:
         types = list(set(atoms.get_chemical_symbols()))
 
