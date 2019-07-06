@@ -6,7 +6,11 @@ As of now, the development of the code reflects my needs as a researcher and the
 
 # Documentation:
 
+The latest version of the documentation (matches master branch) can be found here:
+
 https://thermomd.readthedocs.io/en/latest/
+
+Version specific documentation can be found in the release files by going to docs/build/html/. The index.html file is the root of the documentation.
 
 # Installation:
 
