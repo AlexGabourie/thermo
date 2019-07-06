@@ -201,7 +201,7 @@
 <span class="sd">            Index of atom in the Atoms object.</span>
 
 <span class="sd">        info (dict):</span>
-<span class="sd">            Dictionary that stores the velocity, layer, and groups.</span>
+<span class="sd">            Dictionary that stores the velocity, and groups.</span>
 
 <span class="sd">        num_atoms (int):</span>
 <span class="sd">            Number of atoms in the Atoms object.</span>
@@ -223,7 +223,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        info (dict):</span>
-<span class="sd">            Dictionary that stores the velocity, layer, and groups.</span>
+<span class="sd">            Dictionary that stores the velocity, and groups.</span>
 
 <span class="sd">        num_atoms (int):</span>
 <span class="sd">            Number of atoms in the Atoms object.</span>
@@ -307,82 +307,6 @@
             <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">group</span><span class="p">]</span>
-    <span class="n">__handle_end</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
-    <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
-    <span class="k">return</span> <span class="n">counts</span></div>
-
-
-<div class="viewcode-block" id="assign_layer_by_position"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.assign_layer_by_position">[docs]</a><span class="k">def</span> <span class="nf">assign_layer_by_position</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Assigns layers to all atoms based on its position. Only works in</span>
-<span class="sd">    one direction. Similar to group but only one layer can be assigned</span>
-<span class="sd">    to an atom.</span>
-<span class="sd">    Returns a bookkeeping parameter, but atoms will be udated in-place.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        split (list(float)):</span>
-<span class="sd">            List of boundaries. First element should be lower boundary of sim.</span>
-<span class="sd">            box in specified direction and the last the upper.</span>
-
-<span class="sd">        atoms (ase.Atoms):</span>
-<span class="sd">            Atoms to assign layers to</span>
-
-<span class="sd">        direction (str):</span>
-<span class="sd">            Which direction the split will work</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        counts (int)</span>
-<span class="sd">            A list of number of atoms in each layer</span>
-
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span>
-    <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
-        <span class="n">i</span> <span class="o">=</span> <span class="n">__get_group</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span>
-        <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
-        <span class="n">counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="n">__handle_end</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
-    <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
-    <span class="k">return</span> <span class="n">counts</span></div>
-
-<div class="viewcode-block" id="assign_layer_by_type"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.assign_layer_by_type">[docs]</a><span class="k">def</span> <span class="nf">assign_layer_by_type</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">layers</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Assigns a layer to all atoms based on atom types. Returns a</span>
-<span class="sd">    bookkeeping parameter, but atoms will be udated in-place.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        atoms (ase.Atoms):</span>
-<span class="sd">            Atoms to assign layer to.</span>
-
-<span class="sd">        types (dict):</span>
-<span class="sd">            Dictionary with types for keys and layer as a value.</span>
-<span class="sd">            Only one layer allowed per atom. Assumed layers are integers</span>
-<span class="sd">            starting at 0 and increasing in steps of 1. Ex. range(0,10)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        counts (int)</span>
-<span class="sd">            A list of number of atoms in each layer.</span>
-
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="c1"># atom symbol checking</span>
-    <span class="n">all_symbols</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-    <span class="c1"># check that symbol set matches symbol set of atoms</span>
-    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Layer symbols do not match atoms symbols.&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Layer not assigned to all atom types.&#39;</span><span class="p">)</span>
-
-    <span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">layers</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">)]))</span>
-    <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
-    <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">num_layers</span>
-    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
-        <span class="n">layer</span> <span class="o">=</span> <span class="n">layers</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
-        <span class="n">counts</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer</span>
     <span class="n">__handle_end</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
     <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
     <span class="k">return</span> <span class="n">counts</span></div>

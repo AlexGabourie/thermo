@@ -156,7 +156,7 @@
 <span class="c1"># Helper Functions</span>
 <span class="c1">#########################################</span>
 
-<span class="k">def</span> <span class="nf">__get_atom_line</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">type_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">__get_atom_line</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">type_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Constructs an atom&#39;s line in an xyz.in file.</span>
 
@@ -167,9 +167,6 @@
 <span class="sd">        velocity (bool):</span>
 <span class="sd">            If velocities need to be added.</span>
 
-<span class="sd">        layer (bool):</span>
-<span class="sd">            If the layer number needs to be added.</span>
-
 <span class="sd">        groups (bool):</span>
 <span class="sd">            If the groups need to be added.</span>
 
@@ -177,7 +174,7 @@
 <span class="sd">            Dictionary to convert symbol to type number.</span>
 
 <span class="sd">        info (dict):</span>
-<span class="sd">            Dictionary that stores all velocity, layer, and groups data.</span>
+<span class="sd">            Dictionary that stores all velocity, and groups data.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        out (str)</span>
@@ -189,8 +186,6 @@
             <span class="n">option</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">velocity</span><span class="p">:</span>
                 <span class="n">optional</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]])</span>
-            <span class="k">if</span> <span class="n">layer</span><span class="p">:</span>
-                <span class="n">optional</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">groups</span><span class="p">:</span>
                 <span class="n">optional</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]])</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -246,7 +241,7 @@
 
 <span class="sd">        info (dict):</span>
 <span class="sd">            Info dictionary for Atoms object that &#39;atom&#39; belongs to. Stores velocity,</span>
-<span class="sd">            groups, &amp; layer information</span>
+<span class="sd">            groups information</span>
 
 <span class="sd">        group_index (int):</span>
 <span class="sd">            Index of the grouping list that is part of the &#39;groups&#39; key for the atom.index</span>
@@ -266,35 +261,6 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">][</span><span class="n">group_index</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
-
-
-<span class="k">def</span> <span class="nf">__atom_layer_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Used as a key for sorting atom layers for GPUMD in.xyz files</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        atom (ase.Atom):</span>
-<span class="sd">            Atom object</span>
-
-<span class="sd">        info (dict):</span>
-<span class="sd">            Info dictionary for Atoms object that &#39;atom&#39; belongs to. Stores velocity,</span>
-<span class="sd">            groups, &amp; layer information</span>
-
-<span class="sd">        order (list(int)):</span>
-<span class="sd">            A list of ints in desired order for layers</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">info</span><span class="p">:</span>
-        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;layer sortkey error: Missing info.&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">order</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]:</span>
-                <span class="k">return</span> <span class="n">i</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
-
 
 <span class="c1">#########################################</span>
 <span class="c1"># Read Related</span>
@@ -329,7 +295,7 @@
     <span class="c1"># get global structure params</span>
     <span class="n">l1</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="c1"># first line</span>
     <span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">use_triclinic</span><span class="p">,</span> <span class="n">has_velocity</span><span class="p">,</span> \
-        <span class="n">has_layer</span><span class="p">,</span> <span class="n">num_of_groups</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">l1</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">l1</span><span class="p">[</span><span class="mi">3</span><span class="p">:]]</span>
+        <span class="n">num_of_groups</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">l1</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">l1</span><span class="p">[</span><span class="mi">3</span><span class="p">:]]</span>
     <span class="n">cutoff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l1</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
     <span class="n">l2</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">xyz_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="c1"># second line</span>
     <span class="k">if</span> <span class="n">use_triclinic</span><span class="p">:</span>
@@ -357,10 +323,6 @@
             <span class="n">velocity</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">lc</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
             <span class="n">lc</span> <span class="o">=</span> <span class="n">lc</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocity</span>
-        <span class="k">if</span> <span class="n">has_layer</span><span class="p">:</span>
-            <span class="n">layer</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">lc</span> <span class="o">=</span> <span class="n">lc</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">layer</span>
         <span class="k">if</span> <span class="n">num_of_groups</span><span class="p">:</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">group</span><span class="p">)</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">lc</span><span class="p">]</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">groups</span>
@@ -525,31 +487,28 @@
 <span class="sd">            File to save the structure data to</span>
 
 <span class="sd">        sort_key (str):</span>
-<span class="sd">            How to sort atoms (&#39;group&#39;, &#39;type&#39;, &#39;layer&#39;). Default is None.</span>
+<span class="sd">            How to sort atoms (&#39;group&#39;, &#39;type&#39;). Default is None.</span>
 
 <span class="sd">        order (list(type)):</span>
 <span class="sd">            List to sort by. Provide str for &#39;type&#39;, and int for &#39;group&#39;</span>
-<span class="sd">            and &#39;layer&#39;</span>
 
 <span class="sd">        group_index (int):</span>
 <span class="sd">            Selects the group to sort in the output.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="c1"># info dictionary that stores velocities, groups, layers</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="c1"># info dictionary that stores velocities, groups</span>
     <span class="c1"># sort atoms by desired property</span>
     <span class="k">if</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
         <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_type_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">order</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
         <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_group_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">group_index</span><span class="p">,</span> <span class="n">order</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;layer&#39;</span><span class="p">:</span>
-        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_layer_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">order</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">atoms_list</span> <span class="o">=</span> <span class="n">atoms</span>
 
     <span class="c1"># set order of types</span>
-    <span class="k">if</span> <span class="n">sort_key</span><span class="o">==</span><span class="s1">&#39;type&#39;</span> <span class="ow">and</span> <span class="n">atom_order</span><span class="p">:</span>
-        <span class="n">types</span> <span class="o">=</span> <span class="n">atom_order</span>
+    <span class="k">if</span> <span class="n">sort_key</span><span class="o">==</span><span class="s1">&#39;type&#39;</span> <span class="ow">and</span> <span class="n">order</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">order</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()))</span>
 
@@ -562,7 +521,6 @@
     <span class="k">if</span> <span class="n">info</span> <span class="ow">and</span> <span class="p">(</span><span class="mi">0</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="n">infokeys</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="n">velocity</span> <span class="o">=</span> <span class="s1">&#39;velocity&#39;</span> <span class="ow">in</span> <span class="n">infokeys</span>
-        <span class="n">layer</span> <span class="o">=</span> <span class="s1">&#39;layer&#39;</span> <span class="ow">in</span> <span class="n">infokeys</span>
         <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">infokeys</span><span class="p">:</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">num_groups</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]))</span>
@@ -570,7 +528,6 @@
             <span class="n">groups</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">velocity</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">layer</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">groups</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="c1"># prepare cell to write</span>
@@ -579,7 +536,6 @@
     <span class="n">lx</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">lz</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_cell_lengths_and_angles</span><span class="p">())</span>
     <span class="n">summary</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">cutoff</span><span class="p">),</span> <span class="s1">&#39;@&#39;</span><span class="p">,</span> \
                <span class="s1">&#39;1&#39;</span> <span class="k">if</span> <span class="n">velocity</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> \
-               <span class="s1">&#39;1&#39;</span> <span class="k">if</span> <span class="n">layer</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> \
                <span class="n">num_groups</span> <span class="k">if</span> <span class="n">groups</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">])</span>
 
     <span class="c1"># if orthorhombic</span>
@@ -596,11 +552,11 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gpumd_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">__get_atom_line</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">type_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">__get_atom_line</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">type_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="c1"># Last line</span>
         <span class="n">atom</span> <span class="o">=</span> <span class="n">atoms_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="n">__get_atom_line</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">type_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">__get_atom_line</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">type_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
     <span class="k">return</span></div>
 </pre></div>
