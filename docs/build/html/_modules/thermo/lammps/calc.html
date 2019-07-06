@@ -156,6 +156,59 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
+
+<div class="viewcode-block" id="autocorr"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.autocorr">[docs]</a><span class="k">def</span> <span class="nf">autocorr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Computes a fast autocorrelation function and returns up to max_lag</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        f (ndarray):</span>
+<span class="sd">            Vector for autocorrelation</span>
+
+<span class="sd">        max_lag (float):</span>
+<span class="sd">            Lag at which to calculate up to</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (ndarray):</span>
+<span class="sd">            Autocorrelation vector</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="c1"># https://dsp.stackexchange.com/questions/741/why-should-i-zero-pad-a-signal-before-taking-the-fourier-transform</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N</span><span class="p">),</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">fvi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">fwd</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fvi</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;FFTW_ESTIMATE&#39;</span><span class="p">,),</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+    <span class="n">fwd</span><span class="p">()</span>
+    <span class="n">inv_arg</span> <span class="o">=</span> <span class="n">fvi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">fvi</span><span class="p">)</span>
+    <span class="n">acf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">inv_arg</span><span class="p">)</span>
+    <span class="n">rev</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">inv_arg</span><span class="p">,</span> <span class="n">acf</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;FFTW_BACKWARD&#39;</span><span class="p">,</span>
+                      <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;FFTW_ESTIMATE&#39;</span><span class="p">,</span> <span class="p">),</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+    <span class="n">rev</span><span class="p">()</span>
+    <span class="n">acf</span> <span class="o">=</span> <span class="n">acf</span><span class="p">[:</span><span class="n">N</span><span class="p">]</span><span class="o">/</span><span class="n">d</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">acf</span><span class="p">[:</span><span class="n">max_lag</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span></div>
+
+<span class="k">def</span> <span class="nf">__metal_to_SI</span><span class="p">(</span> <span class="n">vol</span><span class="p">,</span> <span class="n">T</span> <span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Converts LAMMPS metal units to SI units for thermal conductivity calculations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vol (float):</span>
+<span class="sd">            Volume in angstroms^3</span>
+
+<span class="sd">        T (float):</span>
+<span class="sd">            Temperature in K</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        out (float):</span>
+<span class="sd">            Converted value</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="mf">1.38064852e-23</span> <span class="c1">#m^3*kg/(s^2*K)</span>
+    <span class="n">vol</span> <span class="o">=</span> <span class="n">vol</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0e10</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span> <span class="c1">#to m^3</span>
+    <span class="c1">#eV^2*ns/(ps^2*angstrom^4) to J^2/(s*m^4)</span>
+    <span class="n">to_SI</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.602e-19</span><span class="p">)</span><span class="o">**</span><span class="mf">2.</span><span class="o">*</span><span class="mf">1.0e12</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0e10</span><span class="p">)</span><span class="o">**</span><span class="mf">4.0</span><span class="o">*</span><span class="mf">1000.</span>
+    <span class="k">return</span> <span class="n">vol</span><span class="o">*</span><span class="n">to_SI</span><span class="o">/</span><span class="p">(</span><span class="n">kb</span><span class="o">*</span><span class="n">T</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
 <div class="viewcode-block" id="get_heat_flux"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.get_heat_flux">[docs]</a><span class="k">def</span> <span class="nf">get_heat_flux</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Gets the heat flux from a LAMMPS EMD simulation. Creates a compressed .mat</span>
@@ -317,7 +370,7 @@
 
         <span class="n">T</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;T&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="mf">300.</span>
         <span class="n">vol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;vol&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;vol&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="mf">1.</span>
-        <span class="n">scale</span> <span class="o">=</span> <span class="n">metalToSI_TC</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">__metal_to_SI</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
 
         <span class="n">Jx</span> <span class="o">=</span> <span class="n">Jx</span><span class="o">/</span><span class="n">vol</span>
         <span class="n">Jy</span> <span class="o">=</span> <span class="n">Jy</span><span class="o">/</span><span class="n">vol</span>
@@ -374,58 +427,6 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">original_dir</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
-
-<div class="viewcode-block" id="autocorr"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.autocorr">[docs]</a><span class="k">def</span> <span class="nf">autocorr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Computes a fast autocorrelation function and returns up to max_lag</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        f (ndarray):</span>
-<span class="sd">            Vector for autocorrelation</span>
-
-<span class="sd">        max_lag (float):</span>
-<span class="sd">            Lag at which to calculate up to</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        out (ndarray):</span>
-<span class="sd">            Autocorrelation vector</span>
-
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-    <span class="c1"># https://dsp.stackexchange.com/questions/741/why-should-i-zero-pad-a-signal-before-taking-the-fourier-transform</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N</span><span class="p">),</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
-    <span class="n">fvi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-    <span class="n">fwd</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fvi</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;FFTW_ESTIMATE&#39;</span><span class="p">,),</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
-    <span class="n">fwd</span><span class="p">()</span>
-    <span class="n">inv_arg</span> <span class="o">=</span> <span class="n">fvi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">fvi</span><span class="p">)</span>
-    <span class="n">acf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">inv_arg</span><span class="p">)</span>
-    <span class="n">rev</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">inv_arg</span><span class="p">,</span> <span class="n">acf</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;FFTW_BACKWARD&#39;</span><span class="p">,</span>
-                      <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;FFTW_ESTIMATE&#39;</span><span class="p">,</span> <span class="p">),</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
-    <span class="n">rev</span><span class="p">()</span>
-    <span class="n">acf</span> <span class="o">=</span> <span class="n">acf</span><span class="p">[:</span><span class="n">N</span><span class="p">]</span><span class="o">/</span><span class="n">d</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">acf</span><span class="p">[:</span><span class="n">max_lag</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span></div>
-
-<div class="viewcode-block" id="metal_to_SI"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.metal_to_SI">[docs]</a><span class="k">def</span> <span class="nf">metal_to_SI</span><span class="p">(</span> <span class="n">vol</span><span class="p">,</span> <span class="n">T</span> <span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Converts LAMMPS metal units to SI units for thermal conductivity calculations.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        vol (float):</span>
-<span class="sd">            Volume in angstroms^3</span>
-
-<span class="sd">        T (float):</span>
-<span class="sd">            Temperature in K</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        out (float):</span>
-<span class="sd">            Converted value</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">kb</span> <span class="o">=</span> <span class="mf">1.38064852e-23</span> <span class="c1">#m^3*kg/(s^2*K)</span>
-    <span class="n">vol</span> <span class="o">=</span> <span class="n">vol</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0e10</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span> <span class="c1">#to m^3</span>
-    <span class="c1">#eV^2*ns/(ps^2*angstrom^4) to J^2/(s*m^4)</span>
-    <span class="n">to_SI</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.602e-19</span><span class="p">)</span><span class="o">**</span><span class="mf">2.</span><span class="o">*</span><span class="mf">1.0e12</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0e10</span><span class="p">)</span><span class="o">**</span><span class="mf">4.0</span><span class="o">*</span><span class="mf">1000.</span>
-    <span class="k">return</span> <span class="n">vol</span><span class="o">*</span><span class="n">to_SI</span><span class="o">/</span><span class="p">(</span><span class="n">kb</span><span class="o">*</span><span class="n">T</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

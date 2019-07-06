@@ -3,6 +3,7 @@ from ase.io import read
 from ase import Atom, Atoms
 from math import floor
 import numpy as np
+import sys
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -72,7 +73,7 @@ def __set_atoms(atoms, types):
     for atom in atoms:
         atom.symbol = types[atom.number]
 
-def __atom_type_sortkey(atom, atom_order=None):
+def __atom_type_sortkey(atom, order=None):
     """
     Used as a key for sorting atom type for GPUMD in.xyz files
 
@@ -80,19 +81,18 @@ def __atom_type_sortkey(atom, atom_order=None):
         atom (ase.Atom):
             Atom object
 
-        atom_order (list(str)):
+        order (list(str)):
             A list of atomic symbol strings in the desired order.
 
     """
-    if atom_order:
-        for i, sym in enumerate(atom_order):
+    if order:
+        for i, sym in enumerate(order):
             if sym == atom.symbol:
                 return i
     else:
-        ValueError('type sortkey error: Missing atom_order.')
-        return 0
+        ValueError('type sortkey error: Missing order.')
 
-def __atom_group_sortkey(atom, info=None, group_index=None):
+def __atom_group_sortkey(atom, info=None, group_index=None, order=None):
     """
     Used as a key for sorting atom groups for GPUMD in.xyz files
 
@@ -108,14 +108,23 @@ def __atom_group_sortkey(atom, info=None, group_index=None):
             Index of the grouping list that is part of the 'groups' key for the atom.index
             element from the info dictionary.
 
-    """
-    if info and not group_index is None:
-        return info[atom.index]['groups'][group_index]
-    else:
-        ValueError('group sortkey error: Missing either info or group_index.')
-        return 0
+        order (list(int)):
+            A list of ints in desired order for groups at group_index
 
-def __atom_layer_sortkey(atom, info=None):
+    """
+    if not (info and not group_index is None):
+        ValueError('group sortkey error: Missing either info or group_index.')
+
+    if order:
+        for i, group in enumerate(order):
+            if group == info[atom.index]['groups'][group_index]:
+                return i
+    else:
+        return info[atom.index]['groups'][group_index]
+    return sys.maxsize
+
+
+def __atom_layer_sortkey(atom, info=None, order=None):
     """
     Used as a key for sorting atom layers for GPUMD in.xyz files
 
@@ -127,12 +136,21 @@ def __atom_layer_sortkey(atom, info=None):
             Info dictionary for Atoms object that 'atom' belongs to. Stores velocity,
             groups, & layer information
 
+        order (list(int)):
+            A list of ints in desired order for layers
+
     """
-    if info:
-        return info[atom.index]['layer']
-    else:
+    if not info:
         ValueError('layer sortkey error: Missing info.')
-        return 0
+
+    if order:
+        for i, layer in enumerate(order):
+            if layer == info[atom.index]['layer']:
+                return i
+    else:
+        return info[atom.index]['layer']
+    return sys.maxsize
+
 
 #########################################
 # Read Related
@@ -345,7 +363,7 @@ def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
 
 
 def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
-        atom_order=None, group_index=None):
+        order=None, group_index=None):
     """
     Converts ASE atoms to GPUMD compatible position file
 
@@ -363,25 +381,25 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
             File to save the structure data to
 
         sort_key (str):
-            How to sort atoms ('group', 'type'). Default is None.
+            How to sort atoms ('group', 'type', 'layer'). Default is None.
 
-        atom_order (list(str)):
-            List of atomic symbols in order to be listed in GPUMD xyz file.
-            Default is None
+        order (list(type)):
+            List to sort by. Provide str for 'type', and int for 'group'
+            and 'layer'
 
-        group_index (list(int)):
-            A list of integers representing the order of groups in the output.
+        group_index (int):
+            Selects the group to sort in the output.
 
     """
 
     info = atoms.info # info dictionary that stores velocities, groups, layers
     # sort atoms by desired property
     if sort_key == 'type':
-        atoms_list = sorted(atoms, key=lambda x: __atom_type_sortkey(x, atom_order))
+        atoms_list = sorted(atoms, key=lambda x: __atom_type_sortkey(x, order))
     elif sort_key == 'group':
-        atoms_list = sorted(atoms, key=lambda x: __atom_group_sortkey(x, info, group_index))
+        atoms_list = sorted(atoms, key=lambda x: __atom_group_sortkey(x, info, group_index, order))
     elif sort_key == 'layer':
-        atoms_list = sorted(atoms, key=lambda x: __atom_layer_sortkey(x, info))
+        atoms_list = sorted(atoms, key=lambda x: __atom_layer_sortkey(x, info, order))
     else:
         atoms_list = atoms
 

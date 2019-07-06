@@ -147,6 +147,7 @@
 <span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atom</span><span class="p">,</span> <span class="n">Atoms</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
@@ -216,7 +217,7 @@
     <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
         <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">types</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">number</span><span class="p">]</span>
 
-<span class="k">def</span> <span class="nf">__atom_type_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">__atom_type_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used as a key for sorting atom type for GPUMD in.xyz files</span>
 
@@ -224,19 +225,18 @@
 <span class="sd">        atom (ase.Atom):</span>
 <span class="sd">            Atom object</span>
 
-<span class="sd">        atom_order (list(str)):</span>
+<span class="sd">        order (list(str)):</span>
 <span class="sd">            A list of atomic symbol strings in the desired order.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">atom_order</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_order</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">order</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sym</span> <span class="o">==</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">i</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;type sortkey error: Missing atom_order.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;type sortkey error: Missing order.&#39;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">__atom_group_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">__atom_group_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used as a key for sorting atom groups for GPUMD in.xyz files</span>
 
@@ -252,14 +252,23 @@
 <span class="sd">            Index of the grouping list that is part of the &#39;groups&#39; key for the atom.index</span>
 <span class="sd">            element from the info dictionary.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">info</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">group_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">][</span><span class="n">group_index</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;group sortkey error: Missing either info or group_index.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
+<span class="sd">        order (list(int)):</span>
+<span class="sd">            A list of ints in desired order for groups at group_index</span>
 
-<span class="k">def</span> <span class="nf">__atom_layer_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">info</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">group_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;group sortkey error: Missing either info or group_index.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">order</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">group</span> <span class="o">==</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">][</span><span class="n">group_index</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">][</span><span class="n">group_index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
+
+
+<span class="k">def</span> <span class="nf">__atom_layer_sortkey</span><span class="p">(</span><span class="n">atom</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Used as a key for sorting atom layers for GPUMD in.xyz files</span>
 
@@ -271,12 +280,21 @@
 <span class="sd">            Info dictionary for Atoms object that &#39;atom&#39; belongs to. Stores velocity,</span>
 <span class="sd">            groups, &amp; layer information</span>
 
+<span class="sd">        order (list(int)):</span>
+<span class="sd">            A list of ints in desired order for layers</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">info</span><span class="p">:</span>
         <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;layer sortkey error: Missing info.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">order</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">layer</span> <span class="o">==</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">info</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;layer&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
+
 
 <span class="c1">#########################################</span>
 <span class="c1"># Read Related</span>
@@ -489,7 +507,7 @@
 
 
 <div class="viewcode-block" id="ase_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.ase_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">ase_atoms_to_gpumd</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">gpumd_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">sort_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">atom_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts ASE atoms to GPUMD compatible position file</span>
 
@@ -507,25 +525,25 @@
 <span class="sd">            File to save the structure data to</span>
 
 <span class="sd">        sort_key (str):</span>
-<span class="sd">            How to sort atoms (&#39;group&#39;, &#39;type&#39;). Default is None.</span>
+<span class="sd">            How to sort atoms (&#39;group&#39;, &#39;type&#39;, &#39;layer&#39;). Default is None.</span>
 
-<span class="sd">        atom_order (list(str)):</span>
-<span class="sd">            List of atomic symbols in order to be listed in GPUMD xyz file.</span>
-<span class="sd">            Default is None</span>
+<span class="sd">        order (list(type)):</span>
+<span class="sd">            List to sort by. Provide str for &#39;type&#39;, and int for &#39;group&#39;</span>
+<span class="sd">            and &#39;layer&#39;</span>
 
-<span class="sd">        group_index (list(int)):</span>
-<span class="sd">            A list of integers representing the order of groups in the output.</span>
+<span class="sd">        group_index (int):</span>
+<span class="sd">            Selects the group to sort in the output.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="c1"># info dictionary that stores velocities, groups, layers</span>
     <span class="c1"># sort atoms by desired property</span>
     <span class="k">if</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_type_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">atom_order</span><span class="p">))</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_type_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">order</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
-        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_group_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">group_index</span><span class="p">))</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_group_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">group_index</span><span class="p">,</span> <span class="n">order</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">sort_key</span> <span class="o">==</span> <span class="s1">&#39;layer&#39;</span><span class="p">:</span>
-        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_layer_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">))</span>
+        <span class="n">atoms_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">__atom_layer_sortkey</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">order</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">atoms_list</span> <span class="o">=</span> <span class="n">atoms</span>
 
