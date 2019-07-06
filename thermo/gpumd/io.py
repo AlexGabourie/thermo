@@ -12,7 +12,7 @@ __email__ = "gabourie@stanford.edu"
 # Helper Functions
 #########################################
 
-def __get_atom_line(atom, velocity, layer, groups, type_dict, info):
+def __get_atom_line(atom, velocity, groups, type_dict, info):
     '''
     Constructs an atom's line in an xyz.in file.
 
@@ -23,9 +23,6 @@ def __get_atom_line(atom, velocity, layer, groups, type_dict, info):
         velocity (bool):
             If velocities need to be added.
 
-        layer (bool):
-            If the layer number needs to be added.
-
         groups (bool):
             If the groups need to be added.
 
@@ -33,7 +30,7 @@ def __get_atom_line(atom, velocity, layer, groups, type_dict, info):
             Dictionary to convert symbol to type number.
 
         info (dict):
-            Dictionary that stores all velocity, layer, and groups data.
+            Dictionary that stores all velocity, and groups data.
 
     Returns:
         out (str)
@@ -45,8 +42,6 @@ def __get_atom_line(atom, velocity, layer, groups, type_dict, info):
             option = info[atom.index]
             if velocity:
                 optional += ' ' + ' '.join([str(val) for val in option['velocity']])
-            if layer:
-                optional += ' ' + str(option['layer'])
             if groups:
                 optional += ' ' + ' '.join([str(val) for val in option['groups']])
         except KeyError:
@@ -102,7 +97,7 @@ def __atom_group_sortkey(atom, info=None, group_index=None, order=None):
 
         info (dict):
             Info dictionary for Atoms object that 'atom' belongs to. Stores velocity,
-            groups, & layer information
+            groups information
 
         group_index (int):
             Index of the grouping list that is part of the 'groups' key for the atom.index
@@ -122,35 +117,6 @@ def __atom_group_sortkey(atom, info=None, group_index=None, order=None):
     else:
         return info[atom.index]['groups'][group_index]
     return sys.maxsize
-
-
-def __atom_layer_sortkey(atom, info=None, order=None):
-    """
-    Used as a key for sorting atom layers for GPUMD in.xyz files
-
-    Args:
-        atom (ase.Atom):
-            Atom object
-
-        info (dict):
-            Info dictionary for Atoms object that 'atom' belongs to. Stores velocity,
-            groups, & layer information
-
-        order (list(int)):
-            A list of ints in desired order for layers
-
-    """
-    if not info:
-        ValueError('layer sortkey error: Missing info.')
-
-    if order:
-        for i, layer in enumerate(order):
-            if layer == info[atom.index]['layer']:
-                return i
-    else:
-        return info[atom.index]['layer']
-    return sys.maxsize
-
 
 #########################################
 # Read Related
@@ -185,7 +151,7 @@ def load_xyz(filename='xyz.in', atom_types=None):
     # get global structure params
     l1 = tuple(xyz_lines[0].split()) # first line
     N, M, use_triclinic, has_velocity, \
-        has_layer, num_of_groups = [int(val) for val in l1[:2]+l1[3:]]
+        num_of_groups = [int(val) for val in l1[:2]+l1[3:]]
     cutoff = float(l1[2])
     l2 = tuple(xyz_lines[1].split()) # second line
     if use_triclinic:
@@ -213,10 +179,6 @@ def load_xyz(filename='xyz.in', atom_types=None):
             velocity = [float(val) for val in lc[:3]]
             lc = lc[3:]
             data['velocity'] = velocity
-        if has_layer:
-            layer = int(lc[0])
-            lc = lc[1:]
-            data['layer'] = layer
         if num_of_groups:
             groups = [int(group) for group in lc]
             data['groups'] = groups
@@ -381,31 +343,28 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
             File to save the structure data to
 
         sort_key (str):
-            How to sort atoms ('group', 'type', 'layer'). Default is None.
+            How to sort atoms ('group', 'type'). Default is None.
 
         order (list(type)):
             List to sort by. Provide str for 'type', and int for 'group'
-            and 'layer'
 
         group_index (int):
             Selects the group to sort in the output.
 
     """
 
-    info = atoms.info # info dictionary that stores velocities, groups, layers
+    info = atoms.info # info dictionary that stores velocities, groups
     # sort atoms by desired property
     if sort_key == 'type':
         atoms_list = sorted(atoms, key=lambda x: __atom_type_sortkey(x, order))
     elif sort_key == 'group':
         atoms_list = sorted(atoms, key=lambda x: __atom_group_sortkey(x, info, group_index, order))
-    elif sort_key == 'layer':
-        atoms_list = sorted(atoms, key=lambda x: __atom_layer_sortkey(x, info, order))
     else:
         atoms_list = atoms
 
     # set order of types
-    if sort_key=='type' and atom_order:
-        types = atom_order
+    if sort_key=='type' and order:
+        types = order
     else:
         types = list(set(atoms.get_chemical_symbols()))
 
@@ -418,7 +377,6 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
     if info and (0 in info.keys()):
         infokeys = info[0].keys()
         velocity = 'velocity' in infokeys
-        layer = 'layer' in infokeys
         if 'groups' in infokeys:
             groups = True
             num_groups = str(len(info[0]['groups']))
@@ -426,7 +384,6 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
             groups = False
     else:
         velocity = 0
-        layer = 0
         groups = 0
 
     # prepare cell to write
@@ -435,7 +392,6 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
     lx, ly, lz, a1, a2, a3 = tuple(atoms.get_cell_lengths_and_angles())
     summary = ' '.join([str(N), str(M), str(cutoff), '@', \
                '1' if velocity else '0', \
-               '1' if layer else '0', \
                num_groups if groups else '0','\n'])
 
     # if orthorhombic
@@ -452,10 +408,10 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
     with open(gpumd_file, 'w') as f:
         f.writelines(summary)
         for atom in atoms_list[:-1]:
-            line = __get_atom_line(atom, velocity, layer, groups, type_dict, info)
+            line = __get_atom_line(atom, velocity, groups, type_dict, info)
             f.writelines(line + '\n')
         # Last line
         atom = atoms_list[-1]
-        line = __get_atom_line(atom, velocity, layer, groups, type_dict, info)
+        line = __get_atom_line(atom, velocity, groups, type_dict, info)
         f.writelines(line)
     return

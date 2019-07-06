@@ -57,7 +57,7 @@ def __init_index(index, info, num_atoms):
             Index of atom in the Atoms object.
 
         info (dict):
-            Dictionary that stores the velocity, layer, and groups.
+            Dictionary that stores the velocity, and groups.
 
         num_atoms (int):
             Number of atoms in the Atoms object.
@@ -79,7 +79,7 @@ def __handle_end(info, num_atoms):
 
     Args:
         info (dict):
-            Dictionary that stores the velocity, layer, and groups.
+            Dictionary that stores the velocity, and groups.
 
         num_atoms (int):
             Number of atoms in the Atoms object.
@@ -163,82 +163,6 @@ def add_group_by_type(atoms, groups):
             info[index]['groups'].append(group)
         else:
             info[index]['groups'] = [group]
-    __handle_end(info, num_atoms)
-    atoms.info = info
-    return counts
-
-
-def assign_layer_by_position(split, atoms, direction):
-    '''
-    Assigns layers to all atoms based on its position. Only works in
-    one direction. Similar to group but only one layer can be assigned
-    to an atom.
-    Returns a bookkeeping parameter, but atoms will be udated in-place.
-
-    Args:
-        split (list(float)):
-            List of boundaries. First element should be lower boundary of sim.
-            box in specified direction and the last the upper.
-
-        atoms (ase.Atoms):
-            Atoms to assign layers to
-
-        direction (str):
-            Which direction the split will work
-
-    Returns:
-        counts (int)
-            A list of number of atoms in each layer
-
-    '''
-    info = atoms.info
-    num_atoms = len(atoms)
-    counts = [0]*(len(split)-1)
-    for index, atom in enumerate(atoms):
-        index = __init_index(index, info, num_atoms)
-        i = __get_group(split, atom.position, direction)
-        info[index]['layer'] = i
-        counts[i] += 1
-    __handle_end(info, num_atoms)
-    atoms.info = info
-    return counts
-
-def assign_layer_by_type(atoms, layers):
-    '''
-    Assigns a layer to all atoms based on atom types. Returns a
-    bookkeeping parameter, but atoms will be udated in-place.
-
-    Args:
-        atoms (ase.Atoms):
-            Atoms to assign layer to.
-
-        types (dict):
-            Dictionary with types for keys and layer as a value.
-            Only one layer allowed per atom. Assumed layers are integers
-            starting at 0 and increasing in steps of 1. Ex. range(0,10)
-
-    Returns:
-        counts (int)
-            A list of number of atoms in each layer.
-
-    '''
-    # atom symbol checking
-    all_symbols = layers.keys()
-    # check that symbol set matches symbol set of atoms
-    if set(atoms.get_chemical_symbols()) - set(all_symbols):
-        raise ValueError('Layer symbols do not match atoms symbols.')
-    if not len(set(all_symbols)) == len(all_symbols):
-        raise ValueError('Layer not assigned to all atom types.')
-
-    num_layers = len(set([layers[sym] for sym in set(all_symbols)]))
-    num_atoms = len(atoms)
-    info = atoms.info
-    counts = [0]*num_layers
-    for index, atom in enumerate(atoms):
-        index = __init_index(index, info, num_atoms)
-        layer = layers[atom.symbol]
-        counts[layer] += 1
-        info[index]['layer'] = layer
     __handle_end(info, num_atoms)
     atoms.info = info
     return counts
