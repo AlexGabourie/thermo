@@ -272,30 +272,6 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
     write(out_filename, atoms, format)
     return
 
-def convert_gpumd_trajectory(traj_file='xyz.out', out_filename='out.xyz',
-                       in_file='xyz.in', format='xyz'):
-    """
-    Converts GPUMD trajectory to any compatible ASE output. Default: xyz
-
-    Args:
-        traj_file (str):
-            Trajetory from GPUMD
-
-        out_filename (str):
-            File in which final trajectory should be saved
-
-        in_file (str):
-            Original stucture input file to GPUMD. Needed to get atom
-            numbers/types
-
-        format (str):
-            ASE supported format
-
-    """
-    traj = load_traj(traj_file, in_file)
-    write(out_filename, traj, format)
-    return
-
 def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
                         gpumd_file='xyz.in'):
     """
