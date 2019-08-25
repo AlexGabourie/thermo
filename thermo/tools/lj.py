@@ -311,19 +311,22 @@ class LJ(object):
                 Ex. ['a', 'b', 'c'] = pairs => 'aa', 'ab', 'ac', 'ba', 'bb', 'bc', 'ca',
                 'cb' 'cc' in this order.
         """
+        if not atom_order:
+            raise ValueError('atom_order is required.')
+
         # check if atoms in atom_order exist in LJ
         for symbol in atom_order:
             if symbol not in self.ljdict.keys():
                 raise ValueError('{} atom does not exist in LJ'.format(symbol))
-        out_txt = 'lj{}\n'.format(len(atom_order))
+        out_txt = 'lj {}\n'.format(len(atom_order))
         for i, sym1 in enumerate(atom_order):
             for j, sym2 in enumerate(atom_order):
                 pair = {sym1, sym2}
                 if pair in self.ignore:
                     if i+1==len(atom_order) and j+1==len(atom_order):
-                        out_txt += '0 0 0\n'
-                    else:
                         out_txt += '0 0 0'
+                    else:
+                        out_txt += '0 0 0\n'
                     continue
 
                 a1 = self.ljdict[sym1]
