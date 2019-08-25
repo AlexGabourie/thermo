@@ -17,7 +17,7 @@ def load_UFF():
             Dictionary with atom symbols as the key and a tuple of epsilon and
             sigma in units of eV and Angstroms, respectively.
     """
-    path = os.path.join(__file__, '../../data/UFF.params')
+    path = os.path.abspath(os.path.join(__file__, '../../data/UFF.params'))
     return pickle.load(open(path, 'r'))
 
 #################################
