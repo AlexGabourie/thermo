@@ -102,8 +102,8 @@ class LJ(object):
 
     def replace_UFF_params(self, symbols, add=False):
         """
-        Replaces UFF parameters in the LJ object. Will add new entries if 'add'
-        is set to True. UFF parameters are loaded from the package.
+        Replaces current LJ parameters with UFF values. Will add new entries if
+        'add' is set to True. UFF parameters are loaded from the package.
 
         Args:
             symbols (str or list(str)):
@@ -119,9 +119,9 @@ class LJ(object):
             if symbol in self.ljdict.keys() or add:
                 self.ljdict[symbol] = UFF[symbol]
             else:
-                print("Warning: {} is already in LJ list and".format(symbol) +\
-                " will not be included.\nTo include, use " + \
-                "replace_UFF_params or toggle 'replace' boolean.\n")
+                print("Warning: {} is not in LJ list and".format(symbol) +\
+                " cannot be replaced.\nTo include, use " + \
+                "add_UFF_params or toggle 'add' boolean.\n")
 
 
     def add_param(self, symbol, data, replace=True):
