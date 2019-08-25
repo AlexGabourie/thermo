@@ -1,4 +1,5 @@
 import pickle
+import os
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -16,8 +17,8 @@ def load_UFF():
             Dictionary with atom symbols as the key and a tuple of epsilon and
             sigma in units of eV and Angstroms, respectively.
     """
-
-    return pickle.load(open('../../data/UFF.params', 'r'))
+    path = os.path.abspath(os.path.join(__file__, '../../data/UFF.params'))
+    return pickle.load(open(path, 'r'))
 
 #################################
 # Lorentz-Berthelot Mixing
