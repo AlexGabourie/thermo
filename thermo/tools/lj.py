@@ -1,4 +1,5 @@
 import pickle
+import os
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -17,7 +18,7 @@ def load_UFF():
             sigma in units of eV and Angstroms, respectively.
     """
 
-    return pickle.load(open('../../data/UFF.params', 'r'))
+    return pickle.load(open(os.path.join(__file__, 'data/UFF.params'), 'r'))
 
 #################################
 # Lorentz-Berthelot Mixing
