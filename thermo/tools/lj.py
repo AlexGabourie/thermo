@@ -1,4 +1,5 @@
 import pickle
+import os
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -16,8 +17,8 @@ def load_UFF():
             Dictionary with atom symbols as the key and a tuple of epsilon and
             sigma in units of eV and Angstroms, respectively.
     """
-
-    return pickle.load(open('../../data/UFF.params', 'r'))
+    path = os.path.abspath(os.path.join(__file__, '../../data/UFF.params'))
+    return pickle.load(open(path, 'r'))
 
 #################################
 # Lorentz-Berthelot Mixing
@@ -101,8 +102,8 @@ class LJ(object):
 
     def replace_UFF_params(self, symbols, add=False):
         """
-        Replaces UFF parameters in the LJ object. Will add new entries if 'add'
-        is set to True. UFF parameters are loaded from the package.
+        Replaces current LJ parameters with UFF values. Will add new entries if
+        'add' is set to True. UFF parameters are loaded from the package.
 
         Args:
             symbols (str or list(str)):
@@ -118,9 +119,9 @@ class LJ(object):
             if symbol in self.ljdict.keys() or add:
                 self.ljdict[symbol] = UFF[symbol]
             else:
-                print("Warning: {} is already in LJ list and".format(symbol) +\
-                " will not be included.\nTo include, use " + \
-                "replace_UFF_params or toggle 'replace' boolean.\n")
+                print("Warning: {} is not in LJ list and".format(symbol) +\
+                " cannot be replaced.\nTo include, use " + \
+                "add_UFF_params or toggle 'add' boolean.\n")
 
 
     def add_param(self, symbol, data, replace=True):
@@ -310,19 +311,22 @@ class LJ(object):
                 Ex. ['a', 'b', 'c'] = pairs => 'aa', 'ab', 'ac', 'ba', 'bb', 'bc', 'ca',
                 'cb' 'cc' in this order.
         """
+        if not atom_order:
+            raise ValueError('atom_order is required.')
+
         # check if atoms in atom_order exist in LJ
         for symbol in atom_order:
             if symbol not in self.ljdict.keys():
                 raise ValueError('{} atom does not exist in LJ'.format(symbol))
-        out_txt = 'lj{}\n'.format(len(atom_order))
+        out_txt = 'lj {}\n'.format(len(atom_order))
         for i, sym1 in enumerate(atom_order):
             for j, sym2 in enumerate(atom_order):
                 pair = {sym1, sym2}
                 if pair in self.ignore:
                     if i+1==len(atom_order) and j+1==len(atom_order):
-                        out_txt += '0 0 0\n'
-                    else:
                         out_txt += '0 0 0'
+                    else:
+                        out_txt += '0 0 0\n'
                     continue
 
                 a1 = self.ljdict[sym1]
