@@ -222,7 +222,7 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 
         num_atoms = int(xyz_line[0])
         block_size = num_atoms + 2
-        num_blocks = len(xyz_line)/block_size
+        num_blocks = len(xyz_line) // block_size
         traj = list()
         for block in range(num_blocks):
             types = []

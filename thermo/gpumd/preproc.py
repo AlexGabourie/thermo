@@ -41,11 +41,11 @@ def __get_group(split, pos, direction):
     errmsg = 'Out of bounds error: {}'.format(d)
     for i,val in enumerate(split[:-1]):
         if i == 0 and d < val:
-            print errmsg
+            print(errmsg)
             return -1
         if d >= val and d < split[i+1]:
             return i
-    print errmsg
+    print(errmsg)
     return -1
 
 def __init_index(index, info, num_atoms):
