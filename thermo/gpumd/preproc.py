@@ -69,7 +69,7 @@ def __init_index(index, info, num_atoms):
     '''
     if index == num_atoms-1:
         index = -1
-    if not index in info.keys():
+    if not index in info:
         info[index] = dict()
     return index
 
@@ -115,7 +115,7 @@ def add_group_by_position(split, atoms, direction):
     for index, atom in enumerate(atoms):
         index = __init_index(index, info, num_atoms)
         i = __get_group(split, atom.position, direction)
-        if 'groups' in info[index].keys():
+        if 'groups' in info[index]:
             info[index]['groups'].append(i)
         else:
             info[index]['groups'] = [i]
@@ -144,7 +144,7 @@ def add_group_by_type(atoms, groups):
 
     '''
     # atom symbol checking
-    all_symbols = groups.keys()
+    all_symbols = list(groups)
     # check that symbol set matches symbol set of atoms
     if set(atoms.get_chemical_symbols()) - set(all_symbols):
         raise ValueError('Group symbols do not match atoms symbols.')
@@ -159,7 +159,7 @@ def add_group_by_type(atoms, groups):
         index = __init_index(index, info, num_atoms)
         group = groups[atom.symbol]
         counts[group] += 1
-        if 'groups' in info[index].keys():
+        if 'groups' in info[index]:
             info[index]['groups'].append(group)
         else:
             info[index]['groups'] = [group]

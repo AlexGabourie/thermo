@@ -125,7 +125,7 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
         save['SDC_y'] = np.zeros((pt_rng))
         save['SDC_z'] = np.zeros((pt_rng))
 
-        for key in sdc.keys():
+        for key in sdc:
             vrun = vac[key]
             srun = sdc[key]
 
@@ -240,7 +240,7 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
         ave['VAC_y'] = np.zeros((pt_rng))
         ave['VAC_z'] = np.zeros((pt_rng))
 
-        for key in out.keys():
+        for key in out:
             run = out[key]
             ave['t'] += run['t']
             ave['VAC_x'] += run['VAC_x']
@@ -341,7 +341,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
         ave['DOS_y'] = np.zeros((pt_rng))
         ave['DOS_z'] = np.zeros((pt_rng))
 
-        for key in out.keys():
+        for key in out:
             run = out[key]
             ave['nu'] += run['nu']
             ave['DOS_x'] += run['DOS_x']

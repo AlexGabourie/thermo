@@ -96,10 +96,10 @@ def get_heat_flux(**kwargs):
 
     try:
         # Get arguments
-        directory = kwargs['directory'] if 'directory' in kwargs.keys() else './'
+        directory = kwargs['directory'] if 'directory' in kwargs else './'
         heatflux_file = kwargs['heatflux_file'] if 'heatflux_file' in \
-            kwargs.keys() else os.path.join(directory, 'heat_out.heatflux')
-        mat_file = kwargs['mat_file'] if 'mat_file' in kwargs.keys() \
+            kwargs else os.path.join(directory, 'heat_out.heatflux')
+        mat_file = kwargs['mat_file'] if 'mat_file' in kwargs \
             else os.path.join(directory, 'heat_flux.mat')
 
         # Check that directory exists
@@ -210,7 +210,7 @@ def get_GKTC(**kwargs):
     try:
 
         # Check that directory exists
-        directory = kwargs['directory'] if 'directory' in kwargs.keys() else './'
+        directory = kwargs['directory'] if 'directory' in kwargs else './'
         if not os.path.isdir(directory):
             raise IOError('The path: {} is not a directory.'.format(directory))
 
@@ -224,17 +224,17 @@ def get_GKTC(**kwargs):
         Jy = np.squeeze(hf['Jy'])
         Jz = np.squeeze(hf['Jz'])
 
-        T = kwargs['T'] if 'T' in kwargs.keys() else 300.
-        vol = kwargs['vol'] if 'vol' in kwargs.keys() else 1.
+        T = kwargs['T'] if 'T' in kwargs else 300.
+        vol = kwargs['vol'] if 'vol' in kwargs else 1.
         scale = __metal_to_SI(vol, T)
 
         Jx = Jx/vol
         Jy = Jy/vol
         Jz = Jz/vol
 
-        log = kwargs['log'] if 'log' in kwargs.keys() else 'log.txt'
+        log = kwargs['log'] if 'log' in kwargs else 'log.txt'
         # Set timestep
-        if 'dt' in kwargs.keys():
+        if 'dt' in kwargs:
             # If user passed value
             dt = kwargs['dt'] #[ps]
         else:
@@ -243,12 +243,12 @@ def get_GKTC(**kwargs):
             dt = 1.0e-3 if len(dts) == 0 else dts[0]  #[ps]
 
         # set the heat flux sampling rate: rate*timestep*scaling
-        if 'srate' in kwargs.keys():
+        if 'srate' in kwargs:
             srate = kwargs['srate']
         else:
-            if 'rate' in kwargs.keys():
+            if 'rate' in kwargs:
                 rate = kwargs['rate']
-            elif 'rate' in hf.keys():
+            elif 'rate' in hf:
                 rate = int(hf['rate'])
             else:
                 rate = 1
@@ -258,7 +258,7 @@ def get_GKTC(**kwargs):
         tot_time = srate*(len(Jx)-1)
 
         # set the integration limit (i.e. tau)
-        tau = kwargs['tau'] if 'tau' in kwargs.keys() else tot_time # [ps]
+        tau = kwargs['tau'] if 'tau' in kwargs else tot_time # [ps]
 
         max_lag = int(floor(tau/(srate*1000.)))
         t = np.squeeze(np.linspace(0, (max_lag)*srate, max_lag+1))

@@ -350,8 +350,8 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
 
     # assume info[0] has same keys and number of groups as all other indices
     num_groups = 0
-    if info and (0 in info.keys()):
-        infokeys = info[0].keys()
+    if info and (0 in info):
+        infokeys = list(info[0])
         velocity = 'velocity' in infokeys
         if 'groups' in infokeys:
             groups = True

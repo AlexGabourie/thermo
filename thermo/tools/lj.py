@@ -93,7 +93,7 @@ class LJ(object):
             symbols = [symbols] # convert to list if one string
         UFF = load_UFF()
         for symbol in symbols:
-            if not replace and symbol in self.ljdict.keys():
+            if not replace and symbol in self.ljdict:
                 print("Warning: {} is already in LJ list and".format(symbol) +\
                 " will not be included.\nTo include, use " + \
                 "replace_UFF_params or toggle 'replace' boolean.\n")
@@ -116,7 +116,7 @@ class LJ(object):
             symbols = [symbols] # convert to list if one string
         UFF = load_UFF()
         for symbol in symbols:
-            if symbol in self.ljdict.keys() or add:
+            if symbol in self.ljdict or add:
                 self.ljdict[symbol] = UFF[symbol]
             else:
                 print("Warning: {} is not in LJ list and".format(symbol) +\
@@ -145,7 +145,7 @@ class LJ(object):
             all([isinstance(item, (int, long, float)) for item in data]) and \
             type(symbol) == str)
         if good:
-            if symbol in self.ljdict.keys():
+            if symbol in self.ljdict:
                 if replace:
                     self.ljdict[symbol] = data
                 else:
@@ -316,7 +316,7 @@ class LJ(object):
 
         # check if atoms in atom_order exist in LJ
         for symbol in atom_order:
-            if symbol not in self.ljdict.keys():
+            if symbol not in self.ljdict:
                 raise ValueError('{} atom does not exist in LJ'.format(symbol))
         out_txt = 'lj {}\n'.format(len(atom_order))
         for i, sym1 in enumerate(atom_order):
@@ -337,7 +337,7 @@ class LJ(object):
                 cutkey = self.__get_cutkey(pair)
                 if self.global_cutoff:
                     cutoff = self.global_cutoff
-                elif cutkey in self.cutoff.keys():
+                elif cutkey in self.cutoff:
                     cutoff = self.cutoff[cutkey]
                 else:
                     cutoff = self.cut_scale*sig
@@ -365,7 +365,7 @@ class LJ(object):
         # check pair
         good = True
         for item in list(pair):
-            good = good and item in self.ljdict.keys()
+            good = good and item in self.ljdict
 
         if not good:
             raise ValueError('Elements in pair not found in LJ object.')
@@ -376,7 +376,7 @@ class LJ(object):
 
     def __str__(self):
         out_str = 'Symbol: Epsilon (eV), Sigma (Angs.)\n'
-        for key in self.ljdict.keys():
+        for key in self.ljdict:
             cur = self.ljdict[key]
             out_str += "{}: {}, {}\n".format(key, cur[0], cur[1])
 
@@ -386,9 +386,9 @@ class LJ(object):
             out_str += "\nGlobal cutoff = {} Angstroms\n".format(self.global_cutoff)
 
 
-        if len(self.cutoff.keys()) > 0:
+        if len(self.cutoff) > 0:
             out_str += "\nCustom Cutoffs\n"
-            for pair in self.cutoff.keys():
+            for pair in self.cutoff:
                 lpair = pair.split()
                 out_str += "[{}, {}] : {}\n".format(lpair[0], lpair[1],
                                                  self.cutoff[pair])
