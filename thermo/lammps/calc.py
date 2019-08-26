@@ -6,7 +6,7 @@ import os
 import sys
 from scipy import integrate
 from math import floor
-from data import extract_dt
+from .data import extract_dt
 import scipy.io as sio
 
 __author__ = "Alexander Gabourie"

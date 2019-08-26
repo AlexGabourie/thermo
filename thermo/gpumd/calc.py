@@ -1,7 +1,7 @@
 import numpy as np
 import os
 from scipy.integrate import trapz
-from data import load_shc
+from .data import load_shc
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
