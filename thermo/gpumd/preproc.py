@@ -28,8 +28,7 @@ def __get_group(split, pos, direction):
             Which direction the split will work
 
     Returns:
-        out (int):
-            Group of atom
+        int: Group of atom
 
     '''
     if direction == 'x':
@@ -63,8 +62,7 @@ def __init_index(index, info, num_atoms):
             Number of atoms in the Atoms object.
 
     Returns:
-        index (int)
-            Index of atom in the Atoms object.
+        int: Index of atom in the Atoms object.
 
     '''
     if index == num_atoms-1:
@@ -105,8 +103,7 @@ def add_group_by_position(split, atoms, direction):
             Which direction the split will work.
 
     Returns:
-        counts (int)
-            A list of number of atoms in each group.
+        int: A list of number of atoms in each group.
 
     '''
     info = atoms.info
@@ -139,8 +136,7 @@ def add_group_by_type(atoms, groups):
             starting at 0 and increasing in steps of 1. Ex. range(0,10).
 
     Returns:
-        counts (int)
-            A list of number of atoms in each group.
+        int: A list of number of atoms in each group.
 
     '''
     # atom symbol checking
@@ -171,7 +167,7 @@ def set_velocities(atoms, custom=None):
     """
     Sets the 'velocity' part of the atoms to be used in GPUMD.
     Custom velocities must be provided. They must also be in
-    the units of eV^(1/2) amu^(-1/2)
+    the units of eV^(1/2) amu^(-1/2).
 
     Args:
         atoms (ase.Atoms):

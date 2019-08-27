@@ -10,7 +10,7 @@ __email__ = "gabourie@stanford.edu"
 
 def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
     """
-    Loads data from sdc.out GPUMD output file
+    Loads data from sdc.out GPUMD output file.
 
     Args:
         Nc (int or list(int)):
@@ -33,25 +33,27 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
             File to load SDC from. Default is sdc.out
 
     Returns:
-        sdc (dict(dict)):
-            Dictionary with SDC data. The outermost dictionary stores each individual run.
-            Each run is a dictionary with keys:\n
-            - t (ps)
-            - SDC_x (Angstrom^2/ps)
-            - SDC_y (Angstrom^2/ps)
-            - SDC_z (Angstrom^2/ps)
+        tuple: sdc, vac
 
-            If average=True, this will also be stored as a run with the same run keys.
+    sdc (dict(dict)):
+    Dictionary with SDC data. The outermost dictionary stores each individual run.
+    Each run is a dictionary with keys:\n
+    - t (ps)
+    - SDC_x (Angstrom^2/ps)
+    - SDC_y (Angstrom^2/ps)
+    - SDC_z (Angstrom^2/ps)
 
-        vac (dict(dict)):
-            Dictonary with VAC data. The outermost dictionary stores each individual run.
-            Each run is a dictionary with keys:\n
-            - t (ps)
-            - VAC_x (Angstrom^2/ps^2)
-            - VAC_y (Angstrom^2/ps^2)
-            - VAC_z (Angstrom^2/ps^2)
+    If average=True, this will also be stored as a run with the same run keys.
 
-            If average=True, this will also be stored as a run with the same run keys.
+    vac (dict(dict)):
+    Dictonary with VAC data. The outermost dictionary stores each individual run.
+    Each run is a dictionary with keys:\n
+    - t (ps)
+    - VAC_x (Angstrom^2/ps^2)
+    - VAC_y (Angstrom^2/ps^2)
+    - VAC_z (Angstrom^2/ps^2)
+
+    If average=True, this will also be stored as a run with the same run keys.
 
     """
     is_int = type(Nc) == int
@@ -158,7 +160,7 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
 
 def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
     """
-    Loads data from mvac.out GPUMD output file
+    Loads data from mvac.out GPUMD output file.
 
     Args:
         Nc (int or list(int)):
@@ -181,15 +183,16 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
             File to load VAC from. Default is mvac.out
 
     Returns:
-        out (dict(dict)):
+        dict(dict):
             Dictonary with VAC data. The outermost dictionary stores each individual run.
-            Each run is a dictionary with keys:\n
-            - t (ps)
-            - VAC_x (Angstrom^2/ps^2)
-            - VAC_y (Angstrom^2/ps^2)
-            - VAC_z (Angstrom^2/ps^2)
 
-            If average=True, this will also be stored as a run with the same run keys.
+    Each run is a dictionary with keys:\n
+    - t (ps)
+    - VAC_x (Angstrom^2/ps^2)
+    - VAC_y (Angstrom^2/ps^2)
+    - VAC_z (Angstrom^2/ps^2)
+
+    If average=True, this will also be stored as a run with the same run keys.
     """
     is_int = type(Nc) == int
     # do input checks
@@ -259,7 +262,7 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
 
 def load_dos(points_per_run, num_run=1, average=False, directory='', filename='dos.out'):
     """
-    Loads data from dos.out GPUMD output file
+    Loads data from dos.out GPUMD output file.
 
     Args:
         points_per_run (int or list(int)):
@@ -282,15 +285,16 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
             File to load DOS from. Default is dos.out
 
     Returns:
-        out (dict(dict)):
-            Dictonary with DOS data. The outermost dictionary stores each individual run.
-            Each run is a dictionary with keys:\n
-            - nu (THz)
-            - DOS_x (1/THz)
-            - DOS_y (1/THz)
-            - DOS_z (1/THz)
+        dict(dict)): Dictonary with DOS data. The outermost dictionary stores
+        each individual run.
 
-            If average=True, this will also be stored as a run with the same run keys.
+    Each run is a dictionary with keys:\n
+    - nu (THz)
+    - DOS_x (1/THz)
+    - DOS_y (1/THz)
+    - DOS_z (1/THz)
+
+    If average=True, this will also be stored as a run with the same run keys.
     """
     is_int = type(points_per_run) == int
     # do input checks
@@ -360,7 +364,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
 
 def load_shc(Nc, directory='', filename='shc.out'):
     """
-    Loads the data from shc.out GPUMD output file
+    Loads the data from shc.out GPUMD output file.
 
     Args:
         Nc (int):
@@ -373,8 +377,7 @@ def load_shc(Nc, directory='', filename='shc.out'):
             File to load SHC from. Default is shc.out
 
     Returns:
-        out (dict):
-            Dictionary of in- and out-of-plane shc results (average)
+        dict: Dictionary of in- and out-of-plane shc results (average)
     """
     if directory=='':
         shc_path = os.path.join(os.getcwd(),filename)
@@ -403,14 +406,7 @@ def load_shc(Nc, directory='', filename='shc.out'):
 
 def load_kappa(directory='', filename='kappa.out'):
     """
-    Loads data from kappa.out GPUMD output file which contains HNEMD kappa
-
-    out keys:\n
-    - kx_in
-    - kx_out
-    - ky_in
-    - ky_out
-    - kz
+    Loads data from kappa.out GPUMD output file which contains HNEMD kappa.
 
     Args:
         directory (str):
@@ -420,8 +416,7 @@ def load_kappa(directory='', filename='kappa.out'):
             File to load kappa from. Default is kappa.out
 
     Returns:
-        out (dict):
-            A dictionary with keys corresponding to the columns in 'kappa.out'
+        dict: A dictionary with keys corresponding to the columns in 'kappa.out'
     """
 
     if directory=='':
@@ -452,45 +447,29 @@ def load_kappa(directory='', filename='kappa.out'):
 def load_hac(directory='',filename='hac.out'):
     """
     Loads data from hac.out GPUMD output file which contains the
-    heat-current autocorrelation and running thermal conductivity values
+    heat-current autocorrelation and running thermal conductivity values.
 
-    filename (str):
-        File to load hac from. Default is hac.out
-
-    Created for GPUMD-v1.9
-
-    hacf - (ev^3/amu)
-    k - (W/m/K)
-    t - (ps)
-
-    out keys:\n
-    - hacf_xi
-    - hacf_xo
-    - hacf_x: ave. of i/o components
-    - hacf_yi
-    - hacf_yo
-    - hacf_y: ave of i/o components
-    - hacf_z
-    - k_xi
-    - k_xo
-    - k_x: ave of i/o components
-    - k_yi
-    - k_yo
-    - k_y: ave of i/o components
-    - k_z
-    - k_i: ave of x/y components
-    - k_o: ave of x/y components
-    - k: ave of all in-plane components
-    - t: correlation time
+    **Created for GPUMD-v1.9**
 
     Args:
-        directory (str):
-            Directory to load 'hac.out' file from (dir. of simulation)
+        directory (str): Directory storing heat flux file.
+        filename (str): File to load hac from. Default is 'hac.out'
 
     Returns:
-        out (dict):
-            A dictionary with keys corresponding to the columns in 'hac.out'
-            with some additional keys for aggregated values (see description)
+        dict: A dictionary with keys corresponding to the columns in
+        'hac.out' with some additional keys for aggregated values (see description)
+
+    Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]
+
+    Abbreviated description of keys in output:\n
+    * hacf_x: ave. of i/o components
+    * hacf_y: ave. of i/o components
+    * k_x: ave. of i/o components
+    * k_y: ave. of i/o components
+    * k_i: ave. of x/y components
+    * k_o: ave. of x/y components
+    * k: ave of all in-plane components
+    * t: correlation time
     """
 
     if directory=='':

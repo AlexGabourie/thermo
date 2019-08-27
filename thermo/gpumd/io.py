@@ -33,7 +33,7 @@ def __get_atom_line(atom, velocity, groups, type_dict, info):
             Dictionary that stores all velocity, and groups data.
 
     Returns:
-        out (str)
+        str:
             The line to be printed to file.
     '''
     optional = ''
@@ -134,15 +134,18 @@ def load_xyz(filename='xyz.in', atom_types=None):
             List of atom types (elements).
 
     Returns:
-        atoms (ase.Atoms):
-            ASE atoms object with x,y,z, mass, group, type, cell, and PBCs
-            from input file. group is stored in tag, atom type may not
-            correspond to correct atomic symbol
-        M (int):
-            Max number of neighbor atoms
+        tuple: atoms, M, cutoff
 
-        cutoff (float):
-            Initial cutoff for neighbor list build
+    atoms (ase.Atoms):
+    ASE atoms object with x,y,z, mass, group, type, cell, and PBCs
+    from input file. group is stored in tag, atom type may not
+    correspond to correct atomic symbol
+
+    M (int):
+    Max number of neighbor atoms
+
+    cutoff (float):
+    Initial cutoff for neighbor list build
     """
     # read file
     with open(filename) as f:
@@ -207,8 +210,7 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
             List of atom types (elements).
 
     Returns:
-        traj (list(ase.Atoms)):
-            A list of ASE atoms objects.
+        list(ase.Atoms): A list of ASE atoms objects.
     """
     # get extra information about system if wanted
     if in_file:
@@ -252,7 +254,7 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
     """
     Converts the GPUMD input structure file to any compatible ASE
     output structure file.
-    Warning: Info dictionary may not be preserved.
+    **Warning: Info dictionary may not be preserved**.
 
     Args:
         in_file (str):
@@ -275,7 +277,7 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
 def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
                         gpumd_file='xyz.in'):
     """
-    Converts a lammps data file to GPUMD compatible position file
+    Converts a lammps data file to GPUMD compatible position file.
 
     Args:
         filename (str):
@@ -303,7 +305,7 @@ def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
 def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
         order=None, group_index=None):
     """
-    Converts ASE atoms to GPUMD compatible position file
+    Converts ASE atoms to GPUMD compatible position file.
 
     Args:
         atoms (ase.Atoms):

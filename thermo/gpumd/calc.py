@@ -8,20 +8,14 @@ __email__ = "gabourie@stanford.edu"
 
 def running_ave(kappa, time):
     """
-    Gets running average
-
-    Reads and returns the structure input file from GPUMD.
+    Gets running average. Reads and returns the structure input file from GPUMD.
 
     Args:
-        kappa (ndarray):
-            Raw thermal conductivity
-
-        time (ndarray):
-            Time vector that kappa was sampled at
+        kappa (ndarray): Raw thermal conductivity
+        time (ndarray): Time vector that kappa was sampled at
 
     Returns:
-        out (ndarray):
-            Running average of kappa input
+        ndarray: Running average of kappa input
     """
 
     out = np.zeros(kappa.shape[0])
@@ -64,8 +58,7 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
             Directory to load 'shc.out' file from (dir. of simulation)
 
     Returns:
-        out (dict):
-            Dictionary with the spectral decomposition
+        dict: Dictionary with the spectral decomposition
 
     """
     if shc==None:
