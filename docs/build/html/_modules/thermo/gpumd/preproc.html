@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>thermo.gpumd.preproc &mdash; thermoMD  documentation</title>
+  <title>thermo.gpumd.preproc &mdash; thermo  documentation</title>
   
 
   
@@ -17,36 +17,38 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> thermoMD
+            <a href="../../../index.html" class="icon icon-home"> thermo
           
 
           
@@ -76,9 +78,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Documentation</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.gpumd.html">gpumd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.lammps.html">lammps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.shared.html">shared</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.tools.html">tools</a></li>
 </ul>
 
             
@@ -93,7 +97,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">thermoMD</a>
+          <a href="../../../index.html">thermo</a>
         
       </nav>
 
@@ -185,11 +189,11 @@
     <span class="n">errmsg</span> <span class="o">=</span> <span class="s1">&#39;Out of bounds error: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">split</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">val</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="n">errmsg</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
             <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">if</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="n">val</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">i</span>
-    <span class="nb">print</span> <span class="n">errmsg</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
     <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
 
 <span class="k">def</span> <span class="nf">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">):</span>
@@ -213,7 +217,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">num_atoms</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
         <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">index</span>
 
@@ -259,7 +263,7 @@
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">__get_group</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
             <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -288,7 +292,7 @@
 
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="c1"># atom symbol checking</span>
-    <span class="n">all_symbols</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="n">all_symbols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
     <span class="c1"># check that symbol set matches symbol set of atoms</span>
     <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Group symbols do not match atoms symbols.&#39;</span><span class="p">)</span>
@@ -303,7 +307,7 @@
         <span class="n">index</span> <span class="o">=</span> <span class="n">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
         <span class="n">group</span> <span class="o">=</span> <span class="n">groups</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
         <span class="n">counts</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
             <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">group</span><span class="p">]</span>
@@ -369,26 +373,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

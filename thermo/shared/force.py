@@ -1,5 +1,7 @@
 import numpy as np
 
+__author__ = "Alexander Gabourie"
+__email__ = "gabourie@stanford.edu"
 
 def load_forces(force_file, sim):
     '''
@@ -19,8 +21,7 @@ def load_forces(force_file, sim):
             the force output file (f.out) path when GPUMD is compiled with the force flag
 
     Returns:
-        out (dict)
-            dictionary containing sorted force vectors
+        dict: dictionary containing sorted force vectors
 
     '''
 
@@ -72,7 +73,7 @@ def load_forces(force_file, sim):
 def compare_forces(f1_dict, f2_dict):
     '''
     Compares the LAMMPS and GPUMD forces and returns dictionary of comparison
-    Forces are dict2 - dict1 values
+    Forces are dict2 - dict1 values.
 
     Args:
         arg1 (dict): f1_dict
@@ -84,8 +85,7 @@ def compare_forces(f1_dict, f2_dict):
             LAMMPS simulation
 
     Returns:
-        out (dict)
-            comparison dictionary
+        dict: comparison dictionary
 
     '''
 

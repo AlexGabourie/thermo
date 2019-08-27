@@ -5,7 +5,7 @@ shared
 	Submodules
 	----------
 
-Force Comparison - force
+Force Comparison
 --------------------------
 
 .. automodule:: thermo.shared.force

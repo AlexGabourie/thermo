@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Thermodynamic Molecular Dynamics &mdash; thermoMD  documentation</title>
+  <title>thermo - A GPUMD Helper Package &mdash; thermo  documentation</title>
   
 
   
@@ -17,37 +17,39 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Documentation" href="modules.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+    <link rel="next" title="gpumd" href="thermo.gpumd.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="#" class="icon icon-home"> thermoMD
+            <a href="#" class="icon icon-home"> thermo
           
 
           
@@ -77,9 +79,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">Documentation</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="thermo.gpumd.html">gpumd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.lammps.html">lammps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.shared.html">shared</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.tools.html">tools</a></li>
 </ul>
 
             
@@ -94,7 +98,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">thermoMD</a>
+          <a href="#">thermo</a>
         
       </nav>
 
@@ -125,7 +129,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Thermodynamic Molecular Dynamics</li>
+      <li>thermo - A GPUMD Helper Package</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -144,21 +148,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="thermodynamic-molecular-dynamics">
-<h1>Thermodynamic Molecular Dynamics<a class="headerlink" href="#thermodynamic-molecular-dynamics" title="Permalink to this headline">¶</a></h1>
-<p>The thermodynamic Molecular Dynamics, or <a class="reference external" href="https://github.com/AlexGabourie/thermo">thermoMD</a>, package is a set of <a class="reference external" href="https://www.python.org/">Python</a>  tools to interface with the molecular dynamics (MD) simulators <a class="reference external" href="https://github.com/brucefan1983/GPUMD">GPUMD</a> and <a class="reference external" href="https://lammps.sandia.gov/">LAMMPS</a> for the purpose of thermodynamic simulations (i.e. thermal conductivity).</p>
+  <div class="section" id="thermo-a-gpumd-helper-package">
+<h1>thermo - A GPUMD Helper Package<a class="headerlink" href="#thermo-a-gpumd-helper-package" title="Permalink to this headline">¶</a></h1>
+<p>The thermo, or <a class="reference external" href="https://github.com/AlexGabourie/thermo">thermo</a>, package is a set of <a class="reference external" href="https://www.python.org/">Python</a>  tools to interface with the molecular dynamics (MD) simulator <a class="reference external" href="https://github.com/brucefan1983/GPUMD">GPUMD</a> (and <a class="reference external" href="https://lammps.sandia.gov/">LAMMPS</a> for comparison) for the purpose of thermodynamic simulations (i.e. thermal conductivity).</p>
 <p>Currently, the functionality is limited as it serves specific research purposes at this time; however, the long-term plan is to make this package to primarily serve <a class="reference external" href="https://github.com/brucefan1983/GPUMD">GPUMD</a> with only minor supporting functions for <a class="reference external" href="https://lammps.sandia.gov/">LAMMPS</a> for the purpose of checking force-consistency between the simulators.</p>
-<p>The documenation is produced and maintained by <a class="reference external" href="https://github.com/AlexGabourie">Alex Gabourie</a> at Stanford University. It outlines the structure and usage of the <a class="reference external" href="https://github.com/AlexGabourie/thermo">thermoMD</a> package.</p>
+<p>The documenation is produced and maintained by <a class="reference external" href="https://github.com/AlexGabourie">Alex Gabourie</a> at Stanford University. It outlines the structure and usage of the <a class="reference external" href="https://github.com/AlexGabourie/thermo">thermo</a> package.</p>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">This package contains four subpackages:</div>
+<div class="line">1. <strong>gpumd</strong> : Python interface specific to <a class="reference external" href="https://github.com/brucefan1983/GPUMD">GPUMD</a>.</div>
+<div class="line">2. <strong>lammps</strong> : Python interface specific to <a class="reference external" href="https://lammps.sandia.gov/">LAMMPS</a>.</div>
+<div class="line">3. <strong>shared</strong> : Used strictly to compare <a class="reference external" href="https://github.com/brucefan1983/GPUMD">GPUMD</a> and <a class="reference external" href="https://lammps.sandia.gov/">LAMMPS</a>.</div>
+<div class="line">4. <strong>tools</strong> : Extra support for more general MD related content.</div>
+</div>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.gpumd.html">gpumd</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.calc">Calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.data">Data Loaders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.io">Input/Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.gpumd.html#module-thermo.gpumd.preproc">Preprocessing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.lammps.html">lammps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.calc">Calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.data">Data Loaders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="thermo.lammps.html#module-thermo.lammps.io">Input/Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.shared.html">shared</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="thermo.shared.html#module-thermo.shared.force">Force Comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.tools.html">tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="thermo.tools.html#module-thermo.tools.lj">Lennard Jones</a></li>
+</ul>
+</li>
 </ul>
 </div>
-<div class="section" id="more-navigation">
-<h2>More Navigation:<a class="headerlink" href="#more-navigation" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 </ul>
 </div>
 </div>
@@ -171,7 +201,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="modules.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="thermo.gpumd.html" class="btn btn-neutral float-right" title="gpumd" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
@@ -198,26 +228,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -5,7 +5,7 @@ tools
 	Submodules
 	----------
 
-Lennard Jones - lj
+Lennard Jones
 --------------------------
 
 .. automodule:: thermo.tools.lj

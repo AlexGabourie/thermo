@@ -8,7 +8,7 @@ lammps
     thermo.lammps.calc module
     -------------------------
 
-Calculations - calc
+Calculations
 -------------------------
 
 .. automodule:: thermo.lammps.calc
@@ -16,7 +16,7 @@ Calculations - calc
     :undoc-members:
     :show-inheritance:
 
-Data Loaders - data
+Data Loaders
 -------------------------
 
 .. automodule:: thermo.lammps.data
@@ -24,7 +24,7 @@ Data Loaders - data
     :undoc-members:
     :show-inheritance:
 
-Input/Output - io
+Input/Output
 -----------------------
 
 .. automodule:: thermo.lammps.io

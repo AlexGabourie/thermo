@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>thermo.gpumd.io &mdash; thermoMD  documentation</title>
+  <title>thermo.gpumd.io &mdash; thermo  documentation</title>
   
 
   
@@ -17,36 +17,38 @@
   
 
   
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
-
-  
-  <script src="../../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="../../../index.html" class="icon icon-home"> thermoMD
+            <a href="../../../index.html" class="icon icon-home"> thermo
           
 
           
@@ -76,9 +78,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">Documentation</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.gpumd.html">gpumd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.lammps.html">lammps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.shared.html">shared</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../thermo.tools.html">tools</a></li>
 </ul>
 
             
@@ -93,7 +97,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">thermoMD</a>
+          <a href="../../../index.html">thermo</a>
         
       </nav>
 
@@ -366,7 +370,7 @@
 
         <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xyz_line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">block_size</span> <span class="o">=</span> <span class="n">num_atoms</span> <span class="o">+</span> <span class="mi">2</span>
-        <span class="n">num_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xyz_line</span><span class="p">)</span><span class="o">/</span><span class="n">block_size</span>
+        <span class="n">num_blocks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xyz_line</span><span class="p">)</span> <span class="o">//</span> <span class="n">block_size</span>
         <span class="n">traj</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_blocks</span><span class="p">):</span>
             <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
@@ -414,30 +418,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="n">load_xyz</span><span class="p">(</span><span class="n">in_file</span><span class="p">,</span> <span class="n">atom_types</span><span class="p">)</span>
     <span class="n">write</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
-    <span class="k">return</span></div>
-
-<div class="viewcode-block" id="convert_gpumd_trajectory"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.convert_gpumd_trajectory">[docs]</a><span class="k">def</span> <span class="nf">convert_gpumd_trajectory</span><span class="p">(</span><span class="n">traj_file</span><span class="o">=</span><span class="s1">&#39;xyz.out&#39;</span><span class="p">,</span> <span class="n">out_filename</span><span class="o">=</span><span class="s1">&#39;out.xyz&#39;</span><span class="p">,</span>
-                       <span class="n">in_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Converts GPUMD trajectory to any compatible ASE output. Default: xyz</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        traj_file (str):</span>
-<span class="sd">            Trajetory from GPUMD</span>
-
-<span class="sd">        out_filename (str):</span>
-<span class="sd">            File in which final trajectory should be saved</span>
-
-<span class="sd">        in_file (str):</span>
-<span class="sd">            Original stucture input file to GPUMD. Needed to get atom</span>
-<span class="sd">            numbers/types</span>
-
-<span class="sd">        format (str):</span>
-<span class="sd">            ASE supported format</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">traj</span> <span class="o">=</span> <span class="n">load_traj</span><span class="p">(</span><span class="n">traj_file</span><span class="p">,</span> <span class="n">in_file</span><span class="p">)</span>
-    <span class="n">write</span><span class="p">(</span><span class="n">out_filename</span><span class="p">,</span> <span class="n">traj</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
     <span class="k">return</span></div>
 
 <div class="viewcode-block" id="lammps_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.lammps_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">lammps_atoms_to_gpumd</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;atomic&#39;</span><span class="p">,</span>
@@ -518,8 +498,8 @@
 
     <span class="c1"># assume info[0] has same keys and number of groups as all other indices</span>
     <span class="n">num_groups</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="n">info</span> <span class="ow">and</span> <span class="p">(</span><span class="mi">0</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-        <span class="n">infokeys</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">info</span> <span class="ow">and</span> <span class="p">(</span><span class="mi">0</span> <span class="ow">in</span> <span class="n">info</span><span class="p">):</span>
+        <span class="n">infokeys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">velocity</span> <span class="o">=</span> <span class="s1">&#39;velocity&#39;</span> <span class="ow">in</span> <span class="n">infokeys</span>
         <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">infokeys</span><span class="p">:</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="kc">True</span>
@@ -588,26 +568,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

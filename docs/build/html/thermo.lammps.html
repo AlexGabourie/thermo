@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>lammps &mdash; thermoMD  documentation</title>
+  <title>lammps &mdash; thermo  documentation</title>
   
 
   
@@ -17,38 +17,40 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="shared" href="thermo.shared.html" />
     <link rel="prev" title="gpumd" href="thermo.gpumd.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> thermoMD
+            <a href="index.html" class="icon icon-home"> thermo
           
 
           
@@ -78,23 +80,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Documentation</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="thermo.html">thermo</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="thermo.gpumd.html">gpumd</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">lammps</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#module-thermo.lammps.calc">Calculations - calc</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-thermo.lammps.data">Data Loaders - data</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-thermo.lammps.io">Input/Output - io</a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="thermo.gpumd.html">gpumd</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">lammps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-thermo.lammps.calc">Calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-thermo.lammps.data">Data Loaders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-thermo.lammps.io">Input/Output</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="thermo.shared.html">shared</a></li>
-<li class="toctree-l3"><a class="reference internal" href="thermo.tools.html">tools</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.shared.html">shared</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermo.tools.html">tools</a></li>
 </ul>
 
             
@@ -109,7 +104,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">thermoMD</a>
+          <a href="index.html">thermo</a>
         
       </nav>
 
@@ -140,10 +135,6 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-          <li><a href="modules.html">Documentation</a> &raquo;</li>
-        
-          <li><a href="thermo.html">thermo</a> &raquo;</li>
-        
       <li>lammps</li>
     
     
@@ -166,217 +157,175 @@
   <div class="section" id="lammps">
 <h1>lammps<a class="headerlink" href="#lammps" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-thermo.lammps.calc">
-<span id="calculations-calc"></span><h2>Calculations - calc<a class="headerlink" href="#module-thermo.lammps.calc" title="Permalink to this headline">¶</a></h2>
+<span id="calculations"></span><h2>Calculations<a class="headerlink" href="#module-thermo.lammps.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.lammps.calc.autocorr">
-<code class="descclassname">thermo.lammps.calc.</code><code class="descname">autocorr</code><span class="sig-paren">(</span><em>f</em>, <em>max_lag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#autocorr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.autocorr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes a fast autocorrelation function and returns up to max_lag</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>f (ndarray):</dt>
-<dd>Vector for autocorrelation</dd>
-<dt>max_lag (float):</dt>
-<dd>Lag at which to calculate up to</dd>
-</dl>
+<code class="sig-prename descclassname">thermo.lammps.calc.</code><code class="sig-name descname">autocorr</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">max_lag</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.lammps.calc.autocorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes a fast autocorrelation function and returns up to max_lag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>ndarray</em>) – Vector for autocorrelation</p></li>
+<li><p><strong>max_lag</strong> (<em>float</em>) – Lag at which to calculate up to</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>out (ndarray):</dt>
-<dd>Autocorrelation vector</dd>
-</dl>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Autocorrelation vector</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.lammps.calc.get_GKTC">
-<code class="descclassname">thermo.lammps.calc.</code><code class="descname">get_GKTC</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#get_GKTC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.get_GKTC" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.lammps.calc.</code><code class="sig-name descname">get_GKTC</code><span class="sig-paren">(</span><em class="sig-param">directory='.'</em>, <em class="sig-param">T=300</em>, <em class="sig-param">vol=1</em>, <em class="sig-param">dt=None</em>, <em class="sig-param">rate=None</em>, <em class="sig-param">srate=None</em>, <em class="sig-param">tau=None</em>, <em class="sig-param">log='log.txt'</em>, <em class="sig-param">heatflux_file='heat_out.heatflux'</em>, <em class="sig-param">mat_file='heat_flux.mat'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.lammps.calc.get_GKTC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
 thermal conductivity vector and time vector.
 Assumptions with no info given by user:
-dt = 1 fs, vol = 1, T=300, rate=dt, tau=tot_time</p>
-<p>Keyword Arguments:</p>
+dt = 1 fs, vol = 1, T=300, rate=dt, tau=total time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> (<em>string</em>) – This is the directory in which the simulation results are located.
+If not provided, the current directory is used.</p></li>
+<li><p><strong>T</strong> (<em>float</em>) – This is the temperature at which the equlibrium simulation was run at.
+If not provided, T=300 is used. Units are in [K]</p></li>
+<li><p><strong>vol</strong> (<em>float</em>) – This is the volume of the simulation system.
+If not provided, vol=1 is used. Units are [angstroms^3].</p></li>
+<li><p><strong>dt</strong> (<em>float</em>) – This is the timestep of the green-kubo part of the simulation.
+If not provided, dt=1 fs is used. units are in [ps]</p></li>
+<li><p><strong>rate</strong> (<em>int</em>) – This is the rate at which the heat flux is sampled. This is in
+number of timesteps. If not provided, we assume we sample once per
+timestep so, rate=dt</p></li>
+<li><p><strong>srate</strong> (<em>float</em>) – This is related to rate, as it is the heat flux sampling rate in
+units of simulation time. This does not need to be provided if
+<em>rate</em> is already provided. Defaults are based on <em>rate</em> and <em>dt</em>.
+Units of [ns]</p></li>
+<li><p><strong>tau</strong> (<em>int</em>) – max lag time to integrate over. This is in units of [ps]</p></li>
+<li><p><strong>log</strong> (<em>string</em>) – This is the path of the log file. This is only used if the <em>dt</em>
+keyword is not provided as it tries to extract the timestep from the
+logs</p></li>
+<li><p><strong>heatflux_file</strong> (<em>str</em>) – Filename of heatflux output. If not provided
+‘heat_out.heatflux’ is used.</p></li>
+<li><p><strong>mat_file</strong> (<em>str</em>) – MATLAB file to load, if exists. If not provided,
+‘heat_flux.mat’ will be used. Also used as filename for saved MATLAB
+file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>kx, ky, kz, t, directory, log, dt, tot_time, tau, T, vol, srate,
+jxjx, jyjy, jzjz</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+<p>Output keys:</p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>directory (string):</dt>
-<dd>This is the directory in which the simulation results are located.
-If not provided, the current directory is used.</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>T (float):</dt>
-<dd>This is the temperature at which the equlibrium simulation was run at.
-If not provided, T=300 is used. Units are in [K]</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>vol (float):</dt>
-<dd>This is the volume of the simulation system.
-If not provided, vol=1 is used. Units are [angstroms^3]</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>log (string):</dt>
-<dd>This is the path of the log file. This is only used if the <em>dt</em> keyword is not provided
-as it tries to extract the timestep from the logs</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>dt (float):</dt>
-<dd>This is the timestep of the green-kubo part of the simulation.
-If not provided, dt=1 fs is used. units are in [ps]</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>rate (int):</dt>
-<dd>This is the rate at which the heat flux is sampled. This is in number of timesteps.
-If not provided, we assume we sample once per timestep so, rate=dt</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>srate (float):</dt>
-<dd>This is related to rate, as it is the heat flux sampling rate in units of simulation time.
-This does not need to be provided if <em>rate</em> is already provided. Defaults are based on
-<em>rate</em> and <em>dt</em>. Units of [ns]</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>tau (int):</dt>
-<dd>max lag time to integrate over. This is in units of [ps]</dd>
-</dl>
-</li>
+<li><p>kx (ndarray): x-direction thermal conductivity [W/m/K]</p></li>
+<li><p>ky (ndarray): y-direction thermal conductivity [W/m/K]</p></li>
+<li><p>kz (ndarray): z-direction thermal conductivity [W/m/K]</p></li>
+<li><p>t (ndarra): time [ps]</p></li>
+<li><p>directory (str): directory of results</p></li>
+<li><p>log (str): name of log file</p></li>
+<li><p>dt (float): timestep [ps]</p></li>
+<li><p>tot_time (float): total simulated time [ps]</p></li>
+<li><p>tau (int): Lag time [ps]</p></li>
+<li><p>T (float): [K]</p></li>
+<li><p>vol (float): Volume of simulation cell  [angstroms^3]</p></li>
+<li><p>srate (float): See above</p></li>
+<li><p>jxjx (ndarray): x-direction heat flux autocorrelation</p></li>
+<li><p>jyjy (ndarray): y-direction heat flux autocorrelation</p></li>
+<li><p>jzjz (ndarray): z-direction heat flux autocorrelation</p></li>
 </ul>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs (dict):</dt>
-<dd>List of args above</dd>
-</dl>
-</dd>
-<dt>Returns:</dt>
-<dd><p class="first">out (dict):</p>
-<ul class="last simple">
-<li>kx (ndarray): x-direction thermal conductivity [W/m/K]</li>
-<li>ky (ndarray): y-direction thermal conductivity [W/m/K]</li>
-<li>kz (ndarray): z-direction thermal conductivity [W/m/K]</li>
-<li>t (ndarra): time [ps]</li>
-<li>directory (str): directory of results</li>
-<li>log (str): name of log file</li>
-<li>dt (float): timestep [ps]</li>
-<li>tot_time (float): total simulated time [ps]</li>
-<li>tau (int): Lag time [ps]</li>
-<li>T (float): [K]</li>
-<li>vol (float): Volume of simulation cell  [angstroms^3]</li>
-<li>srate (float): See above</li>
-<li>jxjx (ndarray): x-direction heat flux autocorrelation</li>
-<li>jyjy (ndarray): y-direction heat flux autocorrelation</li>
-<li>jzjz (ndarray): z-direction heat flux autocorrelation</li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.lammps.calc.get_heat_flux">
-<code class="descclassname">thermo.lammps.calc.</code><code class="descname">get_heat_flux</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#get_heat_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.get_heat_flux" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.lammps.calc.</code><code class="sig-name descname">get_heat_flux</code><span class="sig-paren">(</span><em class="sig-param">directory='.'</em>, <em class="sig-param">heatflux_file='heat_out.heatflux'</em>, <em class="sig-param">mat_file='heat_flux.mat'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.lammps.calc.get_heat_flux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the heat flux from a LAMMPS EMD simulation. Creates a compressed .mat
 file if only in text form. Loads .mat form if exists.</p>
-<p>out keys:</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first"><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs (dict):</p>
-<ul class="last simple">
-<li><dl class="first docutils">
-<dt>directory (str):</dt>
-<dd>This is the directory in which the simulation results are located. If
-not provided, the current directory is used.</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>heatflux_file (str):</dt>
-<dd>Filename of heatflux output. If not provided ‘heat_out.heatflux’ is used</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>mat_file (str):</dt>
-<dd>MATLAB file to load, if exists. If not provided, ‘heat_flux.mat’ will
-be used. Also used as filename for saved MATLAB file.</dd>
-</dl>
-</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> (<em>str</em>) – This is the directory in which the simulation results
+are located. If not provided, the current directory is used.</p></li>
+<li><p><strong>heatflux_file</strong> (<em>str</em>) – Filename of heatflux output. If not provided
+‘heat_out.heatflux’ is used.</p></li>
+<li><p><strong>mat_file</strong> (<em>str</em>) – MATLAB file to load, if exists. If not provided,
+‘heat_flux.mat’ will be used. Also used as filename for saved MATLAB
+file.</p></li>
 </ul>
 </dd>
-<dt>Returns:</dt>
-<dd><p class="first">out (dict):</p>
-<ul class="last simple">
-<li>Jx (list)</li>
-<li>Jy (list)</li>
-<li>Jz (list)</li>
-<li>rate (float)</li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Jx (list), Jy (list), Jz (list), rate (float)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-thermo.lammps.data">
-<span id="data-loaders-data"></span><h2>Data Loaders - data<a class="headerlink" href="#module-thermo.lammps.data" title="Permalink to this headline">¶</a></h2>
+<span id="data-loaders"></span><h2>Data Loaders<a class="headerlink" href="#module-thermo.lammps.data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.lammps.data.extract_dt">
-<code class="descclassname">thermo.lammps.data.</code><code class="descname">extract_dt</code><span class="sig-paren">(</span><em>log_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/data.html#extract_dt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.data.extract_dt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.lammps.data.</code><code class="sig-name descname">extract_dt</code><span class="sig-paren">(</span><em class="sig-param">log_file</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.lammps.data.extract_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds all time steps given in the lammps output log</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>log_file (str):</dt>
-<dd>LAMMPS log file to examine</dd>
-</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>log_file</strong> (<em>str</em>) – LAMMPS log file to examine</p>
 </dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>dt (list(flaat)):</dt>
-<dd>The timesteps found in log_file in [ps]</dd>
-</dl>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The timesteps found in log_file in [ps]</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(float)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.lammps.data.get_sim_dimensions">
-<code class="descclassname">thermo.lammps.data.</code><code class="descname">get_sim_dimensions</code><span class="sig-paren">(</span><em>lammpstrj_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/data.html#get_sim_dimensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.data.get_sim_dimensions" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.lammps.data.</code><code class="sig-name descname">get_sim_dimensions</code><span class="sig-paren">(</span><em class="sig-param">lammpstrj_file</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.lammps.data.get_sim_dimensions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a LAMMPS trajectory file and extracts simulation dimensions.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>lammpstrj_file (str):</dt>
-<dd>LAMMPS trajectory file to extract dimensions from</dd>
-</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lammpstrj_file</strong> (<em>str</em>) – LAMMPS trajectory file to extract dimensions from</p>
 </dd>
-<dt>Returns:</dt>
-<dd>out (dict):
-- x (list(float)): x-dimension [angstroms]
-- y (list(float)): y-dimension [angstroms]
-- z (list(float)): z-dimension [angstroms]
-- area (list(float)): [angstroms^2]
-- volume (list(float)): [anstroms^3]</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>x, y, z, area, volume</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
 </dl>
+<p>Output keys:</p>
+<ul class="simple">
+<li><p>x (list(float)): x-dimension [angstroms]</p></li>
+<li><p>y (list(float)): y-dimension [angstroms]</p></li>
+<li><p>z (list(float)): z-dimension [angstroms]</p></li>
+<li><p>area (list(float)): [angstroms^2]</p></li>
+<li><p>volume (list(float)): [anstroms^3]</p></li>
+</ul>
 </dd></dl>
 
 </div>
 <div class="section" id="module-thermo.lammps.io">
-<span id="input-output-io"></span><h2>Input/Output - io<a class="headerlink" href="#module-thermo.lammps.io" title="Permalink to this headline">¶</a></h2>
+<span id="input-output"></span><h2>Input/Output<a class="headerlink" href="#module-thermo.lammps.io" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.lammps.io.ase_atoms_to_lammps">
-<code class="descclassname">thermo.lammps.io.</code><code class="descname">ase_atoms_to_lammps</code><span class="sig-paren">(</span><em>atoms</em>, <em>out_file='atoms.data'</em>, <em>add_masses=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/io.html#ase_atoms_to_lammps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.io.ase_atoms_to_lammps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts ASE atoms to a lammps data file</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>atoms (ase.Atoms):</dt>
-<dd>Atoms to write to lammps data file</dd>
-<dt>gpumd_file (str):</dt>
-<dd>File to save the structure data to</dd>
-</dl>
+<code class="sig-prename descclassname">thermo.lammps.io.</code><code class="sig-name descname">ase_atoms_to_lammps</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">out_file='atoms.data'</em>, <em class="sig-param">add_masses=True</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.lammps.io.ase_atoms_to_lammps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts ASE atoms to a lammps data file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<em>ase.Atoms</em>) – Atoms to write to lammps data file</p></li>
+<li><p><strong>gpumd_file</strong> (<em>str</em>) – File to save the structure data to</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -395,7 +344,7 @@ be used. Also used as filename for saved MATLAB file.</dd>
         <a href="thermo.shared.html" class="btn btn-neutral float-right" title="shared" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="thermo.gpumd.html" class="btn btn-neutral" title="gpumd" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="thermo.gpumd.html" class="btn btn-neutral float-left" title="gpumd" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -421,26 +370,16 @@ be used. Also used as filename for saved MATLAB file.</dd>
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

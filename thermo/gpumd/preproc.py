@@ -28,8 +28,7 @@ def __get_group(split, pos, direction):
             Which direction the split will work
 
     Returns:
-        out (int):
-            Group of atom
+        int: Group of atom
 
     '''
     if direction == 'x':
@@ -41,11 +40,11 @@ def __get_group(split, pos, direction):
     errmsg = 'Out of bounds error: {}'.format(d)
     for i,val in enumerate(split[:-1]):
         if i == 0 and d < val:
-            print errmsg
+            print(errmsg)
             return -1
         if d >= val and d < split[i+1]:
             return i
-    print errmsg
+    print(errmsg)
     return -1
 
 def __init_index(index, info, num_atoms):
@@ -63,13 +62,12 @@ def __init_index(index, info, num_atoms):
             Number of atoms in the Atoms object.
 
     Returns:
-        index (int)
-            Index of atom in the Atoms object.
+        int: Index of atom in the Atoms object.
 
     '''
     if index == num_atoms-1:
         index = -1
-    if not index in info.keys():
+    if not index in info:
         info[index] = dict()
     return index
 
@@ -105,8 +103,7 @@ def add_group_by_position(split, atoms, direction):
             Which direction the split will work.
 
     Returns:
-        counts (int)
-            A list of number of atoms in each group.
+        int: A list of number of atoms in each group.
 
     '''
     info = atoms.info
@@ -115,7 +112,7 @@ def add_group_by_position(split, atoms, direction):
     for index, atom in enumerate(atoms):
         index = __init_index(index, info, num_atoms)
         i = __get_group(split, atom.position, direction)
-        if 'groups' in info[index].keys():
+        if 'groups' in info[index]:
             info[index]['groups'].append(i)
         else:
             info[index]['groups'] = [i]
@@ -139,12 +136,11 @@ def add_group_by_type(atoms, groups):
             starting at 0 and increasing in steps of 1. Ex. range(0,10).
 
     Returns:
-        counts (int)
-            A list of number of atoms in each group.
+        int: A list of number of atoms in each group.
 
     '''
     # atom symbol checking
-    all_symbols = groups.keys()
+    all_symbols = list(groups)
     # check that symbol set matches symbol set of atoms
     if set(atoms.get_chemical_symbols()) - set(all_symbols):
         raise ValueError('Group symbols do not match atoms symbols.')
@@ -159,7 +155,7 @@ def add_group_by_type(atoms, groups):
         index = __init_index(index, info, num_atoms)
         group = groups[atom.symbol]
         counts[group] += 1
-        if 'groups' in info[index].keys():
+        if 'groups' in info[index]:
             info[index]['groups'].append(group)
         else:
             info[index]['groups'] = [group]
@@ -171,7 +167,7 @@ def set_velocities(atoms, custom=None):
     """
     Sets the 'velocity' part of the atoms to be used in GPUMD.
     Custom velocities must be provided. They must also be in
-    the units of eV^(1/2) amu^(-1/2)
+    the units of eV^(1/2) amu^(-1/2).
 
     Args:
         atoms (ase.Atoms):

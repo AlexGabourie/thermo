@@ -5,7 +5,7 @@ gpumd
     Submodules
     ----------
 
-Calculations - calc
+Calculations
 ------------------------
 
 .. automodule:: thermo.gpumd.calc
@@ -13,7 +13,7 @@ Calculations - calc
     :undoc-members:
     :show-inheritance:
 
-Data Loaders - data
+Data Loaders
 ------------------------
 
 .. automodule:: thermo.gpumd.data
@@ -21,7 +21,7 @@ Data Loaders - data
     :undoc-members:
     :show-inheritance:
 
-Input/Output - io 
+Input/Output
 ----------------------
 
 .. automodule:: thermo.gpumd.io
@@ -29,7 +29,7 @@ Input/Output - io
     :undoc-members:
     :show-inheritance:
 
-Preprocessing - preproc 
+Preprocessing
 ---------------------------
 
 .. automodule:: thermo.gpumd.preproc

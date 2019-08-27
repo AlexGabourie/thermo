@@ -7,7 +7,7 @@ __email__ = "gabourie@stanford.edu"
 
 def ase_atoms_to_lammps(atoms, out_file='atoms.data', add_masses = True):
     """
-    Converts ASE atoms to a lammps data file
+    Converts ASE atoms to a lammps data file.
 
     Args:
         atoms (ase.Atoms):
