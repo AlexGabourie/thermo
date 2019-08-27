@@ -156,20 +156,14 @@
 
 <div class="viewcode-block" id="running_ave"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.calc.running_ave">[docs]</a><span class="k">def</span> <span class="nf">running_ave</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Gets running average</span>
-
-<span class="sd">    Reads and returns the structure input file from GPUMD.</span>
+<span class="sd">    Gets running average. Reads and returns the structure input file from GPUMD.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        kappa (ndarray):</span>
-<span class="sd">            Raw thermal conductivity</span>
-
-<span class="sd">        time (ndarray):</span>
-<span class="sd">            Time vector that kappa was sampled at</span>
+<span class="sd">        kappa (ndarray): Raw thermal conductivity</span>
+<span class="sd">        time (ndarray): Time vector that kappa was sampled at</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (ndarray):</span>
-<span class="sd">            Running average of kappa input</span>
+<span class="sd">        ndarray: Running average of kappa input</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">kappa</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -212,8 +206,7 @@
 <span class="sd">            Directory to load &#39;shc.out&#39; file from (dir. of simulation)</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict):</span>
-<span class="sd">            Dictionary with the spectral decomposition</span>
+<span class="sd">        dict: Dictionary with the spectral decomposition</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">shc</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>

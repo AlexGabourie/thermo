@@ -158,53 +158,43 @@
 <span id="force-comparison"></span><h2>Force Comparison<a class="headerlink" href="#module-thermo.shared.force" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.shared.force.compare_forces">
-<code class="sig-prename descclassname">thermo.shared.force.</code><code class="sig-name descname">compare_forces</code><span class="sig-paren">(</span><em class="sig-param">f1_dict</em>, <em class="sig-param">f2_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.shared.force.compare_forces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.shared.force.</code><code class="sig-name descname">compare_forces</code><span class="sig-paren">(</span><em class="sig-param">f1_dict</em>, <em class="sig-param">f2_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/shared/force.html#compare_forces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.shared.force.compare_forces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compares the LAMMPS and GPUMD forces and returns dictionary of comparison
 Forces are dict2 - dict1 values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arg1</strong> (<em>dict</em>) – f1_dict
-dictionary containing extracted forces from a GPUMD or
-LAMMPS simulation</p></li>
-<li><p><strong>arg2</strong> (<em>dict</em>) – f2_dict
-dictionary containing extracted forces from a GPUMD or
-LAMMPS simulation</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>arg1 (dict): f1_dict</dt><dd><p>dictionary containing extracted forces from a GPUMD or
+LAMMPS simulation</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>comparison dictionary</p>
+<dt>arg2 (dict): f2_dict</dt><dd><p>dictionary containing extracted forces from a GPUMD or
+LAMMPS simulation</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: comparison dictionary</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.shared.force.load_forces">
-<code class="sig-prename descclassname">thermo.shared.force.</code><code class="sig-name descname">load_forces</code><span class="sig-paren">(</span><em class="sig-param">force_file</em>, <em class="sig-param">sim</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.shared.force.load_forces" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.shared.force.</code><code class="sig-name descname">load_forces</code><span class="sig-paren">(</span><em class="sig-param">force_file</em>, <em class="sig-param">sim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/shared/force.html#load_forces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.shared.force.load_forces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the forces from either GPUMD or LAMMPS output to facilitate a
 comparison between techniques.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arg1</strong> (<em>str</em>) – force_file
-Filename with forces</p></li>
-<li><p><strong>arg2</strong> (<em>str</em>) – sim
-If type == ‘LAMMPS’:
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>arg1 (str)<span class="classifier">force_file</span></dt><dd><p>Filename with forces</p>
+</dd>
+<dt>arg2 (str)<span class="classifier">sim</span></dt><dd><p>If type == ‘LAMMPS’:
 The file path should be for the LAMMPS output forces
 LAMMPS file should be in the format given by the following LAMMPS input command:
 force all custom 1 &lt;file&gt; id fx fy fz
 If type == ‘GPUMD’:
-the force output file (f.out) path when GPUMD is compiled with the force flag</p></li>
-</ul>
+the force output file (f.out) path when GPUMD is compiled with the force flag</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>dictionary containing sorted force vectors</p>
+</dl>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dt>Returns:</dt><dd><p>dict: dictionary containing sorted force vectors</p>
 </dd>
 </dl>
 </dd></dl>

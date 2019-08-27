@@ -162,12 +162,14 @@
 <span class="sd">            LAMMPS trajectory file to extract dimensions from</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict):</span>
-<span class="sd">        - x (list(float)): x-dimension [angstroms]</span>
-<span class="sd">        - y (list(float)): y-dimension [angstroms]</span>
-<span class="sd">        - z (list(float)): z-dimension [angstroms]</span>
-<span class="sd">        - area (list(float)): [angstroms^2]</span>
-<span class="sd">        - volume (list(float)): [anstroms^3]</span>
+<span class="sd">        dict: x, y, z, area, volume</span>
+
+<span class="sd">    Output keys:\n</span>
+<span class="sd">    - x (list(float)): x-dimension [angstroms]</span>
+<span class="sd">    - y (list(float)): y-dimension [angstroms]</span>
+<span class="sd">    - z (list(float)): z-dimension [angstroms]</span>
+<span class="sd">    - area (list(float)): [angstroms^2]</span>
+<span class="sd">    - volume (list(float)): [anstroms^3]</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
 
@@ -230,8 +232,7 @@
 <span class="sd">            LAMMPS log file to examine</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dt (list(flaat)):</span>
-<span class="sd">            The timesteps found in log_file in [ps]</span>
+<span class="sd">        list(float): The timesteps found in log_file in [ps]</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">log_file</span><span class="p">):</span>

@@ -157,196 +157,220 @@
 <span id="lennard-jones"></span><h2>Lennard Jones<a class="headerlink" href="#module-thermo.tools.lj" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="thermo.tools.lj.LJ">
-<em class="property">class </em><code class="sig-prename descclassname">thermo.tools.lj.</code><code class="sig-name descname">LJ</code><span class="sig-paren">(</span><em class="sig-param">symbols=None</em>, <em class="sig-param">ignore_pairs=None</em>, <em class="sig-param">cut_scale=2.5</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">thermo.tools.lj.</code><code class="sig-name descname">LJ</code><span class="sig-paren">(</span><em class="sig-param">symbols=None</em>, <em class="sig-param">ignore_pairs=None</em>, <em class="sig-param">cut_scale=2.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Stores all atoms for a simulation with their LJ parameters.</p>
 <p>A special dictionary with atom symbols for keys and the epsilon and
 sigma LJ parameters for the values. This object interfaces with the UFF
 LJ potential parameters but can also accept arbitrary parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>symbols</strong> (<em>str</em><em> or </em><em>list</em><em>(</em><em>str</em><em>)</em>) – Optional input. A single symbol or a list of symbols to add to
-the initial LJ list.</p></li>
-<li><p><strong>ignore_pairs</strong> (<em>list</em><em>(</em><em>sets</em><em>)</em>) – List of sets where each set has two elements. Each element
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>symbols (str or list(str)):</dt><dd><p>Optional input. A single symbol or a list of symbols to add to
+the initial LJ list.</p>
+</dd>
+<dt>ignore_pairs (list(sets)):</dt><dd><p>List of sets where each set has two elements. Each element
 is a string for the symbol of the atom to ignore in that pair.
-Order in set is not important.</p></li>
-<li><p><strong>cut_scale</strong> (<em>float</em>) – Specifies the multiplicative factor to use on the sigma parameter
-to define the cutoffs. Default is 2.5.</p></li>
-</ul>
+Order in set is not important.</p>
+</dd>
+<dt>cut_scale (float):</dt><dd><p>Specifies the multiplicative factor to use on the sigma parameter
+to define the cutoffs. Default is 2.5.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.acknowledge_pair">
-<code class="sig-name descname">acknowledge_pair</code><span class="sig-paren">(</span><em class="sig-param">pair</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.acknowledge_pair" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">acknowledge_pair</code><span class="sig-paren">(</span><em class="sig-param">pair</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.acknowledge_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.acknowledge_pair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes the pair from the ignore list and acknowledges it during the output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pair</strong> (<em>set</em>) – A two-element set where each entry is a string of the symbol in the
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pair (set):</dt><dd><p>A two-element set where each entry is a string of the symbol in the
 pair to un-ignore.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.acknowledge_pairs">
-<code class="sig-name descname">acknowledge_pairs</code><span class="sig-paren">(</span><em class="sig-param">pairs</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.acknowledge_pairs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">acknowledge_pairs</code><span class="sig-paren">(</span><em class="sig-param">pairs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.acknowledge_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.acknowledge_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes pairs from the ignore list.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pairs</strong> (<em>list</em><em>(</em><em>set</em><em>)</em>) – A list of two-elements sets where each entry in each set is a string of
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pairs (list(set)):</dt><dd><p>A list of two-elements sets where each entry in each set is a string of
 the symbol in the pair to un-ignore.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.add_UFF_params">
-<code class="sig-name descname">add_UFF_params</code><span class="sig-paren">(</span><em class="sig-param">symbols</em>, <em class="sig-param">replace=False</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.add_UFF_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_UFF_params</code><span class="sig-paren">(</span><em class="sig-param">symbols</em>, <em class="sig-param">replace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.add_UFF_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.add_UFF_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds UFF parameters to the LJ object. Will replace existing parameters
 if ‘replace’ is set to True. UFF parameters are loaded from the package.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>symbols</strong> (<em>str</em><em> or </em><em>list</em><em>(</em><em>str</em><em>)</em>) – A single symbol or a list of symbols to add to the initial LJ list.</p></li>
-<li><p><strong>replace</strong> (<em>bool</em>) – Whether or not to replace existing symbols</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>symbols (str or list(str)):</dt><dd><p>A single symbol or a list of symbols to add to the initial LJ list.</p>
+</dd>
+<dt>replace (bool):</dt><dd><p>Whether or not to replace existing symbols</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.add_param">
-<code class="sig-name descname">add_param</code><span class="sig-paren">(</span><em class="sig-param">symbol</em>, <em class="sig-param">data</em>, <em class="sig-param">replace=True</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.add_param" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_param</code><span class="sig-paren">(</span><em class="sig-param">symbol</em>, <em class="sig-param">data</em>, <em class="sig-param">replace=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.add_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.add_param" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a custom parameter to the LJ object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>symbol</strong> (<em>str</em>) – Symbol of atom type to add.</p></li>
-<li><p><strong>data</strong> (<em>tuple</em><em>(</em><em>float</em><em>)</em>) – A two-element tuple of numbers to represent the epsilon and
-sigma LJ values.</p></li>
-<li><p><strong>replace</strong> (<em>bool</em>) – Whether or not to replace the item.</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>symbol (str):</dt><dd><p>Symbol of atom type to add.</p>
+</dd>
+<dt>data (tuple(float)):</dt><dd><p>A two-element tuple of numbers to represent the epsilon and
+sigma LJ values.</p>
+</dd>
+<dt>replace (bool):</dt><dd><p>Whether or not to replace the item.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.create_file">
-<code class="sig-name descname">create_file</code><span class="sig-paren">(</span><em class="sig-param">filename='ljparams.txt'</em>, <em class="sig-param">atom_order=None</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.create_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">create_file</code><span class="sig-paren">(</span><em class="sig-param">filename='ljparams.txt'</em>, <em class="sig-param">atom_order=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.create_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.create_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Outputs a GPUMD style LJ parameters file using the atoms defined in atom_order
 in the order defined in atom_order.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – The filename or full path with filename of the output.</p></li>
-<li><p><strong>atom_order</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of atom symbols to include LJ params output file. The order will
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>filename (str):</dt><dd><p>The filename or full path with filename of the output.</p>
+</dd>
+<dt>atom_order (list(str)):</dt><dd><p>List of atom symbols to include LJ params output file. The order will
 determine the order in the output file. <em>Required</em>
 Ex. [‘a’, ‘b’, ‘c’] = pairs =&gt; ‘aa’, ‘ab’, ‘ac’, ‘ba’, ‘bb’, ‘bc’, ‘ca’,
-‘cb’ ‘cc’ in this order.</p></li>
-</ul>
+‘cb’ ‘cc’ in this order.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.custom_cutoff">
-<code class="sig-name descname">custom_cutoff</code><span class="sig-paren">(</span><em class="sig-param">pair</em>, <em class="sig-param">cutoff</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.custom_cutoff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">custom_cutoff</code><span class="sig-paren">(</span><em class="sig-param">pair</em>, <em class="sig-param">cutoff</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.custom_cutoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.custom_cutoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets a custom cutoff for a specific pair of atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>pair</strong> (<em>set</em>) – A two-element set where each entry is a string of the symbol in the
-pair.</p></li>
-<li><p><strong>cutoff</strong> (<em>float</em>) – Custom cutoff to use. In Angstroms.</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pair (set):</dt><dd><p>A two-element set where each entry is a string of the symbol in the
+pair.</p>
+</dd>
+<dt>cutoff (float):</dt><dd><p>Custom cutoff to use. In Angstroms.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.ignore_pair">
-<code class="sig-name descname">ignore_pair</code><span class="sig-paren">(</span><em class="sig-param">pair</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.ignore_pair" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ignore_pair</code><span class="sig-paren">(</span><em class="sig-param">pair</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.ignore_pair"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.ignore_pair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a pair to the list of pairs that will be ignored when output to file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pair</strong> (<em>set</em>) – A two-element set where each entry is a string of the symbol in
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pair (set):</dt><dd><p>A two-element set where each entry is a string of the symbol in
 the pair to ignore.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.ignore_pairs">
-<code class="sig-name descname">ignore_pairs</code><span class="sig-paren">(</span><em class="sig-param">pairs</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.ignore_pairs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ignore_pairs</code><span class="sig-paren">(</span><em class="sig-param">pairs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.ignore_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.ignore_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a list of pairs that will be ignored when output to file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pairs</strong> (<em>list</em><em>(</em><em>set</em><em>)</em>) – A list of two-element sets where each entry of each set is a
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pairs (list(set)):</dt><dd><p>A list of two-element sets where each entry of each set is a
 string of the symbol in the pair to ignore.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.remove_custom_cutoff">
-<code class="sig-name descname">remove_custom_cutoff</code><span class="sig-paren">(</span><em class="sig-param">pair</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.remove_custom_cutoff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_custom_cutoff</code><span class="sig-paren">(</span><em class="sig-param">pair</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.remove_custom_cutoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.remove_custom_cutoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes a custom cutoff for a pair of atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pair</strong> (<em>set</em>) – A two-element set where each entry is a string of the symbol in the
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>pair (set):</dt><dd><p>A two-element set where each entry is a string of the symbol in the
 pair.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.remove_param">
-<code class="sig-name descname">remove_param</code><span class="sig-paren">(</span><em class="sig-param">symbol</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.remove_param" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_param</code><span class="sig-paren">(</span><em class="sig-param">symbol</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.remove_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.remove_param" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes an element from the LJ object. If item does not exist, nothing
 happens.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>symbol</strong> (<em>str</em>) – Symbol of atom type to remove.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>symbol (str):</dt><dd><p>Symbol of atom type to remove.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.replace_UFF_params">
-<code class="sig-name descname">replace_UFF_params</code><span class="sig-paren">(</span><em class="sig-param">symbols</em>, <em class="sig-param">add=False</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.replace_UFF_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">replace_UFF_params</code><span class="sig-paren">(</span><em class="sig-param">symbols</em>, <em class="sig-param">add=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.replace_UFF_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.replace_UFF_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replaces current LJ parameters with UFF values. Will add new entries if
 ‘add’ is set to True. UFF parameters are loaded from the package.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>symbols</strong> (<em>str</em><em> or </em><em>list</em><em>(</em><em>str</em><em>)</em>) – A single symbol or a list of symbols to add to the initial LJ list.</p></li>
-<li><p><strong>add</strong> (<em>bool</em>) – Whether or not to replace existing symbols</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>symbols (str or list(str)):</dt><dd><p>A single symbol or a list of symbols to add to the initial LJ list.</p>
+</dd>
+<dt>add (bool):</dt><dd><p>Whether or not to replace existing symbols</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.set_cut_scale">
-<code class="sig-name descname">set_cut_scale</code><span class="sig-paren">(</span><em class="sig-param">cut_scale</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.set_cut_scale" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_cut_scale</code><span class="sig-paren">(</span><em class="sig-param">cut_scale</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.set_cut_scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.set_cut_scale" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the amount to scale the sigma values of each pair by to set the cutoff.
 Warning: setting this will remove any global cutoff, but leave custom cutoffs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cut_scale</strong> (<em>float</em>) – Scaling factor to be used on sigma</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>cut_scale (float):</dt><dd><p>Scaling factor to be used on sigma</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="thermo.tools.lj.LJ.set_global_cutoff">
-<code class="sig-name descname">set_global_cutoff</code><span class="sig-paren">(</span><em class="sig-param">cutoff</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.LJ.set_global_cutoff" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_global_cutoff</code><span class="sig-paren">(</span><em class="sig-param">cutoff</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#LJ.set_global_cutoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.LJ.set_global_cutoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets a global cutoff for all pairs.
 Warning: setting this will remove all other cutoff parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cutoff</strong> (<em>float</em>) – Custom cutoff to use. In Angstroms.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>cutoff (float):</dt><dd><p>Custom cutoff to use. In Angstroms.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -355,29 +379,29 @@ Warning: setting this will remove all other cutoff parameters.</p>
 
 <dl class="function">
 <dt id="thermo.tools.lj.lb_mixing">
-<code class="sig-prename descclassname">thermo.tools.lj.</code><code class="sig-name descname">lb_mixing</code><span class="sig-paren">(</span><em class="sig-param">a1</em>, <em class="sig-param">a2</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.lb_mixing" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.tools.lj.</code><code class="sig-name descname">lb_mixing</code><span class="sig-paren">(</span><em class="sig-param">a1</em>, <em class="sig-param">a2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#lb_mixing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.lb_mixing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies Lorentz-Berthelot mixing rules on two atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>a1</strong> (<em>tuple</em>) – Tuple of (epsilon, sigma)</p></li>
-<li><p><strong>a2</strong> (<em>tuple</em>) – Tuple of (epsilon, sigma)</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>a1 (tuple):</dt><dd><p>Tuple of (epsilon, sigma)</p>
+</dd>
+<dt>a2 (tuple):</dt><dd><p>Tuple of (epsilon, sigma)</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.tools.lj.load_UFF">
-<code class="sig-prename descclassname">thermo.tools.lj.</code><code class="sig-name descname">load_UFF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#thermo.tools.lj.load_UFF" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.tools.lj.</code><code class="sig-name descname">load_UFF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/tools/lj.html#load_UFF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.tools.lj.load_UFF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads dictionary that stores relevant LJ from UFF.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dictionary with atom symbols as the key and a tuple of epsilon and
+<dl class="simple">
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict:</dt><dd><p>Dictionary with atom symbols as the key and a tuple of epsilon and
 sigma in units of eV and Angstroms, respectively.</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict</p>
+</dl>
 </dd>
 </dl>
 </dd></dl>

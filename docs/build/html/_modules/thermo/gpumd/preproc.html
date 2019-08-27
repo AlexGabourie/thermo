@@ -176,8 +176,7 @@
 <span class="sd">            Which direction the split will work</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (int):</span>
-<span class="sd">            Group of atom</span>
+<span class="sd">        int: Group of atom</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
@@ -211,8 +210,7 @@
 <span class="sd">            Number of atoms in the Atoms object.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        index (int)</span>
-<span class="sd">            Index of atom in the Atoms object.</span>
+<span class="sd">        int: Index of atom in the Atoms object.</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">num_atoms</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
@@ -253,8 +251,7 @@
 <span class="sd">            Which direction the split will work.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        counts (int)</span>
-<span class="sd">            A list of number of atoms in each group.</span>
+<span class="sd">        int: A list of number of atoms in each group.</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span>
@@ -287,8 +284,7 @@
 <span class="sd">            starting at 0 and increasing in steps of 1. Ex. range(0,10).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        counts (int)</span>
-<span class="sd">            A list of number of atoms in each group.</span>
+<span class="sd">        int: A list of number of atoms in each group.</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="c1"># atom symbol checking</span>
@@ -319,7 +315,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sets the &#39;velocity&#39; part of the atoms to be used in GPUMD.</span>
 <span class="sd">    Custom velocities must be provided. They must also be in</span>
-<span class="sd">    the units of eV^(1/2) amu^(-1/2)</span>
+<span class="sd">    the units of eV^(1/2) amu^(-1/2).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        atoms (ase.Atoms):</span>

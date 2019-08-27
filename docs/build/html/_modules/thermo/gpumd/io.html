@@ -181,7 +181,7 @@
 <span class="sd">            Dictionary that stores all velocity, and groups data.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (str)</span>
+<span class="sd">        str:</span>
 <span class="sd">            The line to be printed to file.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">optional</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -282,15 +282,18 @@
 <span class="sd">            List of atom types (elements).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        atoms (ase.Atoms):</span>
-<span class="sd">            ASE atoms object with x,y,z, mass, group, type, cell, and PBCs</span>
-<span class="sd">            from input file. group is stored in tag, atom type may not</span>
-<span class="sd">            correspond to correct atomic symbol</span>
-<span class="sd">        M (int):</span>
-<span class="sd">            Max number of neighbor atoms</span>
+<span class="sd">        tuple: atoms, M, cutoff</span>
 
-<span class="sd">        cutoff (float):</span>
-<span class="sd">            Initial cutoff for neighbor list build</span>
+<span class="sd">    atoms (ase.Atoms):</span>
+<span class="sd">    ASE atoms object with x,y,z, mass, group, type, cell, and PBCs</span>
+<span class="sd">    from input file. group is stored in tag, atom type may not</span>
+<span class="sd">    correspond to correct atomic symbol</span>
+
+<span class="sd">    M (int):</span>
+<span class="sd">    Max number of neighbor atoms</span>
+
+<span class="sd">    cutoff (float):</span>
+<span class="sd">    Initial cutoff for neighbor list build</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># read file</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -355,8 +358,7 @@
 <span class="sd">            List of atom types (elements).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        traj (list(ase.Atoms)):</span>
-<span class="sd">            A list of ASE atoms objects.</span>
+<span class="sd">        list(ase.Atoms): A list of ASE atoms objects.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get extra information about system if wanted</span>
     <span class="k">if</span> <span class="n">in_file</span><span class="p">:</span>
@@ -400,7 +402,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts the GPUMD input structure file to any compatible ASE</span>
 <span class="sd">    output structure file.</span>
-<span class="sd">    Warning: Info dictionary may not be preserved.</span>
+<span class="sd">    **Warning: Info dictionary may not be preserved**.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        in_file (str):</span>
@@ -423,7 +425,7 @@
 <div class="viewcode-block" id="lammps_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.lammps_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">lammps_atoms_to_gpumd</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;atomic&#39;</span><span class="p">,</span>
                         <span class="n">gpumd_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Converts a lammps data file to GPUMD compatible position file</span>
+<span class="sd">    Converts a lammps data file to GPUMD compatible position file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        filename (str):</span>
@@ -451,7 +453,7 @@
 <div class="viewcode-block" id="ase_atoms_to_gpumd"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.io.ase_atoms_to_gpumd">[docs]</a><span class="k">def</span> <span class="nf">ase_atoms_to_gpumd</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">gpumd_file</span><span class="o">=</span><span class="s1">&#39;xyz.in&#39;</span><span class="p">,</span> <span class="n">sort_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Converts ASE atoms to GPUMD compatible position file</span>
+<span class="sd">    Converts ASE atoms to GPUMD compatible position file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        atoms (ase.Atoms):</span>

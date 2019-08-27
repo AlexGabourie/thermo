@@ -158,7 +158,7 @@
 
 <div class="viewcode-block" id="load_sdc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_sdc">[docs]</a><span class="k">def</span> <span class="nf">load_sdc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;sdc.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads data from sdc.out GPUMD output file</span>
+<span class="sd">    Loads data from sdc.out GPUMD output file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Nc (int or list(int)):</span>
@@ -181,25 +181,27 @@
 <span class="sd">            File to load SDC from. Default is sdc.out</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        sdc (dict(dict)):</span>
-<span class="sd">            Dictionary with SDC data. The outermost dictionary stores each individual run.</span>
-<span class="sd">            Each run is a dictionary with keys:\n</span>
-<span class="sd">            - t (ps)</span>
-<span class="sd">            - SDC_x (Angstrom^2/ps)</span>
-<span class="sd">            - SDC_y (Angstrom^2/ps)</span>
-<span class="sd">            - SDC_z (Angstrom^2/ps)</span>
+<span class="sd">        tuple: sdc, vac</span>
 
-<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+<span class="sd">    sdc (dict(dict)):</span>
+<span class="sd">    Dictionary with SDC data. The outermost dictionary stores each individual run.</span>
+<span class="sd">    Each run is a dictionary with keys:\n</span>
+<span class="sd">    - t (ps)</span>
+<span class="sd">    - SDC_x (Angstrom^2/ps)</span>
+<span class="sd">    - SDC_y (Angstrom^2/ps)</span>
+<span class="sd">    - SDC_z (Angstrom^2/ps)</span>
 
-<span class="sd">        vac (dict(dict)):</span>
-<span class="sd">            Dictonary with VAC data. The outermost dictionary stores each individual run.</span>
-<span class="sd">            Each run is a dictionary with keys:\n</span>
-<span class="sd">            - t (ps)</span>
-<span class="sd">            - VAC_x (Angstrom^2/ps^2)</span>
-<span class="sd">            - VAC_y (Angstrom^2/ps^2)</span>
-<span class="sd">            - VAC_z (Angstrom^2/ps^2)</span>
+<span class="sd">    If average=True, this will also be stored as a run with the same run keys.</span>
 
-<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+<span class="sd">    vac (dict(dict)):</span>
+<span class="sd">    Dictonary with VAC data. The outermost dictionary stores each individual run.</span>
+<span class="sd">    Each run is a dictionary with keys:\n</span>
+<span class="sd">    - t (ps)</span>
+<span class="sd">    - VAC_x (Angstrom^2/ps^2)</span>
+<span class="sd">    - VAC_y (Angstrom^2/ps^2)</span>
+<span class="sd">    - VAC_z (Angstrom^2/ps^2)</span>
+
+<span class="sd">    If average=True, this will also be stored as a run with the same run keys.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
@@ -306,7 +308,7 @@
 
 <div class="viewcode-block" id="load_vac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_vac">[docs]</a><span class="k">def</span> <span class="nf">load_vac</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mvac.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads data from mvac.out GPUMD output file</span>
+<span class="sd">    Loads data from mvac.out GPUMD output file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Nc (int or list(int)):</span>
@@ -329,15 +331,16 @@
 <span class="sd">            File to load VAC from. Default is mvac.out</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict(dict)):</span>
+<span class="sd">        dict(dict):</span>
 <span class="sd">            Dictonary with VAC data. The outermost dictionary stores each individual run.</span>
-<span class="sd">            Each run is a dictionary with keys:\n</span>
-<span class="sd">            - t (ps)</span>
-<span class="sd">            - VAC_x (Angstrom^2/ps^2)</span>
-<span class="sd">            - VAC_y (Angstrom^2/ps^2)</span>
-<span class="sd">            - VAC_z (Angstrom^2/ps^2)</span>
 
-<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+<span class="sd">    Each run is a dictionary with keys:\n</span>
+<span class="sd">    - t (ps)</span>
+<span class="sd">    - VAC_x (Angstrom^2/ps^2)</span>
+<span class="sd">    - VAC_y (Angstrom^2/ps^2)</span>
+<span class="sd">    - VAC_z (Angstrom^2/ps^2)</span>
+
+<span class="sd">    If average=True, this will also be stored as a run with the same run keys.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
     <span class="c1"># do input checks</span>
@@ -407,7 +410,7 @@
 
 <div class="viewcode-block" id="load_dos"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_dos">[docs]</a><span class="k">def</span> <span class="nf">load_dos</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;dos.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads data from dos.out GPUMD output file</span>
+<span class="sd">    Loads data from dos.out GPUMD output file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        points_per_run (int or list(int)):</span>
@@ -430,15 +433,16 @@
 <span class="sd">            File to load DOS from. Default is dos.out</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict(dict)):</span>
-<span class="sd">            Dictonary with DOS data. The outermost dictionary stores each individual run.</span>
-<span class="sd">            Each run is a dictionary with keys:\n</span>
-<span class="sd">            - nu (THz)</span>
-<span class="sd">            - DOS_x (1/THz)</span>
-<span class="sd">            - DOS_y (1/THz)</span>
-<span class="sd">            - DOS_z (1/THz)</span>
+<span class="sd">        dict(dict)): Dictonary with DOS data. The outermost dictionary stores</span>
+<span class="sd">        each individual run.</span>
 
-<span class="sd">            If average=True, this will also be stored as a run with the same run keys.</span>
+<span class="sd">    Each run is a dictionary with keys:\n</span>
+<span class="sd">    - nu (THz)</span>
+<span class="sd">    - DOS_x (1/THz)</span>
+<span class="sd">    - DOS_y (1/THz)</span>
+<span class="sd">    - DOS_z (1/THz)</span>
+
+<span class="sd">    If average=True, this will also be stored as a run with the same run keys.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
     <span class="c1"># do input checks</span>
@@ -508,7 +512,7 @@
 
 <div class="viewcode-block" id="load_shc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_shc">[docs]</a><span class="k">def</span> <span class="nf">load_shc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;shc.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads the data from shc.out GPUMD output file</span>
+<span class="sd">    Loads the data from shc.out GPUMD output file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        Nc (int):</span>
@@ -521,8 +525,7 @@
 <span class="sd">            File to load SHC from. Default is shc.out</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict):</span>
-<span class="sd">            Dictionary of in- and out-of-plane shc results (average)</span>
+<span class="sd">        dict: Dictionary of in- and out-of-plane shc results (average)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">shc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span><span class="n">filename</span><span class="p">)</span>
@@ -551,14 +554,7 @@
 
 <div class="viewcode-block" id="load_kappa"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_kappa">[docs]</a><span class="k">def</span> <span class="nf">load_kappa</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;kappa.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads data from kappa.out GPUMD output file which contains HNEMD kappa</span>
-
-<span class="sd">    out keys:\n</span>
-<span class="sd">    - kx_in</span>
-<span class="sd">    - kx_out</span>
-<span class="sd">    - ky_in</span>
-<span class="sd">    - ky_out</span>
-<span class="sd">    - kz</span>
+<span class="sd">    Loads data from kappa.out GPUMD output file which contains HNEMD kappa.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        directory (str):</span>
@@ -568,8 +564,7 @@
 <span class="sd">            File to load kappa from. Default is kappa.out</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict):</span>
-<span class="sd">            A dictionary with keys corresponding to the columns in &#39;kappa.out&#39;</span>
+<span class="sd">        dict: A dictionary with keys corresponding to the columns in &#39;kappa.out&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
@@ -600,45 +595,29 @@
 <div class="viewcode-block" id="load_hac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_hac">[docs]</a><span class="k">def</span> <span class="nf">load_hac</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;hac.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from hac.out GPUMD output file which contains the</span>
-<span class="sd">    heat-current autocorrelation and running thermal conductivity values</span>
+<span class="sd">    heat-current autocorrelation and running thermal conductivity values.</span>
 
-<span class="sd">    filename (str):</span>
-<span class="sd">        File to load hac from. Default is hac.out</span>
-
-<span class="sd">    Created for GPUMD-v1.9</span>
-
-<span class="sd">    hacf - (ev^3/amu)</span>
-<span class="sd">    k - (W/m/K)</span>
-<span class="sd">    t - (ps)</span>
-
-<span class="sd">    out keys:\n</span>
-<span class="sd">    - hacf_xi</span>
-<span class="sd">    - hacf_xo</span>
-<span class="sd">    - hacf_x: ave. of i/o components</span>
-<span class="sd">    - hacf_yi</span>
-<span class="sd">    - hacf_yo</span>
-<span class="sd">    - hacf_y: ave of i/o components</span>
-<span class="sd">    - hacf_z</span>
-<span class="sd">    - k_xi</span>
-<span class="sd">    - k_xo</span>
-<span class="sd">    - k_x: ave of i/o components</span>
-<span class="sd">    - k_yi</span>
-<span class="sd">    - k_yo</span>
-<span class="sd">    - k_y: ave of i/o components</span>
-<span class="sd">    - k_z</span>
-<span class="sd">    - k_i: ave of x/y components</span>
-<span class="sd">    - k_o: ave of x/y components</span>
-<span class="sd">    - k: ave of all in-plane components</span>
-<span class="sd">    - t: correlation time</span>
+<span class="sd">    **Created for GPUMD-v1.9**</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        directory (str):</span>
-<span class="sd">            Directory to load &#39;hac.out&#39; file from (dir. of simulation)</span>
+<span class="sd">        directory (str): Directory storing heat flux file.</span>
+<span class="sd">        filename (str): File to load hac from. Default is &#39;hac.out&#39;</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict):</span>
-<span class="sd">            A dictionary with keys corresponding to the columns in &#39;hac.out&#39;</span>
-<span class="sd">            with some additional keys for aggregated values (see description)</span>
+<span class="sd">        dict: A dictionary with keys corresponding to the columns in</span>
+<span class="sd">        &#39;hac.out&#39; with some additional keys for aggregated values (see description)</span>
+
+<span class="sd">    Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]</span>
+
+<span class="sd">    Abbreviated description of keys in output:\n</span>
+<span class="sd">    * hacf_x: ave. of i/o components</span>
+<span class="sd">    * hacf_y: ave. of i/o components</span>
+<span class="sd">    * k_x: ave. of i/o components</span>
+<span class="sd">    * k_y: ave. of i/o components</span>
+<span class="sd">    * k_i: ave. of x/y components</span>
+<span class="sd">    * k_o: ave. of x/y components</span>
+<span class="sd">    * k: ave of all in-plane components</span>
+<span class="sd">    * t: correlation time</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>

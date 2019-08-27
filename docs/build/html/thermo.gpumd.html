@@ -161,48 +161,45 @@
 <span id="calculations"></span><h2>Calculations<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.calc.hnemd_spectral_decomp">
-<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em class="sig-param">dt</em>, <em class="sig-param">Nc</em>, <em class="sig-param">Fmax</em>, <em class="sig-param">Fe</em>, <em class="sig-param">T</em>, <em class="sig-param">A</em>, <em class="sig-param">Nc_conv=None</em>, <em class="sig-param">shc=None</em>, <em class="sig-param">directory=''</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em class="sig-param">dt</em>, <em class="sig-param">Nc</em>, <em class="sig-param">Fmax</em>, <em class="sig-param">Fe</em>, <em class="sig-param">T</em>, <em class="sig-param">A</em>, <em class="sig-param">Nc_conv=None</em>, <em class="sig-param">shc=None</em>, <em class="sig-param">directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_decomp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the spectral decomposition from HNEMD between two groups
 of atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dt</strong> (<em>float</em>) – Sample period (in fs) of SHC method</p></li>
-<li><p><strong>Nc</strong> (<em>int</em>) – Maximum number of correlation steps</p></li>
-<li><p><strong>Fmax</strong> (<em>float</em>) – Maximum frequency (THz) to compute spectral decomposition to</p></li>
-<li><p><strong>Fe</strong> (<em>float</em>) – HNEMD force in (1/A)</p></li>
-<li><p><strong>T</strong> (<em>float</em>) – HNEMD run temperature (in K)</p></li>
-<li><p><strong>A</strong> (<em>float</em>) – Area (nm^2) that heat flows over</p></li>
-<li><p><strong>Nc_conv</strong> (<em>int</em>) – Number of correlations steps to use for calculation</p></li>
-<li><p><strong>shc</strong> (<em>dict</em>) – Dictionary from load_shc if already created</p></li>
-<li><p><strong>directory</strong> (<em>str</em>) – Directory to load ‘shc.out’ file from (dir. of simulation)</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>dt (float):</dt><dd><p>Sample period (in fs) of SHC method</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary with the spectral decomposition</p>
+<dt>Nc (int):</dt><dd><p>Maximum number of correlation steps</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dt>Fmax (float):</dt><dd><p>Maximum frequency (THz) to compute spectral decomposition to</p>
+</dd>
+<dt>Fe (float):</dt><dd><p>HNEMD force in (1/A)</p>
+</dd>
+<dt>T (float):</dt><dd><p>HNEMD run temperature (in K)</p>
+</dd>
+<dt>A (float):</dt><dd><p>Area (nm^2) that heat flows over</p>
+</dd>
+<dt>Nc_conv (int):</dt><dd><p>Number of correlations steps to use for calculation</p>
+</dd>
+<dt>shc (dict):</dt><dd><p>Dictionary from load_shc if already created</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory to load ‘shc.out’ file from (dir. of simulation)</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with the spectral decomposition</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.calc.running_ave">
-<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">running_ave</code><span class="sig-paren">(</span><em class="sig-param">kappa</em>, <em class="sig-param">time</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.calc.running_ave" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">running_ave</code><span class="sig-paren">(</span><em class="sig-param">kappa</em>, <em class="sig-param">time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#running_ave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.running_ave" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets running average. Reads and returns the structure input file from GPUMD.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>kappa</strong> (<em>ndarray</em>) – Raw thermal conductivity</p></li>
-<li><p><strong>time</strong> (<em>ndarray</em>) – Time vector that kappa was sampled at</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>kappa (ndarray): Raw thermal conductivity
+time (ndarray): Time vector that kappa was sampled at</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Running average of kappa input</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
+<dt>Returns:</dt><dd><p>ndarray: Running average of kappa input</p>
 </dd>
 </dl>
 </dd></dl>
@@ -212,28 +209,28 @@ of atoms.</p>
 <span id="data-loaders"></span><h2>Data Loaders<a class="headerlink" href="#module-thermo.gpumd.data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.data.load_dos">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_dos</code><span class="sig-paren">(</span><em class="sig-param">points_per_run</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='dos.out'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_dos</code><span class="sig-paren">(</span><em class="sig-param">points_per_run</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='dos.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from dos.out GPUMD output file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>points_per_run</strong> (<em>int</em><em> or </em><em>list</em><em>(</em><em>int</em><em>)</em>) – Number of frequency points the DOS is computed for. For num_run&gt;1,
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>points_per_run (int or list(int)):</dt><dd><p>Number of frequency points the DOS is computed for. For num_run&gt;1,
 a list can be provided to specify number of points in each run if they
 are different. Otherwise, it is assumed that the same number of points
-are used per run</p></li>
-<li><p><strong>num_run</strong> (<em>int</em>) – Number of DOS runs in the dos.out file</p></li>
-<li><p><strong>average</strong> (<em>bool</em>) – Averages all of the runs to a single output. Default is False. Only works
-if points_per_run is an int.</p></li>
-<li><p><strong>directory</strong> (<em>str</em>) – Directory to load ‘dos.out’ file from (dir. of simulation)</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – File to load DOS from. Default is dos.out</p></li>
-</ul>
+are used per run</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictonary with DOS data. The outermost dictionary stores
+<dt>num_run (int):</dt><dd><p>Number of DOS runs in the dos.out file</p>
+</dd>
+<dt>average (bool):</dt><dd><p>Averages all of the runs to a single output. Default is False. Only works
+if points_per_run is an int.</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory to load ‘dos.out’ file from (dir. of simulation)</p>
+</dd>
+<dt>filename (str):</dt><dd><p>File to load DOS from. Default is dos.out</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict(dict)): Dictonary with DOS data. The outermost dictionary stores
 each individual run.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict(dict))</p>
 </dd>
 </dl>
 <p>Each run is a dictionary with keys:</p>
@@ -248,23 +245,16 @@ each individual run.</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_hac">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_hac</code><span class="sig-paren">(</span><em class="sig-param">directory=''</em>, <em class="sig-param">filename='hac.out'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.data.load_hac" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_hac</code><span class="sig-paren">(</span><em class="sig-param">directory=''</em>, <em class="sig-param">filename='hac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from hac.out GPUMD output file which contains the
 heat-current autocorrelation and running thermal conductivity values.</p>
 <p><strong>Created for GPUMD-v1.9</strong></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>directory</strong> (<em>str</em>) – Directory storing heat flux file.</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – File to load hac from. Default is ‘hac.out’</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>directory (str): Directory storing heat flux file.
+filename (str): File to load hac from. Default is ‘hac.out’</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary with keys corresponding to the columns in
+<dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in
 ‘hac.out’ with some additional keys for aggregated values (see description)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 <p>Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]</p>
@@ -283,47 +273,44 @@ heat-current autocorrelation and running thermal conductivity values.</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_kappa">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappa</code><span class="sig-paren">(</span><em class="sig-param">directory=''</em>, <em class="sig-param">filename='kappa.out'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.data.load_kappa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappa</code><span class="sig-paren">(</span><em class="sig-param">directory=''</em>, <em class="sig-param">filename='kappa.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from kappa.out GPUMD output file which contains HNEMD kappa.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>directory</strong> (<em>str</em>) – Directory to load ‘kappa.out’ file from (dir. of simulation)</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – File to load kappa from. Default is kappa.out</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>directory (str):</dt><dd><p>Directory to load ‘kappa.out’ file from (dir. of simulation)</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary with keys corresponding to the columns in ‘kappa.out’</p>
+<dt>filename (str):</dt><dd><p>File to load kappa from. Default is kappa.out</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in ‘kappa.out’</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_sdc">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_sdc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='sdc.out'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.data.load_sdc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_sdc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='sdc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_sdc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_sdc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from sdc.out GPUMD output file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Nc</strong> (<em>int</em><em> or </em><em>list</em><em>(</em><em>int</em><em>)</em>) – Number of time correlation points the VAC/SDC is computed for. For num_run&gt;1,
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC/SDC is computed for. For num_run&gt;1,
 a list can be provided to specify number of points in each run if they
 are different. Otherwise, it is assumed that the same number of points
-are used per run</p></li>
-<li><p><strong>num_run</strong> (<em>int</em>) – Number of SDC runs in the sdc.out file</p></li>
-<li><p><strong>average</strong> (<em>bool</em>) – Averages all of the runs to a single output. Default is False. Only works
-if points_per_run is an int.</p></li>
-<li><p><strong>directory</strong> (<em>str</em>) – Directory to load ‘sdc.out’ file from (dir. of simulation)</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – File to load SDC from. Default is sdc.out</p></li>
-</ul>
+are used per run</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>sdc, vac</p>
+<dt>num_run (int):</dt><dd><p>Number of SDC runs in the sdc.out file</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple</p>
+<dt>average (bool):</dt><dd><p>Averages all of the runs to a single output. Default is False. Only works
+if points_per_run is an int.</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory to load ‘sdc.out’ file from (dir. of simulation)</p>
+</dd>
+<dt>filename (str):</dt><dd><p>File to load SDC from. Default is sdc.out</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>tuple: sdc, vac</p>
 </dd>
 </dl>
 <p>sdc (dict(dict)):
@@ -350,48 +337,49 @@ Each run is a dictionary with keys:</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_shc">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_shc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='shc.out'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.data.load_shc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_shc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='shc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_shc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_shc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the data from shc.out GPUMD output file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Nc</strong> (<em>int</em>) – Maximum number of correlation steps</p></li>
-<li><p><strong>directory</strong> (<em>str</em>) – Directory to load ‘shc.out’ file from (dir. of simulation)</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – File to load SHC from. Default is shc.out</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>Nc (int):</dt><dd><p>Maximum number of correlation steps</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictionary of in- and out-of-plane shc results (average)</p>
+<dt>directory (str):</dt><dd><p>Directory to load ‘shc.out’ file from (dir. of simulation)</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dt>filename (str):</dt><dd><p>File to load SHC from. Default is shc.out</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary of in- and out-of-plane shc results (average)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_vac">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_vac</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='mvac.out'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.data.load_vac" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_vac</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='mvac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_vac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_vac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from mvac.out GPUMD output file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Nc</strong> (<em>int</em><em> or </em><em>list</em><em>(</em><em>int</em><em>)</em>) – Number of time correlation points the VAC is computed for. For num_run&gt;1,
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC is computed for. For num_run&gt;1,
 a list can be provided to specify number of points in each run if they
 are different. Otherwise, it is assumed that the same number of points
-are used per run</p></li>
-<li><p><strong>num_run</strong> (<em>int</em>) – Number of VAC runs in the mvac.out file</p></li>
-<li><p><strong>average</strong> (<em>bool</em>) – Averages all of the runs to a single output. Default is False. Only works
-if points_per_run is an int.</p></li>
-<li><p><strong>directory</strong> (<em>str</em>) – Directory to load ‘mvac.out’ file from (dir. of simulation)</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – File to load VAC from. Default is mvac.out</p></li>
-</ul>
+are used per run</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Dictonary with VAC data. The outermost dictionary stores each individual run.</p>
+<dt>num_run (int):</dt><dd><p>Number of VAC runs in the mvac.out file</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict(dict)</p>
+<dt>average (bool):</dt><dd><p>Averages all of the runs to a single output. Default is False. Only works
+if points_per_run is an int.</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory to load ‘mvac.out’ file from (dir. of simulation)</p>
+</dd>
+<dt>filename (str):</dt><dd><p>File to load VAC from. Default is mvac.out</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict(dict):</dt><dd><p>Dictonary with VAC data. The outermost dictionary stores each individual run.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 <p>Each run is a dictionary with keys:</p>
@@ -409,96 +397,104 @@ if points_per_run is an int.</p></li>
 <span id="input-output"></span><h2>Input/Output<a class="headerlink" href="#module-thermo.gpumd.io" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.io.ase_atoms_to_gpumd">
-<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">ase_atoms_to_gpumd</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">M</em>, <em class="sig-param">cutoff</em>, <em class="sig-param">gpumd_file='xyz.in'</em>, <em class="sig-param">sort_key=None</em>, <em class="sig-param">order=None</em>, <em class="sig-param">group_index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.io.ase_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">ase_atoms_to_gpumd</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">M</em>, <em class="sig-param">cutoff</em>, <em class="sig-param">gpumd_file='xyz.in'</em>, <em class="sig-param">sort_key=None</em>, <em class="sig-param">order=None</em>, <em class="sig-param">group_index=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#ase_atoms_to_gpumd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.ase_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts ASE atoms to GPUMD compatible position file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms</strong> (<em>ase.Atoms</em>) – Atoms to write to gpumd file</p></li>
-<li><p><strong>M</strong> (<em>int</em>) – Maximum number of neighbors for one atom</p></li>
-<li><p><strong>cutoff</strong> (<em>float</em>) – Initial cutoff distance for building the neighbor list</p></li>
-<li><p><strong>gpumd_file</strong> (<em>str</em>) – File to save the structure data to</p></li>
-<li><p><strong>sort_key</strong> (<em>str</em>) – How to sort atoms (‘group’, ‘type’). Default is None.</p></li>
-<li><p><strong>order</strong> (<em>list</em><em>(</em><em>type</em><em>)</em>) – List to sort by. Provide str for ‘type’, and int for ‘group’</p></li>
-<li><p><strong>group_index</strong> (<em>int</em>) – Selects the group to sort in the output.</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms to write to gpumd file</p>
+</dd>
+<dt>M (int):</dt><dd><p>Maximum number of neighbors for one atom</p>
+</dd>
+<dt>cutoff (float):</dt><dd><p>Initial cutoff distance for building the neighbor list</p>
+</dd>
+<dt>gpumd_file (str):</dt><dd><p>File to save the structure data to</p>
+</dd>
+<dt>sort_key (str):</dt><dd><p>How to sort atoms (‘group’, ‘type’). Default is None.</p>
+</dd>
+<dt>order (list(type)):</dt><dd><p>List to sort by. Provide str for ‘type’, and int for ‘group’</p>
+</dd>
+<dt>group_index (int):</dt><dd><p>Selects the group to sort in the output.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.io.convert_gpumd_atoms">
-<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">convert_gpumd_atoms</code><span class="sig-paren">(</span><em class="sig-param">in_file='xyz.in'</em>, <em class="sig-param">out_filename='in.xyz'</em>, <em class="sig-param">format='xyz'</em>, <em class="sig-param">atom_types=None</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_atoms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">convert_gpumd_atoms</code><span class="sig-paren">(</span><em class="sig-param">in_file='xyz.in'</em>, <em class="sig-param">out_filename='in.xyz'</em>, <em class="sig-param">format='xyz'</em>, <em class="sig-param">atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#convert_gpumd_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.convert_gpumd_atoms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts the GPUMD input structure file to any compatible ASE
 output structure file.
 <strong>Warning: Info dictionary may not be preserved</strong>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>in_file</strong> (<em>str</em>) – GPUMD position file to get structure from</p></li>
-<li><p><strong>out_filename</strong> (<em>str</em>) – Name of output file after conversion</p></li>
-<li><p><strong>format</strong> (<em>str</em>) – ASE supported output format</p></li>
-<li><p><strong>atom_types</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of atom types (elements).</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>in_file (str):</dt><dd><p>GPUMD position file to get structure from</p>
+</dd>
+<dt>out_filename (str):</dt><dd><p>Name of output file after conversion</p>
+</dd>
+<dt>format (str):</dt><dd><p>ASE supported output format</p>
+</dd>
+<dt>atom_types (list(str)):</dt><dd><p>List of atom types (elements).</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.io.import_trajectory">
-<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">import_trajectory</code><span class="sig-paren">(</span><em class="sig-param">filename='movie.xyz'</em>, <em class="sig-param">in_file=None</em>, <em class="sig-param">atom_types=None</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.io.import_trajectory" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">import_trajectory</code><span class="sig-paren">(</span><em class="sig-param">filename='movie.xyz'</em>, <em class="sig-param">in_file=None</em>, <em class="sig-param">atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#import_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.import_trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the trajectory from GPUMD run and creates a list of ASE atoms.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – Name of the file that holds the GPUMD trajectory.</p></li>
-<li><p><strong>in_file</strong> (<em>str</em>) – Name of the original structure input file. Not required, but
-can help load extra information not included in trajectory output.</p></li>
-<li><p><strong>atom_types</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of atom types (elements).</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>filename (str):</dt><dd><p>Name of the file that holds the GPUMD trajectory.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of ASE atoms objects.</p>
+<dt>in_file (str):</dt><dd><p>Name of the original structure input file. Not required, but
+can help load extra information not included in trajectory output.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list(ase.Atoms)</p>
+<dt>atom_types (list(str)):</dt><dd><p>List of atom types (elements).</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>list(ase.Atoms): A list of ASE atoms objects.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.io.lammps_atoms_to_gpumd">
-<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">lammps_atoms_to_gpumd</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">M</em>, <em class="sig-param">cutoff</em>, <em class="sig-param">style='atomic'</em>, <em class="sig-param">gpumd_file='xyz.in'</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.io.lammps_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">lammps_atoms_to_gpumd</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">M</em>, <em class="sig-param">cutoff</em>, <em class="sig-param">style='atomic'</em>, <em class="sig-param">gpumd_file='xyz.in'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#lammps_atoms_to_gpumd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.lammps_atoms_to_gpumd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a lammps data file to GPUMD compatible position file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – LAMMPS data file name</p></li>
-<li><p><strong>M</strong> (<em>int</em>) – Maximum number of neighbors for one atom</p></li>
-<li><p><strong>cutoff</strong> (<em>float</em>) – Initial cutoff distance for building the neighbor list</p></li>
-<li><p><strong>style</strong> (<em>str</em>) – Atom style used in LAMMPS data file</p></li>
-<li><p><strong>gpumd_file</strong> (<em>str</em>) – File to save the structure data to</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>filename (str):</dt><dd><p>LAMMPS data file name</p>
+</dd>
+<dt>M (int):</dt><dd><p>Maximum number of neighbors for one atom</p>
+</dd>
+<dt>cutoff (float):</dt><dd><p>Initial cutoff distance for building the neighbor list</p>
+</dd>
+<dt>style (str):</dt><dd><p>Atom style used in LAMMPS data file</p>
+</dd>
+<dt>gpumd_file (str):</dt><dd><p>File to save the structure data to</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.io.load_xyz">
-<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">load_xyz</code><span class="sig-paren">(</span><em class="sig-param">filename='xyz.in'</em>, <em class="sig-param">atom_types=None</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.io.load_xyz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">load_xyz</code><span class="sig-paren">(</span><em class="sig-param">filename='xyz.in'</em>, <em class="sig-param">atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#load_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.load_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads and returns the structure input file from GPUMD.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – Name of structure file</p></li>
-<li><p><strong>atom_types</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – List of atom types (elements).</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>filename (str):</dt><dd><p>Name of structure file</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>atoms, M, cutoff</p>
+<dt>atom_types (list(str)):</dt><dd><p>List of atom types (elements).</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple</p>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>tuple: atoms, M, cutoff</p>
 </dd>
 </dl>
 <p>atoms (ase.Atoms):
@@ -516,64 +512,60 @@ Initial cutoff for neighbor list build</p>
 <span id="preprocessing"></span><h2>Preprocessing<a class="headerlink" href="#module-thermo.gpumd.preproc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.preproc.add_group_by_position">
-<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_group_by_position</code><span class="sig-paren">(</span><em class="sig-param">split</em>, <em class="sig-param">atoms</em>, <em class="sig-param">direction</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_position" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_group_by_position</code><span class="sig-paren">(</span><em class="sig-param">split</em>, <em class="sig-param">atoms</em>, <em class="sig-param">direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_position" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns groups to all atoms based on its position. Only works in
 one direction as it is used for NEMD.
 Returns a bookkeeping parameter, but atoms will be udated in-place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>split</strong> (<em>list</em><em>(</em><em>float</em><em>)</em>) – List of boundaries. First element should be lower boundary of sim.
-box in specified direction and the last the upper.</p></li>
-<li><p><strong>atoms</strong> (<em>ase.Atoms</em>) – Atoms to group</p></li>
-<li><p><strong>direction</strong> (<em>str</em>) – Which direction the split will work.</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>split (list(float)):</dt><dd><p>List of boundaries. First element should be lower boundary of sim.
+box in specified direction and the last the upper.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of number of atoms in each group.</p>
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms to group</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
+<dt>direction (str):</dt><dd><p>Which direction the split will work.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>int: A list of number of atoms in each group.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.preproc.add_group_by_type">
-<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_group_by_type</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">groups</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_group_by_type</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">groups</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns groups to all atoms based on atom types. Returns a
 bookkeeping parameter, but atoms will be udated in-place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms</strong> (<em>ase.Atoms</em>) – Atoms to group</p></li>
-<li><p><strong>types</strong> (<em>dict</em>) – Dictionary with types for keys and group as a value.
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms to group</p>
+</dd>
+<dt>types (dict):</dt><dd><p>Dictionary with types for keys and group as a value.
 Only one group allowed per atom. Assumed groups are integers
-starting at 0 and increasing in steps of 1. Ex. range(0,10).</p></li>
-</ul>
+starting at 0 and increasing in steps of 1. Ex. range(0,10).</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of number of atoms in each group.</p>
+</dl>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>int</p>
+<dt>Returns:</dt><dd><p>int: A list of number of atoms in each group.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.preproc.set_velocities">
-<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">set_velocities</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">custom=None</em><span class="sig-paren">)</span><a class="headerlink" href="#thermo.gpumd.preproc.set_velocities" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">set_velocities</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">custom=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#set_velocities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.set_velocities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the ‘velocity’ part of the atoms to be used in GPUMD.
 Custom velocities must be provided. They must also be in
 the units of eV^(1/2) amu^(-1/2).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>atoms</strong> (<em>ase.Atoms</em>) – Atoms to assign velocities to.</p></li>
-<li><p><strong>custom</strong> (<em>list</em><em>(</em><em>list</em><em>)</em>) – list of len(atoms) with each element made from
-a 3-element list for [vx, vy, vz]</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms to assign velocities to.</p>
+</dd>
+<dt>custom (list(list)):</dt><dd><p>list of len(atoms) with each element made from
+a 3-element list for [vx, vy, vz]</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>

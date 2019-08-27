@@ -148,6 +148,8 @@
   <h1>Source code for thermo.shared.force</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
 <div class="viewcode-block" id="load_forces"><a class="viewcode-back" href="../../../thermo.shared.html#thermo.shared.force.load_forces">[docs]</a><span class="k">def</span> <span class="nf">load_forces</span><span class="p">(</span><span class="n">force_file</span><span class="p">,</span> <span class="n">sim</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
@@ -167,8 +169,7 @@
 <span class="sd">            the force output file (f.out) path when GPUMD is compiled with the force flag</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict)</span>
-<span class="sd">            dictionary containing sorted force vectors</span>
+<span class="sd">        dict: dictionary containing sorted force vectors</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
 
@@ -220,7 +221,7 @@
 <div class="viewcode-block" id="compare_forces"><a class="viewcode-back" href="../../../thermo.shared.html#thermo.shared.force.compare_forces">[docs]</a><span class="k">def</span> <span class="nf">compare_forces</span><span class="p">(</span><span class="n">f1_dict</span><span class="p">,</span> <span class="n">f2_dict</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Compares the LAMMPS and GPUMD forces and returns dictionary of comparison</span>
-<span class="sd">    Forces are dict2 - dict1 values</span>
+<span class="sd">    Forces are dict2 - dict1 values.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        arg1 (dict): f1_dict</span>
@@ -232,8 +233,7 @@
 <span class="sd">            LAMMPS simulation</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        out (dict)</span>
-<span class="sd">            comparison dictionary</span>
+<span class="sd">        dict: comparison dictionary</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
 
