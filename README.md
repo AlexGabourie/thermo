@@ -14,7 +14,7 @@ Version specific documentation can be found in the release files by going to doc
 
 # Installation:
 
-The current version of *thermo* is built on Python 2 with plans to update to Python 3 by the end of 2019.
+The current version of *thermo* has been moved to Python3 recently. Please create an issue if there are any bugs.
 
 To install the most recent version, use the following command:
 
