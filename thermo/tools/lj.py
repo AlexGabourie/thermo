@@ -18,7 +18,7 @@ def load_UFF():
             sigma in units of eV and Angstroms, respectively.
     """
     path = os.path.abspath(os.path.join(__file__, '../../data/UFF.params'))
-    return pickle.load(open(path, 'r'))
+    return pickle.load(open(path, 'rb'))
 
 #################################
 # Lorentz-Berthelot Mixing
