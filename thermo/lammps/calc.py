@@ -68,7 +68,7 @@ def get_heat_flux(directory='.', heatflux_file='heat_out.heatflux',
     with open(heatflux_file, 'r') as hf_file:
         lines = hf_file.readlines()[2:]
 
-    num_elem = len(lines)-2
+    num_elem = len(lines)
 
     # Get timestep
     rate = int(lines[0].split()[0])
