@@ -1,47 +1,13 @@
-import pyfftw
-import multiprocessing
+
 import numpy as np
-import traceback
 import os
 import sys
 from scipy import integrate
 from math import floor
-from .data import extract_dt
 import scipy.io as sio
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
-
-
-def autocorr(f, max_lag):
-    '''
-    Computes a fast autocorrelation function and returns up to max_lag.
-
-    Args:
-        f (ndarray):
-            Vector for autocorrelation
-
-        max_lag (float):
-            Lag at which to calculate up to
-
-    Returns:
-        ndarray: Autocorrelation vector
-
-    '''
-    N = len(f)
-    d = N - np.arange(N)
-    # https://dsp.stackexchange.com/questions/741/why-should-i-zero-pad-a-signal-before-taking-the-fourier-transform
-    f = np.lib.pad(f, (0,N), 'constant', constant_values=(0,0))
-    fvi = np.zeros(2*N, dtype=type(f[0]))
-    fwd = pyfftw.FFTW(f, fvi, flags=('FFTW_ESTIMATE',), threads=multiprocessing.cpu_count())
-    fwd()
-    inv_arg = fvi*np.conjugate(fvi)
-    acf = np.zeros_like(inv_arg)
-    rev = pyfftw.FFTW(inv_arg, acf, direction='FFTW_BACKWARD',
-                      flags=('FFTW_ESTIMATE', ), threads=multiprocessing.cpu_count())
-    rev()
-    acf = acf[:N]/d
-    return np.real(acf[:max_lag+1])
 
 def __metal_to_SI( vol, T ):
     '''
@@ -83,54 +49,46 @@ def get_heat_flux(directory='.', heatflux_file='heat_out.heatflux',
     Returns:
         dict:Jx (list), Jy (list), Jz (list), rate (float)
     '''
-    original_dir = os.getcwd()
+    heatflux_file = os.path.join(directory, heatflux_file)
+    mat_file = os.path.join(directory, mat_file)
 
-    try:
-        heatflux_file = os.path.join(directory, heatflux_file)
-        mat_file = os.path.join(directory, mat_file)
+    # Check that directory exists
+    if not os.path.isdir(directory):
+        raise IOError('The path: {} is not a directory.'.format(directory))
 
-        # Check that directory exists
-        if not os.path.isdir(directory):
-            raise IOError('The path: {} is not a directory.'.format(directory))
+    # Go to directory and see if imported .mat file already exists
+    if os.path.isfile(mat_file) and mat_file.endswith('.mat'):
+        return sio.loadmat(mat_file)
 
-        # Go to directory and see if imported .mat file already exists
-        os.chdir(directory)
-        if os.path.isfile(mat_file) and mat_file.endswith('.mat'):
-            return sio.loadmat(mat_file)
+    # Continue with the import since .mat file
+    if not os.path.isfile(heatflux_file):
+        raise IOError('The file: \'{}{}\' is not found.'.format(directory,heatflux_file))
 
-        # Continue with the import since .mat file
-        if not os.path.isfile(heatflux_file):
-            raise IOError('The file: \'{}{}\' is not found.'.format(directory,heatflux_file))
+    # Read the file
+    with open(heatflux_file, 'r') as hf_file:
+        lines = hf_file.readlines()[2:]
 
-        # Read the file
-        with open(heatflux_file, 'r') as hf_file:
-            lines = hf_file.readlines()[2:]
+    num_elem = len(lines)-2
 
-        # Get timestep
-        rate = int(lines[0].split()[0])
+    # Get timestep
+    rate = int(lines[0].split()[0])
 
-        # read all data
-        jx = list()
-        jy = list()
-        jz = list()
-        for line in lines:
-            vals = line.split()
-            jx.append(float(vals[1]))
-            jy.append(float(vals[2]))
-            jz.append(float(vals[3]))
+    # read all data
+    jx = np.zeros(num_elem)
+    jy = np.zeros(num_elem)
+    jz = np.zeros(num_elem)
+    for i,line in enumerate(lines):
+        vals = line.split()
+        jx[i] = float(vals[1])
+        jy[i] = float(vals[2])
+        jz[i] = float(vals[3])
 
-        output = {'Jx':jx, 'Jy':jy, 'Jz':jz, 'rate':rate}
-        sio.savemat(mat_file, output)
-        os.chdir(original_dir)
-        return output
+    output = {'Jx':jx, 'Jy':jy, 'Jz':jz, 'rate':rate}
+    sio.savemat(mat_file, output)
+    return output
 
-    except:
-        os.chdir(original_dir)
-        print(sys.exc_info()[0])
-
-def get_GKTC(directory='.', T=300, vol=1, dt=None, rate=None, srate=None,
-             tau=None, log='log.txt', heatflux_file='heat_out.heatflux',
-             mat_file='heat_flux.mat'):
+def get_GKTC(directory='.', T=300, vol=1, dt=None, rate=None, tau=None,
+             heatflux_file='heat_out.heatflux',mat_file='heat_flux.mat'):
     '''
     Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
     thermal conductivity vector and time vector.
@@ -152,26 +110,15 @@ def get_GKTC(directory='.', T=300, vol=1, dt=None, rate=None, srate=None,
 
         dt (float):
             This is the timestep of the green-kubo part of the simulation.
-            If not provided, dt=1 fs is used. units are in [ps]
+            If not provided, dt=1 fs is used. units are in [fs]
 
         rate (int):
             This is the rate at which the heat flux is sampled. This is in
             number of timesteps. If not provided, we assume we sample once per
             timestep so, rate=dt
 
-        srate (float):
-            This is related to rate, as it is the heat flux sampling rate in
-            units of simulation time. This does not need to be provided if
-            *rate* is already provided. Defaults are based on *rate* and *dt*.
-            Units of [ns]
-
         tau (int):
-            max lag time to integrate over. This is in units of [ps]
-
-        log (string):
-            This is the path of the log file. This is only used if the *dt*
-            keyword is not provided as it tries to extract the timestep from the
-            logs
+            max lag time to integrate over. This is in units of [ns]
 
         heatflux_file (str): Filename of heatflux output. If not provided
             'heat_out.heatflux' is used.
@@ -181,19 +128,18 @@ def get_GKTC(directory='.', T=300, vol=1, dt=None, rate=None, srate=None,
             file.
 
     Returns:
-        dict: kx, ky, kz, t, directory, log, dt, tot_time, tau, T, vol, srate,
+        dict: kx, ky, kz, t, directory, dt, tot_time, tau, T, vol, srate,
         jxjx, jyjy, jzjz
 
     Output keys:\n
     - kx (ndarray): x-direction thermal conductivity [W/m/K]
     - ky (ndarray): y-direction thermal conductivity [W/m/K]
     - kz (ndarray): z-direction thermal conductivity [W/m/K]
-    - t (ndarra): time [ps]
+    - t (ndarray): time [ns]
     - directory (str): directory of results
-    - log (str): name of log file
-    - dt (float): timestep [ps]
-    - tot_time (float): total simulated time [ps]
-    - tau (int): Lag time [ps]
+    - dt (float): timestep [fs]
+    - tot_time (float): total simulated time [ns]
+    - tau (int): Lag time [ns]
     - T (float): [K]
     - vol (float): Volume of simulation cell  [angstroms^3]
     - srate (float): See above
@@ -201,71 +147,49 @@ def get_GKTC(directory='.', T=300, vol=1, dt=None, rate=None, srate=None,
     - jyjy (ndarray): y-direction heat flux autocorrelation
     - jzjz (ndarray): z-direction heat flux autocorrelation
     '''
+    # Check that directory exists
+    if not os.path.isdir(directory):
+        raise IOError('The path: {} is not a directory.'.format(directory))
 
-    original_dir = os.getcwd()
+    # get heat flux, pass args
+    hf = get_heat_flux(directory, heatflux_file,mat_file)
+    Jx = np.squeeze(hf['Jx'])
+    Jy = np.squeeze(hf['Jy'])
+    Jz = np.squeeze(hf['Jz'])
 
-    try:
+    scale = __metal_to_SI(vol, T)
 
-        # Check that directory exists
-        if not os.path.isdir(directory):
-            raise IOError('The path: {} is not a directory.'.format(directory))
+    # Set timestep if not set
+    if dt is None:
+        dt = 1.0e-6 # [ns]
+    else:
+        dt = dt*1.0e-6 # [fs] -> [ns]
 
-        # go to the directory
-        os.chdir(directory)
+    # set the heat flux sampling rate: rate*timestep*scaling
+    srate = rate*dt*1.0e-6 # [ns]
 
-        # get heat flux, pass args
-        hf = get_heat_flux(directory, heatflux_file,mat_file)
-        Jx = np.squeeze(hf['Jx'])
-        Jy = np.squeeze(hf['Jy'])
-        Jz = np.squeeze(hf['Jz'])
+    # Calculate total time
+    tot_time = srate*(len(Jx)-1) # [ns]
 
-        scale = __metal_to_SI(vol, T)
+    # set the integration limit (i.e. tau)
+    if tau is None:
+        tau = tot_time # [ns]
 
-        Jx = Jx/vol
-        Jy = Jy/vol
-        Jz = Jz/vol
+    max_lag = int(floor(tau/(srate)))
+    t = np.squeeze(np.linspace(0, (max_lag)*srate, max_lag+1)) # [ns]
 
-        # Set timestep if not set
-        if dt is None:
-            dts = extract_dt(log)
-            dt = 1.0e-3 if len(dts) == 0 else dts[0]  #[ps]
+    ### AUTOCORRELATION ###
+    jxjx = autocorr(np.squeeze(Jx).astype(np.complex128), max_lag)
+    jyjy = autocorr(np.squeeze(Jy).astype(np.complex128), max_lag)
+    jzjz = autocorr(np.squeeze(Jz).astype(np.complex128), max_lag)
 
-        # set the heat flux sampling rate: rate*timestep*scaling
-        if srate is None:
-            if rate is None:
-                if 'rate' in hf:
-                    rate = int(hf['rate'])
-                else:
-                    rate = 1
-            srate = rate*dt*1.0e-3 # [ns]
+    ### INTEGRATION ###
+    kx = integrate.cumtrapz(jxjx, t, initial=0)*scale
+    ky = integrate.cumtrapz(jyjy, t, initial=0)*scale
+    kz = integrate.cumtrapz(jzjz, t, initial=0)*scale
 
-        # Calculate total time
-        tot_time = srate*(len(Jx)-1)
+    dt/=1e6 # [ns] -> [fs]
 
-        # set the integration limit (i.e. tau)
-        if tau is None:
-            tau = tot_time # [ps]
-
-        max_lag = int(floor(tau/(srate*1000.)))
-        t = np.squeeze(np.linspace(0, (max_lag)*srate, max_lag+1))
-
-        ### AUTOCORRELATION ###
-        jxjx = autocorr(np.squeeze(Jx).astype(np.complex128), max_lag)
-        jyjy = autocorr(np.squeeze(Jy).astype(np.complex128), max_lag)
-        jzjz = autocorr(np.squeeze(Jz).astype(np.complex128), max_lag)
-
-        ### INTEGRATION ###
-        kx = integrate.cumtrapz(jxjx, t, initial=0)*scale
-        ky = integrate.cumtrapz(jyjy, t, initial=0)*scale
-        kz = integrate.cumtrapz(jzjz, t, initial=0)*scale
-
-        # Return from directory
-        os.chdir(original_dir)
-
-        return {'kx':kx, 'ky':ky, 'kz':kz, 't':t, 'directory':directory,
-                'log':log, 'dt':dt, 'tot_time':tot_time,'tau':tau, 'T':T,
-                'vol':vol, 'srate':srate, 'jxjx':jxjx, 'jyjy':jyjy, 'jzjz':jzjz}
-
-    except Exception as e:
-        os.chdir(original_dir)
-        print(traceback.format_exc())
+    return {'kx':kx, 'ky':ky, 'kz':kz, 't':t, 'directory':directory,
+            'dt':dt, 'tot_time':tot_time,'tau':tau, 'T':T,
+            'vol':vol, 'srate':srate, 'jxjx':jxjx, 'jyjy':jyjy, 'jzjz':jzjz}
