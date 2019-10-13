@@ -5,6 +5,7 @@ import sys
 from scipy import integrate
 from math import floor
 import scipy.io as sio
+from thermo.math.correlate import autocorr
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
