@@ -1,4 +1,3 @@
-
 import numpy as np
 import os
 import sys
@@ -167,7 +166,7 @@ def get_GKTC(directory='.', T=300, vol=1, dt=None, rate=None, tau=None,
         dt = dt*1.0e-6 # [fs] -> [ns]
 
     # set the heat flux sampling rate: rate*timestep*scaling
-    srate = rate*dt*1.0e-6 # [ns]
+    srate = rate*dt # [ns]
 
     # Calculate total time
     tot_time = srate*(len(Jx)-1) # [ns]
