@@ -142,7 +142,7 @@ class LJ(object):
 
         # check params
         good = (tuple == type(data) and len(data) == 2 and \
-            all([isinstance(item, (int, long, float)) for item in data]) and \
+            all([isinstance(item, (int, float)) for item in data]) and \
             type(symbol) == str)
         if good:
             if symbol in self.ljdict:
