@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from scipy.integrate import trapz
+from scipy.integrate import cumtrapz
 from .data import load_shc
 
 __author__ = "Alexander Gabourie"
@@ -17,11 +17,7 @@ def running_ave(kappa, time):
     Returns:
         ndarray: Running average of kappa input
     """
-
-    out = np.zeros(kappa.shape[0])
-    for i, t in enumerate(time):
-        out[i] = (1./t*trapz(kappa[:i], time[:i]))
-    return out
+    return cumtrapz(kappa, time, initial=0)/time
 
 def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
                           shc=None, directory=''):
