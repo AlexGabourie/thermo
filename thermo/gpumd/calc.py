@@ -19,7 +19,7 @@ def running_ave(kappa, time):
     """
     return cumtrapz(kappa, time, initial=0)/time
 
-def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
+def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, V, df=None, Nc_conv=None,
                           shc=None, directory=''):
     """
     Computes the spectral decomposition from HNEMD between two groups
@@ -41,8 +41,11 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
         T (float):
             HNEMD run temperature (in K)
 
-        A (float):
-            Area (nm^2) that heat flows over
+        V (float):
+            Volume (A^3) that heat flows over
+            
+        df (float):
+            Spacing of frequencies in output (THz)
 
         Nc_conv (int):
             Number of correlations steps to use for calculation
@@ -57,11 +60,23 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
         dict: Dictionary with the spectral decomposition
 
     """
+    if (not type(Nc) == int):
+        raise ValueError('Nc must be an int.')
+    
+    if (not type(Nc_conv) == int):
+        raise ValueError('Nc_conv must be an int.')
+    
     if shc==None:
         shc = load_shc(Nc, directory)
+        
+    if 1000/dt < Fmax:
+        raise ValueError('Sampling frequency must be > 2X Fmax.')
+        
+    if df is None:
+        df = 0.01
 
     dt_in_ps = dt/1000. # ps
-    nu = np.arange(0.01, Fmax+0.01, 0.01)
+    nu = np.arange(0, Fmax+df, df)
 
     if not Nc_conv == None:
         Nc = Nc_conv
@@ -80,12 +95,13 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, A, Nc_conv=None,
         qi[i] = 2*dt_in_ps*np.sum(ki*np.cos(2*np.pi*n*np.arange(0,Nc_conv)*dt_in_ps))
         qo[i] = 2*dt_in_ps*np.sum(ko*np.cos(2*np.pi*n*np.arange(0,Nc_conv)*dt_in_ps))
 
-    convert = 16.0217662
-    ki = convert*qi/A/T/Fe
-    ko = convert*qo/A/T/Fe
+    # ev*A/ps * 1/A^3 *1/K * A ==> W/m/K
+    convert = 1602.17662
+    ki = convert*qi/V/T/Fe
+    ko = convert*qo/V/T/Fe
 
     out = dict()
-    out['ki'] = ki
-    out['ko'] = ko
-    out['nu'] = nu
+    out['ki'] = ki.squeeze()
+    out['ko'] = ko.squeeze()
+    out['nu'] = nu.squeeze()
     return out
