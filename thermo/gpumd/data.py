@@ -393,7 +393,7 @@ def load_shc(Nc, directory='', filename='shc.out'):
         shc[i, 0] = float(data[0])
         shc[i, 1] = float(data[1])
 
-    Ns = shc.shape[0]/Nc
+    Ns = shc.shape[0]//Nc
     shc_in = np.reshape(shc[:,0], (Ns, Nc))
     shc_out = np.reshape(shc[:,1], (Ns, Nc))
     shc_in = np.mean(shc_in,0)*1000./10.18 # eV/ps
