@@ -399,7 +399,7 @@ def load_shc(Nc, directory='', filename='shc.out'):
     Ns = shc.shape[0]//Nc
     shc_in = np.reshape(shc[:,0], (Ns, Nc))
     shc_out = np.reshape(shc[:,1], (Ns, Nc))
-    shc_in = np.mean(shc_in,0)*1000./10.18 # eV/ps
+    shc_in = np.mean(shc_in,0)*1000./10.18 # eV*A/ps
     shc_out = np.mean(shc_out,0)*1000./10.18
 
     out = dict()
