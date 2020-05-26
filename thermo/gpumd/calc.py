@@ -95,7 +95,7 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, V, df=None, Nc_conv=None,
         qi[i] = 2*dt_in_ps*np.sum(ki*np.cos(2*np.pi*n*np.arange(0,Nc_conv)*dt_in_ps))
         qo[i] = 2*dt_in_ps*np.sum(ko*np.cos(2*np.pi*n*np.arange(0,Nc_conv)*dt_in_ps))
 
-    # ev*A/ps * 1/A^3 *1/K * A ==> W/m/K
+    # ev*A/ps/THz * 1/A^3 *1/K * A ==> W/m/K/THz
     convert = 1602.17662
     ki = convert*qi/V/T/Fe
     ko = convert*qo/V/T/Fe
