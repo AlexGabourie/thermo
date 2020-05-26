@@ -379,6 +379,9 @@ def load_shc(Nc, directory='', filename='shc.out'):
     Returns:
         dict: Dictionary of in- and out-of-plane shc results (average)
     """
+    if (not type(Nc) == int):
+        raise ValueError('Nc must be an int.')
+        
     if directory=='':
         shc_path = os.path.join(os.getcwd(),filename)
     else:
