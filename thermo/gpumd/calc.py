@@ -63,8 +63,12 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, V, df=None, Nc_conv=None,
     if (not type(Nc) == int):
         raise ValueError('Nc must be an int.')
     
-    if (not type(Nc_conv) == int):
-        raise ValueError('Nc_conv must be an int.')
+    if (not Nc_conv is None):
+        if (not type(Nc_conv) == int):
+            raise ValueError('Nc_conv must be an int.')
+        if (Nc_conv > Nc):
+            raise ValueError('Nc_conv must not be greater than Nc.')
+        Nc = Nc_conv
     
     if shc==None:
         shc = load_shc(Nc, directory)
@@ -78,13 +82,10 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, V, df=None, Nc_conv=None,
     dt_in_ps = dt/1000. # ps
     nu = np.arange(0, Fmax+df, df)
 
-    if not Nc_conv == None:
-        Nc = Nc_conv
-
     ki = shc['shc_in']
     ko = shc['shc_out']
 
-    hann = (np.cos(np.pi*np.arange(0,Nc_conv)/Nc_conv)+1)*0.5
+    hann = (np.cos(np.pi*np.arange(0,Nc)/Nc)+1)*0.5
     ki = (ki[0:Nc]*np.array([1] + [2]*(Nc-1)).reshape(1,-1))*hann
     ko = (ko[0:Nc]*np.array([1] + [2]*(Nc-1)).reshape(1,-1))*hann
 
@@ -92,8 +93,8 @@ def hnemd_spectral_decomp(dt, Nc, Fmax, Fe, T, V, df=None, Nc_conv=None,
     qo = np.zeros((nu.shape[0], 1))
 
     for i, n in enumerate(nu):
-        qi[i] = 2*dt_in_ps*np.sum(ki*np.cos(2*np.pi*n*np.arange(0,Nc_conv)*dt_in_ps))
-        qo[i] = 2*dt_in_ps*np.sum(ko*np.cos(2*np.pi*n*np.arange(0,Nc_conv)*dt_in_ps))
+        qi[i] = 2*dt_in_ps*np.sum(ki*np.cos(2*np.pi*n*np.arange(0,Nc)*dt_in_ps))
+        qo[i] = 2*dt_in_ps*np.sum(ko*np.cos(2*np.pi*n*np.arange(0,Nc)*dt_in_ps))
 
     # ev*A/ps/THz * 1/A^3 *1/K * A ==> W/m/K/THz
     convert = 1602.17662
