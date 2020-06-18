@@ -146,50 +146,16 @@
            <div itemprop="articleBody">
             
   <h1>Source code for thermo.lammps.calc</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pyfftw</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">integrate</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
-<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">extract_dt</span>
 <span class="kn">import</span> <span class="nn">scipy.io</span> <span class="k">as</span> <span class="nn">sio</span>
+<span class="kn">from</span> <span class="nn">thermo.math.correlate</span> <span class="k">import</span> <span class="n">autocorr</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
-
-
-<div class="viewcode-block" id="autocorr"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.autocorr">[docs]</a><span class="k">def</span> <span class="nf">autocorr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">max_lag</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Computes a fast autocorrelation function and returns up to max_lag.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        f (ndarray):</span>
-<span class="sd">            Vector for autocorrelation</span>
-
-<span class="sd">        max_lag (float):</span>
-<span class="sd">            Lag at which to calculate up to</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        ndarray: Autocorrelation vector</span>
-
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
-    <span class="c1"># https://dsp.stackexchange.com/questions/741/why-should-i-zero-pad-a-signal-before-taking-the-fourier-transform</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N</span><span class="p">),</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
-    <span class="n">fvi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-    <span class="n">fwd</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fvi</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;FFTW_ESTIMATE&#39;</span><span class="p">,),</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
-    <span class="n">fwd</span><span class="p">()</span>
-    <span class="n">inv_arg</span> <span class="o">=</span> <span class="n">fvi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">fvi</span><span class="p">)</span>
-    <span class="n">acf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">inv_arg</span><span class="p">)</span>
-    <span class="n">rev</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">FFTW</span><span class="p">(</span><span class="n">inv_arg</span><span class="p">,</span> <span class="n">acf</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;FFTW_BACKWARD&#39;</span><span class="p">,</span>
-                      <span class="n">flags</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;FFTW_ESTIMATE&#39;</span><span class="p">,</span> <span class="p">),</span> <span class="n">threads</span><span class="o">=</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
-    <span class="n">rev</span><span class="p">()</span>
-    <span class="n">acf</span> <span class="o">=</span> <span class="n">acf</span><span class="p">[:</span><span class="n">N</span><span class="p">]</span><span class="o">/</span><span class="n">d</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">acf</span><span class="p">[:</span><span class="n">max_lag</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span></div>
 
 <span class="k">def</span> <span class="nf">__metal_to_SI</span><span class="p">(</span> <span class="n">vol</span><span class="p">,</span> <span class="n">T</span> <span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
@@ -231,54 +197,46 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict:Jx (list), Jy (list), Jz (list), rate (float)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">original_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">heatflux_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">heatflux_file</span><span class="p">)</span>
+    <span class="n">mat_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">mat_file</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">heatflux_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">heatflux_file</span><span class="p">)</span>
-        <span class="n">mat_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">mat_file</span><span class="p">)</span>
+    <span class="c1"># Check that directory exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The path: </span><span class="si">{}</span><span class="s1"> is not a directory.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
 
-        <span class="c1"># Check that directory exists</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The path: </span><span class="si">{}</span><span class="s1"> is not a directory.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
+    <span class="c1"># Go to directory and see if imported .mat file already exists</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">mat_file</span><span class="p">)</span> <span class="ow">and</span> <span class="n">mat_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.mat&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">sio</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">mat_file</span><span class="p">)</span>
 
-        <span class="c1"># Go to directory and see if imported .mat file already exists</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">mat_file</span><span class="p">)</span> <span class="ow">and</span> <span class="n">mat_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.mat&#39;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">sio</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">mat_file</span><span class="p">)</span>
+    <span class="c1"># Continue with the import since .mat file</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">heatflux_file</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The file: </span><span class="se">\&#39;</span><span class="si">{}{}</span><span class="se">\&#39;</span><span class="s1"> is not found.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span><span class="n">heatflux_file</span><span class="p">))</span>
 
-        <span class="c1"># Continue with the import since .mat file</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">heatflux_file</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The file: </span><span class="se">\&#39;</span><span class="si">{}{}</span><span class="se">\&#39;</span><span class="s1"> is not found.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span><span class="n">heatflux_file</span><span class="p">))</span>
+    <span class="c1"># Read the file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">heatflux_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf_file</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">hf_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]</span>
 
-        <span class="c1"># Read the file</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">heatflux_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf_file</span><span class="p">:</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">hf_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="n">num_elem</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
-        <span class="c1"># Get timestep</span>
-        <span class="n">rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1"># Get timestep</span>
+    <span class="n">rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="c1"># read all data</span>
-        <span class="n">jx</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="n">jy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="n">jz</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-            <span class="n">vals</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">jx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="n">jy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-            <span class="n">jz</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+    <span class="c1"># read all data</span>
+    <span class="n">jx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_elem</span><span class="p">)</span>
+    <span class="n">jy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_elem</span><span class="p">)</span>
+    <span class="n">jz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_elem</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">jx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">jy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">jz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
 
-        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Jx&#39;</span><span class="p">:</span><span class="n">jx</span><span class="p">,</span> <span class="s1">&#39;Jy&#39;</span><span class="p">:</span><span class="n">jy</span><span class="p">,</span> <span class="s1">&#39;Jz&#39;</span><span class="p">:</span><span class="n">jz</span><span class="p">,</span> <span class="s1">&#39;rate&#39;</span><span class="p">:</span><span class="n">rate</span><span class="p">}</span>
-        <span class="n">sio</span><span class="o">.</span><span class="n">savemat</span><span class="p">(</span><span class="n">mat_file</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">original_dir</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">output</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Jx&#39;</span><span class="p">:</span><span class="n">jx</span><span class="p">,</span> <span class="s1">&#39;Jy&#39;</span><span class="p">:</span><span class="n">jy</span><span class="p">,</span> <span class="s1">&#39;Jz&#39;</span><span class="p">:</span><span class="n">jz</span><span class="p">,</span> <span class="s1">&#39;rate&#39;</span><span class="p">:</span><span class="n">rate</span><span class="p">}</span>
+    <span class="n">sio</span><span class="o">.</span><span class="n">savemat</span><span class="p">(</span><span class="n">mat_file</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span></div>
 
-    <span class="k">except</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">original_dir</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span></div>
-
-<div class="viewcode-block" id="get_GKTC"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.get_GKTC">[docs]</a><span class="k">def</span> <span class="nf">get_GKTC</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">srate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">tau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="s1">&#39;log.txt&#39;</span><span class="p">,</span> <span class="n">heatflux_file</span><span class="o">=</span><span class="s1">&#39;heat_out.heatflux&#39;</span><span class="p">,</span>
-             <span class="n">mat_file</span><span class="o">=</span><span class="s1">&#39;heat_flux.mat&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_GKTC"><a class="viewcode-back" href="../../../thermo.lammps.html#thermo.lammps.calc.get_GKTC">[docs]</a><span class="k">def</span> <span class="nf">get_GKTC</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">heatflux_file</span><span class="o">=</span><span class="s1">&#39;heat_out.heatflux&#39;</span><span class="p">,</span><span class="n">mat_file</span><span class="o">=</span><span class="s1">&#39;heat_flux.mat&#39;</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.</span>
 <span class="sd">    thermal conductivity vector and time vector.</span>
@@ -300,26 +258,15 @@
 
 <span class="sd">        dt (float):</span>
 <span class="sd">            This is the timestep of the green-kubo part of the simulation.</span>
-<span class="sd">            If not provided, dt=1 fs is used. units are in [ps]</span>
+<span class="sd">            If not provided, dt=1 fs is used. units are in [fs]</span>
 
 <span class="sd">        rate (int):</span>
 <span class="sd">            This is the rate at which the heat flux is sampled. This is in</span>
 <span class="sd">            number of timesteps. If not provided, we assume we sample once per</span>
 <span class="sd">            timestep so, rate=dt</span>
 
-<span class="sd">        srate (float):</span>
-<span class="sd">            This is related to rate, as it is the heat flux sampling rate in</span>
-<span class="sd">            units of simulation time. This does not need to be provided if</span>
-<span class="sd">            *rate* is already provided. Defaults are based on *rate* and *dt*.</span>
-<span class="sd">            Units of [ns]</span>
-
 <span class="sd">        tau (int):</span>
-<span class="sd">            max lag time to integrate over. This is in units of [ps]</span>
-
-<span class="sd">        log (string):</span>
-<span class="sd">            This is the path of the log file. This is only used if the *dt*</span>
-<span class="sd">            keyword is not provided as it tries to extract the timestep from the</span>
-<span class="sd">            logs</span>
+<span class="sd">            max lag time to integrate over. This is in units of [ns]</span>
 
 <span class="sd">        heatflux_file (str): Filename of heatflux output. If not provided</span>
 <span class="sd">            &#39;heat_out.heatflux&#39; is used.</span>
@@ -329,19 +276,18 @@
 <span class="sd">            file.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict: kx, ky, kz, t, directory, log, dt, tot_time, tau, T, vol, srate,</span>
+<span class="sd">        dict: kx, ky, kz, t, directory, dt, tot_time, tau, T, vol, srate,</span>
 <span class="sd">        jxjx, jyjy, jzjz</span>
 
 <span class="sd">    Output keys:\n</span>
 <span class="sd">    - kx (ndarray): x-direction thermal conductivity [W/m/K]</span>
 <span class="sd">    - ky (ndarray): y-direction thermal conductivity [W/m/K]</span>
 <span class="sd">    - kz (ndarray): z-direction thermal conductivity [W/m/K]</span>
-<span class="sd">    - t (ndarra): time [ps]</span>
+<span class="sd">    - t (ndarray): time [ns]</span>
 <span class="sd">    - directory (str): directory of results</span>
-<span class="sd">    - log (str): name of log file</span>
-<span class="sd">    - dt (float): timestep [ps]</span>
-<span class="sd">    - tot_time (float): total simulated time [ps]</span>
-<span class="sd">    - tau (int): Lag time [ps]</span>
+<span class="sd">    - dt (float): timestep [fs]</span>
+<span class="sd">    - tot_time (float): total simulated time [ns]</span>
+<span class="sd">    - tau (int): Lag time [ns]</span>
 <span class="sd">    - T (float): [K]</span>
 <span class="sd">    - vol (float): Volume of simulation cell  [angstroms^3]</span>
 <span class="sd">    - srate (float): See above</span>
@@ -349,74 +295,52 @@
 <span class="sd">    - jyjy (ndarray): y-direction heat flux autocorrelation</span>
 <span class="sd">    - jzjz (ndarray): z-direction heat flux autocorrelation</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Check that directory exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The path: </span><span class="si">{}</span><span class="s1"> is not a directory.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
 
-    <span class="n">original_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="c1"># get heat flux, pass args</span>
+    <span class="n">hf</span> <span class="o">=</span> <span class="n">get_heat_flux</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">heatflux_file</span><span class="p">,</span><span class="n">mat_file</span><span class="p">)</span>
+    <span class="n">Jx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">hf</span><span class="p">[</span><span class="s1">&#39;Jx&#39;</span><span class="p">])</span>
+    <span class="n">Jy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">hf</span><span class="p">[</span><span class="s1">&#39;Jy&#39;</span><span class="p">])</span>
+    <span class="n">Jz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">hf</span><span class="p">[</span><span class="s1">&#39;Jz&#39;</span><span class="p">])</span>
 
-    <span class="k">try</span><span class="p">:</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">__metal_to_SI</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
 
-        <span class="c1"># Check that directory exists</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;The path: </span><span class="si">{}</span><span class="s1"> is not a directory.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">))</span>
+    <span class="c1"># Set timestep if not set</span>
+    <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="mf">1.0e-6</span> <span class="c1"># [ns]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">*</span><span class="mf">1.0e-6</span> <span class="c1"># [fs] -&gt; [ns]</span>
 
-        <span class="c1"># go to the directory</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+    <span class="c1"># set the heat flux sampling rate: rate*timestep*scaling</span>
+    <span class="n">srate</span> <span class="o">=</span> <span class="n">rate</span><span class="o">*</span><span class="n">dt</span> <span class="c1"># [ns]</span>
 
-        <span class="c1"># get heat flux, pass args</span>
-        <span class="n">hf</span> <span class="o">=</span> <span class="n">get_heat_flux</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">heatflux_file</span><span class="p">,</span><span class="n">mat_file</span><span class="p">)</span>
-        <span class="n">Jx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">hf</span><span class="p">[</span><span class="s1">&#39;Jx&#39;</span><span class="p">])</span>
-        <span class="n">Jy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">hf</span><span class="p">[</span><span class="s1">&#39;Jy&#39;</span><span class="p">])</span>
-        <span class="n">Jz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">hf</span><span class="p">[</span><span class="s1">&#39;Jz&#39;</span><span class="p">])</span>
+    <span class="c1"># Calculate total time</span>
+    <span class="n">tot_time</span> <span class="o">=</span> <span class="n">srate</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Jx</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># [ns]</span>
 
-        <span class="n">scale</span> <span class="o">=</span> <span class="n">__metal_to_SI</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+    <span class="c1"># set the integration limit (i.e. tau)</span>
+    <span class="k">if</span> <span class="n">tau</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="n">tot_time</span> <span class="c1"># [ns]</span>
 
-        <span class="n">Jx</span> <span class="o">=</span> <span class="n">Jx</span><span class="o">/</span><span class="n">vol</span>
-        <span class="n">Jy</span> <span class="o">=</span> <span class="n">Jy</span><span class="o">/</span><span class="n">vol</span>
-        <span class="n">Jz</span> <span class="o">=</span> <span class="n">Jz</span><span class="o">/</span><span class="n">vol</span>
+    <span class="n">max_lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">tau</span><span class="o">/</span><span class="p">(</span><span class="n">srate</span><span class="p">)))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">max_lag</span><span class="p">)</span><span class="o">*</span><span class="n">srate</span><span class="p">,</span> <span class="n">max_lag</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># [ns]</span>
 
-        <span class="c1"># Set timestep if not set</span>
-        <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dts</span> <span class="o">=</span> <span class="n">extract_dt</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
-            <span class="n">dt</span> <span class="o">=</span> <span class="mf">1.0e-3</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">dts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1">#[ps]</span>
+    <span class="c1">### AUTOCORRELATION ###</span>
+    <span class="n">jxjx</span> <span class="o">=</span> <span class="n">autocorr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">Jx</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
+    <span class="n">jyjy</span> <span class="o">=</span> <span class="n">autocorr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">Jy</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
+    <span class="n">jzjz</span> <span class="o">=</span> <span class="n">autocorr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">Jz</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
 
-        <span class="c1"># set the heat flux sampling rate: rate*timestep*scaling</span>
-        <span class="k">if</span> <span class="n">srate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">rate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;rate&#39;</span> <span class="ow">in</span> <span class="n">hf</span><span class="p">:</span>
-                    <span class="n">rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hf</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">])</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">rate</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">srate</span> <span class="o">=</span> <span class="n">rate</span><span class="o">*</span><span class="n">dt</span><span class="o">*</span><span class="mf">1.0e-3</span> <span class="c1"># [ns]</span>
+    <span class="c1">### INTEGRATION ###</span>
+    <span class="n">kx</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">jxjx</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">scale</span>
+    <span class="n">ky</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">jyjy</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">scale</span>
+    <span class="n">kz</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">jzjz</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">scale</span>
 
-        <span class="c1"># Calculate total time</span>
-        <span class="n">tot_time</span> <span class="o">=</span> <span class="n">srate</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Jx</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dt</span><span class="o">/=</span><span class="mf">1e6</span> <span class="c1"># [ns] -&gt; [fs]</span>
 
-        <span class="c1"># set the integration limit (i.e. tau)</span>
-        <span class="k">if</span> <span class="n">tau</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tau</span> <span class="o">=</span> <span class="n">tot_time</span> <span class="c1"># [ps]</span>
-
-        <span class="n">max_lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">tau</span><span class="o">/</span><span class="p">(</span><span class="n">srate</span><span class="o">*</span><span class="mf">1000.</span><span class="p">)))</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">max_lag</span><span class="p">)</span><span class="o">*</span><span class="n">srate</span><span class="p">,</span> <span class="n">max_lag</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-
-        <span class="c1">### AUTOCORRELATION ###</span>
-        <span class="n">jxjx</span> <span class="o">=</span> <span class="n">autocorr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">Jx</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
-        <span class="n">jyjy</span> <span class="o">=</span> <span class="n">autocorr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">Jy</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
-        <span class="n">jzjz</span> <span class="o">=</span> <span class="n">autocorr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">Jz</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
-
-        <span class="c1">### INTEGRATION ###</span>
-        <span class="n">kx</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">jxjx</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">scale</span>
-        <span class="n">ky</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">jyjy</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">scale</span>
-        <span class="n">kz</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">jzjz</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="n">scale</span>
-
-        <span class="c1"># Return from directory</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">original_dir</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kx&#39;</span><span class="p">:</span><span class="n">kx</span><span class="p">,</span> <span class="s1">&#39;ky&#39;</span><span class="p">:</span><span class="n">ky</span><span class="p">,</span> <span class="s1">&#39;kz&#39;</span><span class="p">:</span><span class="n">kz</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span><span class="n">t</span><span class="p">,</span> <span class="s1">&#39;directory&#39;</span><span class="p">:</span><span class="n">directory</span><span class="p">,</span>
-                <span class="s1">&#39;log&#39;</span><span class="p">:</span><span class="n">log</span><span class="p">,</span> <span class="s1">&#39;dt&#39;</span><span class="p">:</span><span class="n">dt</span><span class="p">,</span> <span class="s1">&#39;tot_time&#39;</span><span class="p">:</span><span class="n">tot_time</span><span class="p">,</span><span class="s1">&#39;tau&#39;</span><span class="p">:</span><span class="n">tau</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="n">T</span><span class="p">,</span>
-                <span class="s1">&#39;vol&#39;</span><span class="p">:</span><span class="n">vol</span><span class="p">,</span> <span class="s1">&#39;srate&#39;</span><span class="p">:</span><span class="n">srate</span><span class="p">,</span> <span class="s1">&#39;jxjx&#39;</span><span class="p">:</span><span class="n">jxjx</span><span class="p">,</span> <span class="s1">&#39;jyjy&#39;</span><span class="p">:</span><span class="n">jyjy</span><span class="p">,</span> <span class="s1">&#39;jzjz&#39;</span><span class="p">:</span><span class="n">jzjz</span><span class="p">}</span>
-
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">original_dir</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;kx&#39;</span><span class="p">:</span><span class="n">kx</span><span class="p">,</span> <span class="s1">&#39;ky&#39;</span><span class="p">:</span><span class="n">ky</span><span class="p">,</span> <span class="s1">&#39;kz&#39;</span><span class="p">:</span><span class="n">kz</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span><span class="n">t</span><span class="p">,</span> <span class="s1">&#39;directory&#39;</span><span class="p">:</span><span class="n">directory</span><span class="p">,</span>
+            <span class="s1">&#39;dt&#39;</span><span class="p">:</span><span class="n">dt</span><span class="p">,</span> <span class="s1">&#39;tot_time&#39;</span><span class="p">:</span><span class="n">tot_time</span><span class="p">,</span><span class="s1">&#39;tau&#39;</span><span class="p">:</span><span class="n">tau</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">:</span><span class="n">T</span><span class="p">,</span>
+            <span class="s1">&#39;vol&#39;</span><span class="p">:</span><span class="n">vol</span><span class="p">,</span> <span class="s1">&#39;srate&#39;</span><span class="p">:</span><span class="n">srate</span><span class="p">,</span> <span class="s1">&#39;jxjx&#39;</span><span class="p">:</span><span class="n">jxjx</span><span class="p">,</span> <span class="s1">&#39;jyjy&#39;</span><span class="p">:</span><span class="n">jyjy</span><span class="p">,</span> <span class="s1">&#39;jzjz&#39;</span><span class="p">:</span><span class="n">jzjz</span><span class="p">}</span></div>
 </pre></div>
 
            </div>

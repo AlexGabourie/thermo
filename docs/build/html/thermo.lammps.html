@@ -159,25 +159,8 @@
 <div class="section" id="module-thermo.lammps.calc">
 <span id="calculations"></span><h2>Calculations<a class="headerlink" href="#module-thermo.lammps.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="thermo.lammps.calc.autocorr">
-<code class="sig-prename descclassname">thermo.lammps.calc.</code><code class="sig-name descname">autocorr</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">max_lag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#autocorr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.autocorr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes a fast autocorrelation function and returns up to max_lag.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>f (ndarray):</dt><dd><p>Vector for autocorrelation</p>
-</dd>
-<dt>max_lag (float):</dt><dd><p>Lag at which to calculate up to</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><p>ndarray: Autocorrelation vector</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="thermo.lammps.calc.get_GKTC">
-<code class="sig-prename descclassname">thermo.lammps.calc.</code><code class="sig-name descname">get_GKTC</code><span class="sig-paren">(</span><em class="sig-param">directory='.'</em>, <em class="sig-param">T=300</em>, <em class="sig-param">vol=1</em>, <em class="sig-param">dt=None</em>, <em class="sig-param">rate=None</em>, <em class="sig-param">srate=None</em>, <em class="sig-param">tau=None</em>, <em class="sig-param">log='log.txt'</em>, <em class="sig-param">heatflux_file='heat_out.heatflux'</em>, <em class="sig-param">mat_file='heat_flux.mat'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#get_GKTC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.get_GKTC" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.lammps.calc.</code><code class="sig-name descname">get_GKTC</code><span class="sig-paren">(</span><em class="sig-param">directory='.'</em>, <em class="sig-param">T=300</em>, <em class="sig-param">vol=1</em>, <em class="sig-param">dt=None</em>, <em class="sig-param">rate=None</em>, <em class="sig-param">tau=None</em>, <em class="sig-param">heatflux_file='heat_out.heatflux'</em>, <em class="sig-param">mat_file='heat_flux.mat'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#get_GKTC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.get_GKTC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
 thermal conductivity vector and time vector.
 Assumptions with no info given by user:
@@ -194,22 +177,13 @@ If not provided, T=300 is used. Units are in [K]</p>
 If not provided, vol=1 is used. Units are [angstroms^3].</p>
 </dd>
 <dt>dt (float):</dt><dd><p>This is the timestep of the green-kubo part of the simulation.
-If not provided, dt=1 fs is used. units are in [ps]</p>
+If not provided, dt=1 fs is used. units are in [fs]</p>
 </dd>
 <dt>rate (int):</dt><dd><p>This is the rate at which the heat flux is sampled. This is in
 number of timesteps. If not provided, we assume we sample once per
 timestep so, rate=dt</p>
 </dd>
-<dt>srate (float):</dt><dd><p>This is related to rate, as it is the heat flux sampling rate in
-units of simulation time. This does not need to be provided if
-<em>rate</em> is already provided. Defaults are based on <em>rate</em> and <em>dt</em>.
-Units of [ns]</p>
-</dd>
-<dt>tau (int):</dt><dd><p>max lag time to integrate over. This is in units of [ps]</p>
-</dd>
-<dt>log (string):</dt><dd><p>This is the path of the log file. This is only used if the <em>dt</em>
-keyword is not provided as it tries to extract the timestep from the
-logs</p>
+<dt>tau (int):</dt><dd><p>max lag time to integrate over. This is in units of [ns]</p>
 </dd>
 <dt>heatflux_file (str): Filename of heatflux output. If not provided</dt><dd><p>‘heat_out.heatflux’ is used.</p>
 </dd>
@@ -218,7 +192,7 @@ file.</p>
 </dd>
 </dl>
 </dd>
-<dt>Returns:</dt><dd><p>dict: kx, ky, kz, t, directory, log, dt, tot_time, tau, T, vol, srate,
+<dt>Returns:</dt><dd><p>dict: kx, ky, kz, t, directory, dt, tot_time, tau, T, vol, srate,
 jxjx, jyjy, jzjz</p>
 </dd>
 </dl>
@@ -227,12 +201,11 @@ jxjx, jyjy, jzjz</p>
 <li><p>kx (ndarray): x-direction thermal conductivity [W/m/K]</p></li>
 <li><p>ky (ndarray): y-direction thermal conductivity [W/m/K]</p></li>
 <li><p>kz (ndarray): z-direction thermal conductivity [W/m/K]</p></li>
-<li><p>t (ndarra): time [ps]</p></li>
+<li><p>t (ndarray): time [ns]</p></li>
 <li><p>directory (str): directory of results</p></li>
-<li><p>log (str): name of log file</p></li>
-<li><p>dt (float): timestep [ps]</p></li>
-<li><p>tot_time (float): total simulated time [ps]</p></li>
-<li><p>tau (int): Lag time [ps]</p></li>
+<li><p>dt (float): timestep [fs]</p></li>
+<li><p>tot_time (float): total simulated time [ns]</p></li>
+<li><p>tau (int): Lag time [ns]</p></li>
 <li><p>T (float): [K]</p></li>
 <li><p>vol (float): Volume of simulation cell  [angstroms^3]</p></li>
 <li><p>srate (float): See above</p></li>

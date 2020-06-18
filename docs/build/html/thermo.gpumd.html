@@ -161,7 +161,7 @@
 <span id="calculations"></span><h2>Calculations<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.calc.hnemd_spectral_decomp">
-<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em class="sig-param">dt</em>, <em class="sig-param">Nc</em>, <em class="sig-param">Fmax</em>, <em class="sig-param">Fe</em>, <em class="sig-param">T</em>, <em class="sig-param">A</em>, <em class="sig-param">Nc_conv=None</em>, <em class="sig-param">shc=None</em>, <em class="sig-param">directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_decomp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em class="sig-param">dt</em>, <em class="sig-param">Nc</em>, <em class="sig-param">Fmax</em>, <em class="sig-param">Fe</em>, <em class="sig-param">T</em>, <em class="sig-param">V</em>, <em class="sig-param">df=None</em>, <em class="sig-param">Nc_conv=None</em>, <em class="sig-param">shc=None</em>, <em class="sig-param">directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_decomp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the spectral decomposition from HNEMD between two groups
 of atoms.</p>
 <dl class="simple">
@@ -176,7 +176,9 @@ of atoms.</p>
 </dd>
 <dt>T (float):</dt><dd><p>HNEMD run temperature (in K)</p>
 </dd>
-<dt>A (float):</dt><dd><p>Area (nm^2) that heat flows over</p>
+<dt>V (float):</dt><dd><p>Volume (A^3) that heat flows over</p>
+</dd>
+<dt>df (float):</dt><dd><p>Spacing of frequencies in output (THz)</p>
 </dd>
 <dt>Nc_conv (int):</dt><dd><p>Number of correlations steps to use for calculation</p>
 </dd>

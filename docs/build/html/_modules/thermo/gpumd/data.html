@@ -527,6 +527,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Dictionary of in- and out-of-plane shc results (average)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Nc must be an int.&#39;</span><span class="p">)</span>
+        
     <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">shc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span><span class="n">filename</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -541,10 +544,10 @@
         <span class="n">shc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">shc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-    <span class="n">Ns</span> <span class="o">=</span> <span class="n">shc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">Nc</span>
+    <span class="n">Ns</span> <span class="o">=</span> <span class="n">shc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="n">Nc</span>
     <span class="n">shc_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nc</span><span class="p">))</span>
     <span class="n">shc_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nc</span><span class="p">))</span>
-    <span class="n">shc_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">shc_in</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mf">1000.</span><span class="o">/</span><span class="mf">10.18</span> <span class="c1"># eV/ps</span>
+    <span class="n">shc_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">shc_in</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mf">1000.</span><span class="o">/</span><span class="mf">10.18</span> <span class="c1"># eV*A/ps</span>
     <span class="n">shc_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">shc_out</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mf">1000.</span><span class="o">/</span><span class="mf">10.18</span>
 
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
