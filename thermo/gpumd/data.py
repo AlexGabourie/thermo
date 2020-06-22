@@ -32,7 +32,7 @@ def __get_direction(directions):
     return sorted(list(set(directions)))
 
 
-def __processSample(nbins, i):
+def __process_sample(nbins, i):
     """
     A helper function for the multiprocessing of kappamode.out files
 
@@ -50,7 +50,7 @@ def __processSample(nbins, i):
     """
     out = list()
     for j in range(nbins):
-        out += [float(x) for x in lines[j+i*nbins].split()]
+        out += [float(x) for x in kmlines[j+i*nbins].split()]
     return np.array(out).reshape((nbins,5))
 
 
@@ -151,7 +151,6 @@ def reduce_frequency_info(freq, ndiv=1):
     freq = copy.deepcopy(freq)
     freq['bin_f_size'] = freq['bin_f_size'] * ndiv
     freq['fmax'] = (np.floor(np.abs(freq['fq'][-1]) / freq['bin_f_size']) + 1) * freq['bin_f_size']
-    extend = np.mod(freq['nbins'], ndiv)
     nbins_new = int(np.ceil(freq['nbins'] / ndiv))
     npad = nbins_new * ndiv - freq['nbins']
     freq['nbins'] = nbins_new
@@ -262,7 +261,7 @@ def load_kappamode(nbins, nsamples, directory=None,
                 dict: Dictionary with all modal thermal conductivities requested
     """
 
-    global lines
+    global kmlines
 
     if not directory:
         km_path = os.path.join(os.getcwd(), inputfile)
@@ -274,13 +273,13 @@ def load_kappamode(nbins, nsamples, directory=None,
     # Get full set of results
     datalines = nbins * nsamples
     with open(km_path, 'rb') as f:
-        lines = tail(f, datalines, BLOCK_SIZE=block_size)
+        kmlines = tail(f, datalines, BLOCK_SIZE=block_size)
 
     if multiprocessing:
         if not ncore:
             ncore = mp.cpu_count()
 
-        func = partial(__processSample, nbins)
+        func = partial(__process_sample, nbins)
         pool = mp.Pool(ncore)
         data = np.array(pool.map(func, range(nsamples)), dtype='float32').transpose((1, 0, 2))
         pool.close()
@@ -289,14 +288,14 @@ def load_kappamode(nbins, nsamples, directory=None,
         data = np.zeros((nbins, nsamples, 5), dtype='float32')
         for j in range(nsamples):
             for i in range(nbins):
-                measurements = lines[i + j * nbins].split()
+                measurements = kmlines[i + j * nbins].split()
                 data[i, j, 0] = float(measurements[0])
                 data[i, j, 1] = float(measurements[1])
                 data[i, j, 2] = float(measurements[2])
                 data[i, j, 3] = float(measurements[3])
                 data[i, j, 4] = float(measurements[4])
 
-    del lines
+    del kmlines
     if ndiv:
         nbins = int(np.ceil(data.shape[0] / ndiv))  # overwrite nbins
         npad = nbins * ndiv - data.shape[0]
@@ -398,14 +397,14 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
     """
     is_int = type(Nc) == int
     # do input checks
-    if ( not is_int and average):
-        raise ValueError('average cannot be used if points_per_run is not an int.')
+    if not is_int and average:
+        raise ValueError('average cannot be used if Nc is not an int.')
 
-    if (not is_int and len(Nc) != num_run):
-        raise ValueError('length of points_per_run must be equal to num_run.')
+    if not is_int and len(Nc) != num_run:
+        raise ValueError('length of Nc must be equal to num_run.')
 
-    if (not is_int and len(Nc) == 1):
-        points_per_run = points_per_run[0]
+    if not is_int and len(Nc) == 1:
+        Nc = Nc[0]
 
     if directory=='':
         sdc_path = os.path.join(os.getcwd(), filename)
@@ -426,16 +425,16 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
 
         vrun = dict()
         srun = dict()
-        vrun['t'] = np.zeros((pt_rng))
-        srun['t'] = np.zeros((pt_rng))
+        vrun['t'] = np.zeros(pt_rng)
+        srun['t'] = np.zeros(pt_rng)
 
-        vrun['VAC_x'] = np.zeros((pt_rng))
-        vrun['VAC_y'] = np.zeros((pt_rng))
-        vrun['VAC_z'] = np.zeros((pt_rng))
+        vrun['VAC_x'] = np.zeros(pt_rng)
+        vrun['VAC_y'] = np.zeros(pt_rng)
+        vrun['VAC_z'] = np.zeros(pt_rng)
 
-        srun['SDC_x'] = np.zeros((pt_rng))
-        srun['SDC_y'] = np.zeros((pt_rng))
-        srun['SDC_z'] = np.zeros((pt_rng))
+        srun['SDC_x'] = np.zeros(pt_rng)
+        srun['SDC_y'] = np.zeros(pt_rng)
+        srun['SDC_z'] = np.zeros(pt_rng)
         for point in range(pt_rng):
             data = lines[idx_shift + point].split()
             srun['t'][point] = float(data[0])
@@ -454,18 +453,19 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
         sdc['run'+str(run_num)] = srun
 
     if average:
+        pt_rng = Nc # Required for average, checked above
         vave = dict()
         save = dict()
 
-        vave['t'] = np.zeros((pt_rng))
-        vave['VAC_x'] = np.zeros((pt_rng))
-        vave['VAC_y'] = np.zeros((pt_rng))
-        vave['VAC_z'] = np.zeros((pt_rng))
+        vave['t'] = np.zeros(pt_rng)
+        vave['VAC_x'] = np.zeros(pt_rng)
+        vave['VAC_y'] = np.zeros(pt_rng)
+        vave['VAC_z'] = np.zeros(pt_rng)
 
-        save['t'] = np.zeros((pt_rng))
-        save['SDC_x'] = np.zeros((pt_rng))
-        save['SDC_y'] = np.zeros((pt_rng))
-        save['SDC_z'] = np.zeros((pt_rng))
+        save['t'] = np.zeros(pt_rng)
+        save['SDC_x'] = np.zeros(pt_rng)
+        save['SDC_y'] = np.zeros(pt_rng)
+        save['SDC_z'] = np.zeros(pt_rng)
 
         for key in sdc:
             vrun = vac[key]
@@ -495,7 +495,6 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
         vac['ave'] = vave
 
     return sdc, vac
-
 
 
 def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
@@ -536,16 +535,16 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
     """
     is_int = type(Nc) == int
     # do input checks
-    if ( not is_int and average):
-        raise ValueError('average cannot be used if points_per_run is not an int.')
+    if not is_int and average:
+        raise ValueError('average cannot be used if Nc is not an int.')
 
-    if (not is_int and len(Nc) != num_run):
-        raise ValueError('length of points_per_run must be equal to num_run.')
+    if not is_int and len(Nc) != num_run:
+        raise ValueError('length of Nc must be equal to num_run.')
 
-    if (not is_int and len(Nc) == 1):
-        points_per_run = points_per_run[0]
+    if not is_int and len(Nc) == 1:
+        Nc = Nc[0]
 
-    if directory=='':
+    if directory == '':
         vac_path = os.path.join(os.getcwd(), filename)
     else:
         vac_path = os.path.join(directory, filename)
@@ -562,10 +561,10 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
             pt_rng = Nc[run_num]
 
         run = dict()
-        run['t'] = np.zeros((pt_rng))
-        run['VAC_x'] = np.zeros((pt_rng))
-        run['VAC_y'] = np.zeros((pt_rng))
-        run['VAC_z'] = np.zeros((pt_rng))
+        run['t'] = np.zeros(pt_rng)
+        run['VAC_x'] = np.zeros(pt_rng)
+        run['VAC_y'] = np.zeros(pt_rng)
+        run['VAC_z'] = np.zeros(pt_rng)
         for point in range(pt_rng):
             data = lines[idx_shift + point].split()
             run['t'][point] = float(data[0])
@@ -577,11 +576,12 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
         out['run'+str(run_num)] = run
 
     if average:
+        pt_rng = Nc  # Required for average, checked above
         ave = dict()
-        ave['t'] = np.zeros((pt_rng))
-        ave['VAC_x'] = np.zeros((pt_rng))
-        ave['VAC_y'] = np.zeros((pt_rng))
-        ave['VAC_z'] = np.zeros((pt_rng))
+        ave['t'] = np.zeros(pt_rng)
+        ave['VAC_x'] = np.zeros(pt_rng)
+        ave['VAC_y'] = np.zeros(pt_rng)
+        ave['VAC_z'] = np.zeros(pt_rng)
 
         for key in out:
             run = out[key]
@@ -638,16 +638,16 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
     """
     is_int = type(points_per_run) == int
     # do input checks
-    if ( not is_int and average):
+    if not is_int and average:
         raise ValueError('average cannot be used if points_per_run is not an int.')
 
-    if (not is_int and len(points_per_run) != num_run):
+    if not is_int and len(points_per_run) != num_run:
         raise ValueError('length of points_per_run must be equal to num_run.')
 
-    if (not is_int and len(points_per_run) == 1):
+    if not is_int and len(points_per_run) == 1:
         points_per_run = points_per_run[0]
 
-    if directory=='':
+    if directory == '':
         dos_path = os.path.join(os.getcwd(), filename)
     else:
         dos_path = os.path.join(directory, filename)
@@ -664,10 +664,10 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
             pt_rng = points_per_run[run_num]
 
         run = dict()
-        run['nu'] = np.zeros((pt_rng))
-        run['DOS_x'] = np.zeros((pt_rng))
-        run['DOS_y'] = np.zeros((pt_rng))
-        run['DOS_z'] = np.zeros((pt_rng))
+        run['nu'] = np.zeros(pt_rng)
+        run['DOS_x'] = np.zeros(pt_rng)
+        run['DOS_y'] = np.zeros(pt_rng)
+        run['DOS_z'] = np.zeros(pt_rng)
         for point in range(pt_rng):
             data = lines[idx_shift + point].split()
             run['nu'][point] = float(data[0])/(6.283185307179586)
@@ -679,11 +679,12 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
         out['run'+str(run_num)] = run
 
     if average:
+        pt_rng = points_per_run  # required for average, checked above
         ave = dict()
-        ave['nu'] = np.zeros((pt_rng))
-        ave['DOS_x'] = np.zeros((pt_rng))
-        ave['DOS_y'] = np.zeros((pt_rng))
-        ave['DOS_z'] = np.zeros((pt_rng))
+        ave['nu'] = np.zeros(pt_rng)
+        ave['DOS_x'] = np.zeros(pt_rng)
+        ave['DOS_y'] = np.zeros(pt_rng)
+        ave['DOS_z'] = np.zeros(pt_rng)
 
         for key in out:
             run = out[key]
@@ -823,22 +824,22 @@ def load_hac(directory='',filename='hac.out'):
     with open(hac_path, 'r') as f:
         lines = f.readlines()
         N = len(lines)
-        t = np.zeros((N,1))
-        x_ac_i = np.zeros((N,1)) # autocorrelation IN, X
-        x_ac_o = np.zeros((N,1)) # autocorrelation OUT, X
+        t = np.zeros((N, 1))
+        x_ac_i = np.zeros((N, 1))  # autocorrelation IN, X
+        x_ac_o = np.zeros((N, 1))  # autocorrelation OUT, X
 
-        y_ac_i = np.zeros((N,1)) # autocorrelation IN, Y
-        y_ac_o = np.zeros((N,1)) # autocorrelation OUT, Y
+        y_ac_i = np.zeros((N, 1))  # autocorrelation IN, Y
+        y_ac_o = np.zeros((N, 1)) # autocorrelation OUT, Y
 
-        z_ac = np.zeros((N,1)) # autocorrelation Z
+        z_ac = np.zeros((N, 1))  # autocorrelation Z
 
-        kx_i = np.zeros((N,1)) # kappa IN, X
-        kx_o = np.zeros((N,1)) # kappa OUT, X
+        kx_i = np.zeros((N, 1))  # kappa IN, X
+        kx_o = np.zeros((N, 1))  # kappa OUT, X
 
-        ky_i = np.zeros((N,1)) # kappa IN, Y
-        ky_o = np.zeros((N,1)) # kappa OUT, Y
+        ky_i = np.zeros((N, 1))  # kappa IN, Y
+        ky_o = np.zeros((N, 1))  # kappa OUT, Y
 
-        kz = np.zeros((N,1)) # kappa, Z
+        kz = np.zeros((N, 1))  # kappa, Z
 
         for i, line in enumerate(lines):
             vals = line.split()
