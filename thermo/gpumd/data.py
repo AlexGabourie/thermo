@@ -1,12 +1,282 @@
 import numpy as np
 import os
+import re
+import copy
+import multiprocessing as mp
+from functools import partial
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
 
 #########################################
+# Helper Functions
+#########################################
+
+
+def __get_direction(directions):
+    """
+    Creates a sorted list showing which directions the user asked for. Ex: 'xyz' -> ['x', 'y', 'z']
+
+    Args:
+        directions (str):
+            A string containing the directions the user wants to process (Ex: 'xyz', 'zy', 'x')
+
+    Returns:
+        list(str): An ordered list that simplifies the user input for future processing
+
+    """
+    if not (bool(re.match('^[xyz]+$',directions))
+            or len(directions) > 3
+            or len(directions) == 0):
+        raise ValueError('Invalid directions used.')
+    return sorted(list(set(directions)))
+
+
+def __processSample(nbins, i):
+    """
+    A helper function for the multiprocessing of kappamode.out files
+
+    Args:
+        nbins (int):
+            Number of bins used in the GPUMD simulation
+
+        i (int):
+            The current sample from a run to analyze
+
+    Returns:
+        np.ndarray: A 2D array of each bin and output for a sample
+
+
+    """
+    out = list()
+    for j in range(nbins):
+        out += [float(x) for x in lines[j+i*nbins].split()]
+    return np.array(out).reshape((nbins,5))
+
+
+def tail(f, nlines, BLOCK_SIZE=32768):
+    """
+    Reads the last nlines of a file.
+
+    Args:
+        f (filehandle):
+            File handle of file to be read
+
+        nlines (int):
+            Number of lines to be read from end of file
+
+        BLOCK_SIZE (int):
+            Size of block (in bytes) to be read per read operation.
+            Performance depend on this parameter and file size.
+
+    Returns:
+        list: List of ordered final nlines of file
+
+    Additional Information:
+    Since GPUMD output files are mostly append-only, this becomes
+    useful when a simulation prematurely ends (i.e. cluster preempts
+    run, but simulation restarts elsewhere). In this case, it is not
+    necessary to clean the directory before re-running. File outputs
+    will be too long (so there still is a storage concern), but the
+    proper data can be extracted from the end of file.
+    This may also be useful if you want to only grab data from the
+    final m number of runs of the simulation
+    """
+    # BLOCK_SIZE is in bytes (must decode to string)
+    f.seek(0, 2)
+    bytes_remaining = f.tell()
+    idx = -BLOCK_SIZE
+    blocks = list()
+    # Make no assumptions about line length
+    lines_left = nlines
+    eof = False
+    first = True
+    num_lines = 0
+
+    # BLOCK_size is smaller than file
+    if BLOCK_SIZE <= bytes_remaining:
+        while lines_left > 0 and not eof:
+            if bytes_remaining > BLOCK_SIZE:
+                f.seek(idx, 2)
+                blocks.append(f.read(BLOCK_SIZE))
+            else:  # if reached end of file
+                f.seek(0, 0)
+                blocks.append(f.read(bytes_remaining))
+                eof = True
+
+            idx -= BLOCK_SIZE
+            bytes_remaining -= BLOCK_SIZE
+            num_lines = blocks[-1].count(b'\n')
+            if first:
+                lines_left -= num_lines - 1
+                first = False
+            else:
+                lines_left -= num_lines
+
+            # since whitespace removed from eof, must compare to 1 here
+            if eof and lines_left > 1:
+                raise ValueError("More lines requested than exist.")
+
+        # Corrects for reading too many lines with large buffer
+        if bytes_remaining > 0:
+            skip = 1 + abs(lines_left)
+            blocks[-1] = blocks[-1].split(b'\n', skip)[skip]
+        text = b''.join(reversed(blocks)).strip()
+    else:  # BLOCK_SIZE is bigger than file
+        f.seek(0, 0)
+        block = f.read()
+        num_lines = block.count(b'\n')
+        if num_lines < nlines:
+            raise ValueError("More lines requested than exist.")
+        skip = num_lines - nlines
+        text = block.split(b'\n', skip)[skip].strip()
+    return text.split(b'\n')
+
+
+#########################################
 # Data-loading Related
 #########################################
+
+
+def load_kappamode(nbins, nsamples, directory=None,
+                   inputfile='kappamode.out', directions='xyz',
+                   outputfile='kappamode.npy', ndiv=None, save=False,
+                   multiprocessing=False, ncore=None, block_size=65536, return_out=True):
+    """
+
+    Args:
+        nbins (int):
+            Number of bins used during the GPUMD simulation
+
+        nsamples (int):
+            Number of times thermal conductivity was sampled with HNEMA during GPUMD simulation
+
+        directory (str):
+            Name of directory storing the input file to read
+
+        inputfile (str):
+            Modal thermal conductivity file output by GPUMD (default: kappamode.out)
+
+        directions (str):
+            Directions to gather data from. Any order of 'xyz' is accepted. Exlcuding directions also allowed (i.e. 'xz'
+            is accepted)
+
+        outputfile (str):
+            File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
+            faster than re-reading data files and saving is recommended
+
+        ndiv (int):
+            Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
+            need not be an integer
+
+        save (bool):
+            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
+            False)
+
+        multiprocessing (bool):
+            Toggle using multi-core processing for conversion of text file (default: False)
+
+        ncore (bool):
+            Number of cores to use for multiprocessing. Ignored if multiprocessing is False
+
+        block_size (int):
+            Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
+            and file size (default: 2^16 = 65526)
+
+        return_out (bool):
+            Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that
+            save is True (default: True)
+
+
+        Returns:
+                dict: Dictionary with all modal thermal conductivities requested
+    """
+
+    global lines
+
+    if not directory:
+        km_path = os.path.join(os.getcwd(), inputfile)
+        out_path = os.path.join(os.getcwd(), outputfile)
+    else:
+        km_path = os.path.join(directory, inputfile)
+        out_path = os.path.join(directory, outputfile)
+
+    # Get full set of results
+    datalines = nbins * nsamples
+    with open(km_path, 'rb') as f:
+        lines = tail(f, datalines, BLOCK_SIZE=block_size)
+
+    if multiprocessing:
+        if not ncore:
+            ncore = mp.cpu_count()
+
+        func = partial(__processSample, nbins)
+        pool = mp.Pool(ncore)
+        data = np.array(pool.map(func, range(nsamples)), dtype='float32').transpose((1, 0, 2))
+        pool.close()
+
+    else:  # Faster if single thread
+        data = np.zeros((nbins, nsamples, 5), dtype='float32')
+        for j in range(nsamples):
+            for i in range(nbins):
+                measurements = lines[i + j * nbins].split()
+                data[i, j, 0] = float(measurements[0])
+                data[i, j, 1] = float(measurements[1])
+                data[i, j, 2] = float(measurements[2])
+                data[i, j, 3] = float(measurements[3])
+                data[i, j, 4] = float(measurements[4])
+
+    del lines
+    if ndiv:
+        nbins = int(np.ceil(data.shape[0] / ndiv))  # overwrite nbins
+        npad = nbins * ndiv - data.shape[0]
+        data = np.pad(data, [(0, npad), (0, 0), (0, 0)])
+        data = np.sum(data.reshape((-1, ndiv, data.shape[1], data.shape[2])), axis=1)
+
+    out = dict()
+    directions = __get_direction(directions)
+    if 'x' in directions:
+        out['kmxi'] = data[:, :, 0]
+        out['kmxo'] = data[:, :, 1]
+    if 'y' in directions:
+        out['kmyi'] = data[:, :, 2]
+        out['kmyo'] = data[:, :, 3]
+    if 'z' in directions:
+        out['kmz'] = data[:, :, 4]
+
+    out['nbins'] = nbins
+    out['nsamples'] = nsamples
+
+    if save:
+        np.save(out_path, out)
+
+    if return_out:
+        return out
+    return
+
+
+def load_saved_kappamode(filename='kappamode.npy', directory=None):
+    """
+    Loads data saved by the 'load_kappamode' function and returns the original dictionary.
+
+    Args:
+        filename (str):
+            Name of the file to load
+
+        directory (str):
+            Directory the data file is located in
+
+    Returns:
+        dict: Dictionary with all modal thermal conductivities previously requested
+
+    """
+
+    if directory:
+        path = os.path.join(directory, filename)
+    else:
+        path = os.path.join(os.getcwd(), filename)
+    return np.load(path, allow_pickle=True).item()
+
 
 def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
     """
