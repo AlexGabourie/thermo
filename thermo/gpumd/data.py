@@ -133,9 +133,79 @@ def tail(f, nlines, BLOCK_SIZE=32768):
     return text.split(b'\n')
 
 
+def reduce_frequency_info(freq, ndiv=1):
+    """
+    Recalculates frequency binning information based on how many times larger bins are wanted.
+
+    Args:
+        freq (dict): Dictionary with frequency binning information from the get_frequency_info function output
+
+        ndiv (int):
+            Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
+            need not be an integer
+
+    Returns:
+        dict: Dictionary with the system eigen freqeuency information along with binning information
+
+    """
+    freq = copy.deepcopy(freq)
+    freq['bin_f_size'] = freq['bin_f_size'] * ndiv
+    freq['fmax'] = (np.floor(np.abs(freq['fq'][-1]) / freq['bin_f_size']) + 1) * freq['bin_f_size']
+    extend = np.mod(freq['nbins'], ndiv)
+    nbins_new = int(np.ceil(freq['nbins'] / ndiv))
+    npad = nbins_new * ndiv - freq['nbins']
+    freq['nbins'] = nbins_new
+    freq['bin_count'] = np.pad(freq['bin_count'], [(0, npad)])
+    freq['bin_count'] = np.sum(freq['bin_count'].reshape(-1, ndiv), axis=1)
+    freq['ndiv'] = ndiv
+    return freq
+
+
 #########################################
 # Data-loading Related
 #########################################
+
+
+def get_frequency_info(bin_f_size, eigfile='eigenvector.out', directory=None):
+    """
+    Gathers eigen-frequency information from the eigenvector file and sorts
+    it appropriately based on the selected frequency bins (identical to
+    internal GPUMD representation).
+
+    Args:
+        bin_f_size (float):
+            The frequency-based bin size (in THz)
+
+        eigfile (str):
+            The filename of the eigenvector output/input file created by GPUMD
+            phonon package
+
+        directory (str):
+            Directory eigfile is stored
+
+    Returns:
+        dict: Dictionary with the system eigen-freqeuency information along
+        with binning information
+
+    """
+    if not directory:
+        eigpath = os.path.join(os.getcwd(), eigfile)
+    else:
+        eigpath = os.path.join(directory, eigfile)
+
+    with open(eigpath, 'r') as f:
+        om2 = [float(x) for x in f.readline().split()]
+
+    fq = np.sign(om2) * np.sqrt(abs(np.array(om2))) / (2 * np.pi)
+    fmax = (np.floor(np.abs(fq[-1]) / bin_f_size) + 1) * bin_f_size
+    fmin = np.floor(np.abs(fq[0]) / bin_f_size) * bin_f_size
+    shift = int(np.floor(np.abs(fmin) / bin_f_size))
+    nbins = int(np.floor((fmax - fmin) / bin_f_size))
+    bin_count = np.zeros(nbins)
+    for freq in fq:
+        bin_count[int(np.floor(np.abs(freq) / bin_f_size) - shift)] += 1
+    return {'fq': fq, 'fmax': fmax, 'fmin': fmin, 'shift': shift,
+            'nbins': nbins, 'bin_count': bin_count, 'bin_f_size': bin_f_size}
 
 
 def load_kappamode(nbins, nsamples, directory=None,
