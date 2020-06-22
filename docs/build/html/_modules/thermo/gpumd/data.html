@@ -148,13 +148,352 @@
   <h1>Source code for thermo.gpumd.data</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
 <span class="c1">#########################################</span>
+<span class="c1"># Helper Functions</span>
+<span class="c1">#########################################</span>
+
+
+<span class="k">def</span> <span class="nf">__get_direction</span><span class="p">(</span><span class="n">directions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a sorted list showing which directions the user asked for. Ex: &#39;xyz&#39; -&gt; [&#39;x&#39;, &#39;y&#39;, &#39;z&#39;]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directions (str):</span>
+<span class="sd">            A string containing the directions the user wants to process (Ex: &#39;xyz&#39;, &#39;zy&#39;, &#39;x&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list(str): An ordered list that simplifies the user input for future processing</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^[xyz]+$&#39;</span><span class="p">,</span><span class="n">directions</span><span class="p">))</span>
+            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span>
+            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid directions used.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">directions</span><span class="p">)))</span>
+
+
+<span class="k">def</span> <span class="nf">__process_sample</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper function for the multiprocessing of kappamode.out files</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nbins (int):</span>
+<span class="sd">            Number of bins used in the GPUMD simulation</span>
+
+<span class="sd">        i (int):</span>
+<span class="sd">            The current sample from a run to analyze</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: A 2D array of each bin and output for a sample</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">kmlines</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="n">i</span><span class="o">*</span><span class="n">nbins</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="tail"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.tail">[docs]</a><span class="k">def</span> <span class="nf">tail</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">nlines</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="o">=</span><span class="mi">32768</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads the last nlines of a file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        f (filehandle):</span>
+<span class="sd">            File handle of file to be read</span>
+
+<span class="sd">        nlines (int):</span>
+<span class="sd">            Number of lines to be read from end of file</span>
+
+<span class="sd">        BLOCK_SIZE (int):</span>
+<span class="sd">            Size of block (in bytes) to be read per read operation.</span>
+<span class="sd">            Performance depend on this parameter and file size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List of ordered final nlines of file</span>
+
+<span class="sd">    Additional Information:</span>
+<span class="sd">    Since GPUMD output files are mostly append-only, this becomes</span>
+<span class="sd">    useful when a simulation prematurely ends (i.e. cluster preempts</span>
+<span class="sd">    run, but simulation restarts elsewhere). In this case, it is not</span>
+<span class="sd">    necessary to clean the directory before re-running. File outputs</span>
+<span class="sd">    will be too long (so there still is a storage concern), but the</span>
+<span class="sd">    proper data can be extracted from the end of file.</span>
+<span class="sd">    This may also be useful if you want to only grab data from the</span>
+<span class="sd">    final m number of runs of the simulation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># BLOCK_SIZE is in bytes (must decode to string)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">bytes_remaining</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="o">-</span><span class="n">BLOCK_SIZE</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="c1"># Make no assumptions about line length</span>
+    <span class="n">lines_left</span> <span class="o">=</span> <span class="n">nlines</span>
+    <span class="n">eof</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">num_lines</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># BLOCK_size is smaller than file</span>
+    <span class="k">if</span> <span class="n">BLOCK_SIZE</span> <span class="o">&lt;=</span> <span class="n">bytes_remaining</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">lines_left</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">eof</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">bytes_remaining</span> <span class="o">&gt;</span> <span class="n">BLOCK_SIZE</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">BLOCK_SIZE</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># if reached end of file</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">bytes_remaining</span><span class="p">))</span>
+                <span class="n">eof</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">idx</span> <span class="o">-=</span> <span class="n">BLOCK_SIZE</span>
+            <span class="n">bytes_remaining</span> <span class="o">-=</span> <span class="n">BLOCK_SIZE</span>
+            <span class="n">num_lines</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+                <span class="n">lines_left</span> <span class="o">-=</span> <span class="n">num_lines</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">first</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lines_left</span> <span class="o">-=</span> <span class="n">num_lines</span>
+
+            <span class="c1"># since whitespace removed from eof, must compare to 1 here</span>
+            <span class="k">if</span> <span class="n">eof</span> <span class="ow">and</span> <span class="n">lines_left</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;More lines requested than exist.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Corrects for reading too many lines with large buffer</span>
+        <span class="k">if</span> <span class="n">bytes_remaining</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">skip</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">lines_left</span><span class="p">)</span>
+            <span class="n">blocks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="p">)[</span><span class="n">skip</span><span class="p">]</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">blocks</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># BLOCK_SIZE is bigger than file</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">num_lines</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_lines</span> <span class="o">&lt;</span> <span class="n">nlines</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;More lines requested than exist.&quot;</span><span class="p">)</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="n">num_lines</span> <span class="o">-</span> <span class="n">nlines</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="p">)[</span><span class="n">skip</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="reduce_frequency_info"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.reduce_frequency_info">[docs]</a><span class="k">def</span> <span class="nf">reduce_frequency_info</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">ndiv</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recalculates frequency binning information based on how many times larger bins are wanted.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        freq (dict): Dictionary with frequency binning information from the get_frequency_info function output</span>
+
+<span class="sd">        ndiv (int):</span>
+<span class="sd">            Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv</span>
+<span class="sd">            need not be an integer</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with the system eigen freqeuency information along with binning information</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
+    <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_f_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_f_size&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndiv</span>
+    <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;fmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;fq&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_f_size&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_f_size&#39;</span><span class="p">]</span>
+    <span class="n">nbins_new</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;nbins&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">ndiv</span><span class="p">))</span>
+    <span class="n">npad</span> <span class="o">=</span> <span class="n">nbins_new</span> <span class="o">*</span> <span class="n">ndiv</span> <span class="o">-</span> <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;nbins&#39;</span><span class="p">]</span>
+    <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;nbins&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nbins_new</span>
+    <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_count&#39;</span><span class="p">],</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">npad</span><span class="p">)])</span>
+    <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="s1">&#39;bin_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ndiv</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">freq</span><span class="p">[</span><span class="s1">&#39;ndiv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndiv</span>
+    <span class="k">return</span> <span class="n">freq</span></div>
+
+
+<span class="c1">#########################################</span>
 <span class="c1"># Data-loading Related</span>
 <span class="c1">#########################################</span>
+
+
+<div class="viewcode-block" id="get_frequency_info"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.get_frequency_info">[docs]</a><span class="k">def</span> <span class="nf">get_frequency_info</span><span class="p">(</span><span class="n">bin_f_size</span><span class="p">,</span> <span class="n">eigfile</span><span class="o">=</span><span class="s1">&#39;eigenvector.out&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gathers eigen-frequency information from the eigenvector file and sorts</span>
+<span class="sd">    it appropriately based on the selected frequency bins (identical to</span>
+<span class="sd">    internal GPUMD representation).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bin_f_size (float):</span>
+<span class="sd">            The frequency-based bin size (in THz)</span>
+
+<span class="sd">        eigfile (str):</span>
+<span class="sd">            The filename of the eigenvector output/input file created by GPUMD</span>
+<span class="sd">            phonon package</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory eigfile is stored</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with the system eigen-freqeuency information along</span>
+<span class="sd">        with binning information</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
+        <span class="n">eigpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">eigfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">eigpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">eigfile</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">eigpath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">om2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+
+    <span class="n">fq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">om2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">om2</span><span class="p">)))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">fmax</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fq</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">bin_f_size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">bin_f_size</span>
+    <span class="n">fmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">bin_f_size</span><span class="p">)</span> <span class="o">*</span> <span class="n">bin_f_size</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">bin_f_size</span><span class="p">))</span>
+    <span class="n">nbins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">fmax</span> <span class="o">-</span> <span class="n">fmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">bin_f_size</span><span class="p">))</span>
+    <span class="n">bin_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nbins</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">fq</span><span class="p">:</span>
+        <span class="n">bin_count</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span> <span class="o">/</span> <span class="n">bin_f_size</span><span class="p">)</span> <span class="o">-</span> <span class="n">shift</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;fq&#39;</span><span class="p">:</span> <span class="n">fq</span><span class="p">,</span> <span class="s1">&#39;fmax&#39;</span><span class="p">:</span> <span class="n">fmax</span><span class="p">,</span> <span class="s1">&#39;fmin&#39;</span><span class="p">:</span> <span class="n">fmin</span><span class="p">,</span> <span class="s1">&#39;shift&#39;</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
+            <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="n">nbins</span><span class="p">,</span> <span class="s1">&#39;bin_count&#39;</span><span class="p">:</span> <span class="n">bin_count</span><span class="p">,</span> <span class="s1">&#39;bin_f_size&#39;</span><span class="p">:</span> <span class="n">bin_f_size</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="load_kappamode"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_kappamode">[docs]</a><span class="k">def</span> <span class="nf">load_kappamode</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">inputfile</span><span class="o">=</span><span class="s1">&#39;kappamode.out&#39;</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span>
+                   <span class="n">outputfile</span><span class="o">=</span><span class="s1">&#39;kappamode.npy&#39;</span><span class="p">,</span> <span class="n">ndiv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">multiprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span> <span class="n">return_out</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nbins (int):</span>
+<span class="sd">            Number of bins used during the GPUMD simulation</span>
+
+<span class="sd">        nsamples (int):</span>
+<span class="sd">            Number of times thermal conductivity was sampled with HNEMA during GPUMD simulation</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Name of directory storing the input file to read</span>
+
+<span class="sd">        inputfile (str):</span>
+<span class="sd">            Modal thermal conductivity file output by GPUMD (default: kappamode.out)</span>
+
+<span class="sd">        directions (str):</span>
+<span class="sd">            Directions to gather data from. Any order of &#39;xyz&#39; is accepted. Exlcuding directions also allowed (i.e. &#39;xz&#39;</span>
+<span class="sd">            is accepted)</span>
+
+<span class="sd">        outputfile (str):</span>
+<span class="sd">            File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much</span>
+<span class="sd">            faster than re-reading data files and saving is recommended</span>
+
+<span class="sd">        ndiv (int):</span>
+<span class="sd">            Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv</span>
+<span class="sd">            need not be an integer</span>
+
+<span class="sd">        save (bool):</span>
+<span class="sd">            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:</span>
+<span class="sd">            False)</span>
+
+<span class="sd">        multiprocessing (bool):</span>
+<span class="sd">            Toggle using multi-core processing for conversion of text file (default: False)</span>
+
+<span class="sd">        ncore (bool):</span>
+<span class="sd">            Number of cores to use for multiprocessing. Ignored if multiprocessing is False</span>
+
+<span class="sd">        block_size (int):</span>
+<span class="sd">            Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter</span>
+<span class="sd">            and file size (default: 2^16 = 65526)</span>
+
+<span class="sd">        return_out (bool):</span>
+<span class="sd">            Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that</span>
+<span class="sd">            save is True (default: True)</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">                dict: Dictionary with all modal thermal conductivities requested</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">kmlines</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
+        <span class="n">km_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">inputfile</span><span class="p">)</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">outputfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">km_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">)</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
+
+    <span class="c1"># Get full set of results</span>
+    <span class="n">datalines</span> <span class="o">=</span> <span class="n">nbins</span> <span class="o">*</span> <span class="n">nsamples</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">km_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">kmlines</span> <span class="o">=</span> <span class="n">tail</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">datalines</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="o">=</span><span class="n">block_size</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">multiprocessing</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ncore</span><span class="p">:</span>
+            <span class="n">ncore</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
+        <span class="n">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">__process_sample</span><span class="p">,</span> <span class="n">nbins</span><span class="p">)</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">ncore</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsamples</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Faster if single thread</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsamples</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+                <span class="n">measurements</span> <span class="o">=</span> <span class="n">kmlines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span> <span class="o">*</span> <span class="n">nbins</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">measurements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">measurements</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">measurements</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">measurements</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">measurements</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+    <span class="k">del</span> <span class="n">kmlines</span>
+    <span class="k">if</span> <span class="n">ndiv</span><span class="p">:</span>
+        <span class="n">nbins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">ndiv</span><span class="p">))</span>  <span class="c1"># overwrite nbins</span>
+        <span class="n">npad</span> <span class="o">=</span> <span class="n">nbins</span> <span class="o">*</span> <span class="n">ndiv</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">npad</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ndiv</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">directions</span> <span class="o">=</span> <span class="n">__get_direction</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">in</span> <span class="n">directions</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;kmxi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;kmxo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">directions</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;kmyi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;kmyo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;z&#39;</span> <span class="ow">in</span> <span class="n">directions</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;kmz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">4</span><span class="p">]</span>
+
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;nbins&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nbins</span>
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;nsamples&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nsamples</span>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_out</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="load_saved_kappamode"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_saved_kappamode">[docs]</a><span class="k">def</span> <span class="nf">load_saved_kappamode</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;kappamode.npy&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data saved by the &#39;load_kappamode&#39; function and returns the original dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str):</span>
+<span class="sd">            Name of the file to load</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory the data file is located in</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with all modal thermal conductivities previously requested</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">directory</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="load_sdc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_sdc">[docs]</a><span class="k">def</span> <span class="nf">load_sdc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;sdc.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -206,14 +545,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
     <span class="c1"># do input checks</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if points_per_run is not an int.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if Nc is not an int.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of points_per_run must be equal to num_run.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of Nc must be equal to num_run.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">points_per_run</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">Nc</span> <span class="o">=</span> <span class="n">Nc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
@@ -234,16 +573,16 @@
 
         <span class="n">vrun</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">srun</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
 
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
 
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx_shift</span> <span class="o">+</span> <span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -262,18 +601,19 @@
         <span class="n">sdc</span><span class="p">[</span><span class="s1">&#39;run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run_num</span><span class="p">)]</span> <span class="o">=</span> <span class="n">srun</span>
 
     <span class="k">if</span> <span class="n">average</span><span class="p">:</span>
+        <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">Nc</span> <span class="c1"># Required for average, checked above</span>
         <span class="n">vave</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="n">save</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
-        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">vave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
 
-        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">save</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sdc</span><span class="p">:</span>
             <span class="n">vrun</span> <span class="o">=</span> <span class="n">vac</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -303,7 +643,6 @@
         <span class="n">vac</span><span class="p">[</span><span class="s1">&#39;ave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vave</span>
 
     <span class="k">return</span> <span class="n">sdc</span><span class="p">,</span> <span class="n">vac</span></div>
-
 
 
 <div class="viewcode-block" id="load_vac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_vac">[docs]</a><span class="k">def</span> <span class="nf">load_vac</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mvac.out&#39;</span><span class="p">):</span>
@@ -344,16 +683,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
     <span class="c1"># do input checks</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if points_per_run is not an int.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if Nc is not an int.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of points_per_run must be equal to num_run.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of Nc must be equal to num_run.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">points_per_run</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">Nc</span> <span class="o">=</span> <span class="n">Nc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">directory</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">vac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">vac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -370,10 +709,10 @@
             <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">Nc</span><span class="p">[</span><span class="n">run_num</span><span class="p">]</span>
 
         <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx_shift</span> <span class="o">+</span> <span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -385,11 +724,12 @@
         <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run_num</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
 
     <span class="k">if</span> <span class="n">average</span><span class="p">:</span>
+        <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">Nc</span>  <span class="c1"># Required for average, checked above</span>
         <span class="n">ave</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
             <span class="n">run</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -446,16 +786,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_int</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span>
     <span class="c1"># do input checks</span>
-    <span class="k">if</span> <span class="p">(</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="n">average</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;average cannot be used if points_per_run is not an int.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">!=</span> <span class="n">num_run</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;length of points_per_run must be equal to num_run.&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">points_per_run</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">directory</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">dos_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dos_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -472,10 +812,10 @@
             <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="n">run_num</span><span class="p">]</span>
 
         <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx_shift</span> <span class="o">+</span> <span class="n">point</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">][</span><span class="n">point</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mf">6.283185307179586</span><span class="p">)</span>
@@ -487,11 +827,12 @@
         <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">run_num</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
 
     <span class="k">if</span> <span class="n">average</span><span class="p">:</span>
+        <span class="n">pt_rng</span> <span class="o">=</span> <span class="n">points_per_run</span>  <span class="c1"># required for average, checked above</span>
         <span class="n">ave</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
-        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pt_rng</span><span class="p">))</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
+        <span class="n">ave</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">pt_rng</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="p">:</span>
             <span class="n">run</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
@@ -631,22 +972,22 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">hac_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">x_ac_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># autocorrelation IN, X</span>
-        <span class="n">x_ac_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># autocorrelation OUT, X</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">x_ac_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation IN, X</span>
+        <span class="n">x_ac_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation OUT, X</span>
 
-        <span class="n">y_ac_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># autocorrelation IN, Y</span>
-        <span class="n">y_ac_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># autocorrelation OUT, Y</span>
+        <span class="n">y_ac_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation IN, Y</span>
+        <span class="n">y_ac_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="c1"># autocorrelation OUT, Y</span>
 
-        <span class="n">z_ac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># autocorrelation Z</span>
+        <span class="n">z_ac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation Z</span>
 
-        <span class="n">kx_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># kappa IN, X</span>
-        <span class="n">kx_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># kappa OUT, X</span>
+        <span class="n">kx_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa IN, X</span>
+        <span class="n">kx_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa OUT, X</span>
 
-        <span class="n">ky_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># kappa IN, Y</span>
-        <span class="n">ky_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># kappa OUT, Y</span>
+        <span class="n">ky_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa IN, Y</span>
+        <span class="n">ky_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa OUT, Y</span>
 
-        <span class="n">kz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span> <span class="c1"># kappa, Z</span>
+        <span class="n">kz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa, Z</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>

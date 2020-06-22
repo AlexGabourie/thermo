@@ -210,6 +210,29 @@ time (ndarray): Time vector that kappa was sampled at</p>
 <div class="section" id="module-thermo.gpumd.data">
 <span id="data-loaders"></span><h2>Data Loaders<a class="headerlink" href="#module-thermo.gpumd.data" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="thermo.gpumd.data.get_frequency_info">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">get_frequency_info</code><span class="sig-paren">(</span><em class="sig-param">bin_f_size</em>, <em class="sig-param">eigfile='eigenvector.out'</em>, <em class="sig-param">directory=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#get_frequency_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.get_frequency_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gathers eigen-frequency information from the eigenvector file and sorts
+it appropriately based on the selected frequency bins (identical to
+internal GPUMD representation).</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>bin_f_size (float):</dt><dd><p>The frequency-based bin size (in THz)</p>
+</dd>
+<dt>eigfile (str):</dt><dd><p>The filename of the eigenvector output/input file created by GPUMD
+phonon package</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory eigfile is stored</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with the system eigen-freqeuency information along
+with binning information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="thermo.gpumd.data.load_dos">
 <code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_dos</code><span class="sig-paren">(</span><em class="sig-param">points_per_run</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='dos.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from dos.out GPUMD output file.</p>
@@ -286,6 +309,65 @@ filename (str): File to load hac from. Default is ‘hac.out’</p>
 </dl>
 </dd>
 <dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in ‘kappa.out’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_kappamode">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappamode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='kappamode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='kappamode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_out=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappamode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappamode" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>nbins (int):</dt><dd><p>Number of bins used during the GPUMD simulation</p>
+</dd>
+<dt>nsamples (int):</dt><dd><p>Number of times thermal conductivity was sampled with HNEMA during GPUMD simulation</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Name of directory storing the input file to read</p>
+</dd>
+<dt>inputfile (str):</dt><dd><p>Modal thermal conductivity file output by GPUMD (default: kappamode.out)</p>
+</dd>
+<dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Exlcuding directions also allowed (i.e. ‘xz’
+is accepted)</p>
+</dd>
+<dt>outputfile (str):</dt><dd><p>File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
+faster than re-reading data files and saving is recommended</p>
+</dd>
+<dt>ndiv (int):</dt><dd><p>Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
+need not be an integer</p>
+</dd>
+<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
+False)</p>
+</dd>
+<dt>multiprocessing (bool):</dt><dd><p>Toggle using multi-core processing for conversion of text file (default: False)</p>
+</dd>
+<dt>ncore (bool):</dt><dd><p>Number of cores to use for multiprocessing. Ignored if multiprocessing is False</p>
+</dd>
+<dt>block_size (int):</dt><dd><p>Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
+and file size (default: 2^16 = 65526)</p>
+</dd>
+<dt>return_out (bool):</dt><dd><p>Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that
+save is True (default: True)</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with all modal thermal conductivities requested</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_saved_kappamode">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_saved_kappamode</code><span class="sig-paren">(</span><em class="sig-param">filename='kappamode.npy'</em>, <em class="sig-param">directory=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_saved_kappamode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_saved_kappamode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data saved by the ‘load_kappamode’ function and returns the original dictionary.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>filename (str):</dt><dd><p>Name of the file to load</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory the data file is located in</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with all modal thermal conductivities previously requested</p>
 </dd>
 </dl>
 </dd></dl>
@@ -392,6 +474,52 @@ if points_per_run is an int.</p>
 <li><p>VAC_z (Angstrom^2/ps^2)</p></li>
 </ul>
 <p>If average=True, this will also be stored as a run with the same run keys.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.reduce_frequency_info">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">reduce_frequency_info</code><span class="sig-paren">(</span><em class="sig-param">freq</em>, <em class="sig-param">ndiv=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#reduce_frequency_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.reduce_frequency_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recalculates frequency binning information based on how many times larger bins are wanted.</p>
+<dl>
+<dt>Args:</dt><dd><p>freq (dict): Dictionary with frequency binning information from the get_frequency_info function output</p>
+<dl class="simple">
+<dt>ndiv (int):</dt><dd><p>Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
+need not be an integer</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with the system eigen freqeuency information along with binning information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.tail">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">tail</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">nlines</em>, <em class="sig-param">BLOCK_SIZE=32768</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#tail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.tail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the last nlines of a file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>f (filehandle):</dt><dd><p>File handle of file to be read</p>
+</dd>
+<dt>nlines (int):</dt><dd><p>Number of lines to be read from end of file</p>
+</dd>
+<dt>BLOCK_SIZE (int):</dt><dd><p>Size of block (in bytes) to be read per read operation.
+Performance depend on this parameter and file size.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>list: List of ordered final nlines of file</p>
+</dd>
+</dl>
+<p>Additional Information:
+Since GPUMD output files are mostly append-only, this becomes
+useful when a simulation prematurely ends (i.e. cluster preempts
+run, but simulation restarts elsewhere). In this case, it is not
+necessary to clean the directory before re-running. File outputs
+will be too long (so there still is a storage concern), but the
+proper data can be extracted from the end of file.
+This may also be useful if you want to only grab data from the
+final m number of runs of the simulation</p>
 </dd></dl>
 
 </div>
