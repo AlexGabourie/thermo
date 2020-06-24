@@ -50,7 +50,7 @@ def __process_sample(nbins, i):
     """
     out = list()
     for j in range(nbins):
-        out += [float(x) for x in kmlines[j+i*nbins].split()]
+        out += [float(x) for x in malines[j + i * nbins].split()]
     return np.array(out).reshape((nbins,5))
 
 
@@ -133,78 +133,133 @@ def tail(f, nlines, BLOCK_SIZE=32768):
     return text.split(b'\n')
 
 
-def reduce_frequency_info(freq, ndiv=1):
-    """
-    Recalculates frequency binning information based on how many times larger bins are wanted.
+def __modal_analysis_read(nbins, nsamples, datapath,
+                          ndiv, multiprocessing, ncore, block_size):
 
-    Args:
-        freq (dict): Dictionary with frequency binning information from the get_frequency_info function output
+    global malines
+    # Get full set of results
+    datalines = nbins * nsamples
+    with open(datapath, 'rb') as f:
+        malines = tail(f, datalines, BLOCK_SIZE=block_size)
 
-        ndiv (int):
-            Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
-            need not be an integer
+    if multiprocessing:
+        if not ncore:
+            ncore = mp.cpu_count()
 
-    Returns:
-        dict: Dictionary with the system eigen freqeuency information along with binning information
+        func = partial(__process_sample, nbins)
+        pool = mp.Pool(ncore)
+        data = np.array(pool.map(func, range(nsamples)), dtype='float32').transpose((1, 0, 2))
+        pool.close()
 
-    """
-    freq = copy.deepcopy(freq)
-    freq['bin_f_size'] = freq['bin_f_size'] * ndiv
-    freq['fmax'] = (np.floor(np.abs(freq['fq'][-1]) / freq['bin_f_size']) + 1) * freq['bin_f_size']
-    nbins_new = int(np.ceil(freq['nbins'] / ndiv))
-    npad = nbins_new * ndiv - freq['nbins']
-    freq['nbins'] = nbins_new
-    freq['bin_count'] = np.pad(freq['bin_count'], [(0, npad)])
-    freq['bin_count'] = np.sum(freq['bin_count'].reshape(-1, ndiv), axis=1)
-    freq['ndiv'] = ndiv
-    return freq
+    else:  # Faster if single thread
+        data = np.zeros((nbins, nsamples, 5), dtype='float32')
+        for j in range(nsamples):
+            for i in range(nbins):
+                measurements = malines[i + j * nbins].split()
+                data[i, j, 0] = float(measurements[0])
+                data[i, j, 1] = float(measurements[1])
+                data[i, j, 2] = float(measurements[2])
+                data[i, j, 3] = float(measurements[3])
+                data[i, j, 4] = float(measurements[4])
 
+    del malines
+    if ndiv:
+        nbins = int(np.ceil(data.shape[0] / ndiv))  # overwrite nbins
+        npad = nbins * ndiv - data.shape[0]
+        data = np.pad(data, [(0, npad), (0, 0), (0, 0)])
+        data = np.sum(data.reshape((-1, ndiv, data.shape[1], data.shape[2])), axis=1)
+
+    return data
 
 #########################################
 # Data-loading Related
 #########################################
 
 
-def get_frequency_info(bin_f_size, eigfile='eigenvector.out', directory=None):
+def load_heatmode(nbins, nsamples, directory=None,
+                   inputfile='heatmode.out', directions='xyz',
+                   outputfile='heatmode.npy', ndiv=None, save=False,
+                   multiprocessing=False, ncore=None, block_size=65536, return_out=True):
     """
-    Gathers eigen-frequency information from the eigenvector file and sorts
-    it appropriately based on the selected frequency bins (identical to
-    internal GPUMD representation).
+    Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.
+    WARNING: During this function call, memory usage can be much larger than file size
 
     Args:
-        bin_f_size (float):
-            The frequency-based bin size (in THz)
+        nbins (int):
+            Number of bins used during the GPUMD simulation
 
-        eigfile (str):
-            The filename of the eigenvector output/input file created by GPUMD
-            phonon package
+        nsamples (int):
+            Number of times heat flux was sampled with GKMA during GPUMD simulation
 
         directory (str):
-            Directory eigfile is stored
+            Name of directory storing the input file to read
 
-    Returns:
-        dict: Dictionary with the system eigen-freqeuency information along
-        with binning information
+        inputfile (str):
+            Modal heat flux file output by GPUMD (default: heatmode.out)
 
+        directions (str):
+            Directions to gather data from. Any order of 'xyz' is accepted. Excluding directions also allowed (i.e. 'xz'
+            is accepted)
+
+        outputfile (str):
+            File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
+            faster than re-reading data files and saving is recommended
+
+        ndiv (int):
+            Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
+            need not be an integer
+
+        save (bool):
+            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
+            False)
+
+        multiprocessing (bool):
+            Toggle using multi-core processing for conversion of text file (default: False)
+
+        ncore (bool):
+            Number of cores to use for multiprocessing. Ignored if multiprocessing is False
+
+        block_size (int):
+            Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
+            and file size (default: 2^16 = 65526)
+
+        return_out (bool):
+            Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
+            save is True (default: True)
+
+
+        Returns:
+                dict: Dictionary with all modal heat fluxes requested
     """
+
     if not directory:
-        eigpath = os.path.join(os.getcwd(), eigfile)
+        jm_path = os.path.join(os.getcwd(), inputfile)
+        out_path = os.path.join(os.getcwd(), outputfile)
     else:
-        eigpath = os.path.join(directory, eigfile)
+        jm_path = os.path.join(directory, inputfile)
+        out_path = os.path.join(directory, outputfile)
 
-    with open(eigpath, 'r') as f:
-        om2 = [float(x) for x in f.readline().split()]
+    data = __modal_analysis_read(nbins, nsamples, jm_path, ndiv, multiprocessing, ncore, block_size)
+    out = dict()
+    directions = __get_direction(directions)
+    if 'x' in directions:
+        out['jmxi'] = data[:, :, 0]
+        out['jmxo'] = data[:, :, 1]
+    if 'y' in directions:
+        out['jmyi'] = data[:, :, 2]
+        out['jmyo'] = data[:, :, 3]
+    if 'z' in directions:
+        out['jmz'] = data[:, :, 4]
 
-    fq = np.sign(om2) * np.sqrt(abs(np.array(om2))) / (2 * np.pi)
-    fmax = (np.floor(np.abs(fq[-1]) / bin_f_size) + 1) * bin_f_size
-    fmin = np.floor(np.abs(fq[0]) / bin_f_size) * bin_f_size
-    shift = int(np.floor(np.abs(fmin) / bin_f_size))
-    nbins = int(np.floor((fmax - fmin) / bin_f_size))
-    bin_count = np.zeros(nbins)
-    for freq in fq:
-        bin_count[int(np.floor(np.abs(freq) / bin_f_size) - shift)] += 1
-    return {'fq': fq, 'fmax': fmax, 'fmin': fmin, 'shift': shift,
-            'nbins': nbins, 'bin_count': bin_count, 'bin_f_size': bin_f_size}
+    out['nbins'] = nbins
+    out['nsamples'] = nsamples
+
+    if save:
+        np.save(out_path, out)
+
+    if return_out:
+        return out
+    return
 
 
 def load_kappamode(nbins, nsamples, directory=None,
@@ -212,6 +267,8 @@ def load_kappamode(nbins, nsamples, directory=None,
                    outputfile='kappamode.npy', ndiv=None, save=False,
                    multiprocessing=False, ncore=None, block_size=65536, return_out=True):
     """
+    Loads data from kappamode.out GPUMD file. Option to save as binary file for fast re-load later.
+    WARNING: During this function call, memory usage can be much larger than file size
 
     Args:
         nbins (int):
@@ -227,7 +284,7 @@ def load_kappamode(nbins, nsamples, directory=None,
             Modal thermal conductivity file output by GPUMD (default: kappamode.out)
 
         directions (str):
-            Directions to gather data from. Any order of 'xyz' is accepted. Exlcuding directions also allowed (i.e. 'xz'
+            Directions to gather data from. Any order of 'xyz' is accepted. Excluding directions also allowed (i.e. 'xz'
             is accepted)
 
         outputfile (str):
@@ -261,8 +318,6 @@ def load_kappamode(nbins, nsamples, directory=None,
                 dict: Dictionary with all modal thermal conductivities requested
     """
 
-    global kmlines
-
     if not directory:
         km_path = os.path.join(os.getcwd(), inputfile)
         out_path = os.path.join(os.getcwd(), outputfile)
@@ -270,38 +325,7 @@ def load_kappamode(nbins, nsamples, directory=None,
         km_path = os.path.join(directory, inputfile)
         out_path = os.path.join(directory, outputfile)
 
-    # Get full set of results
-    datalines = nbins * nsamples
-    with open(km_path, 'rb') as f:
-        kmlines = tail(f, datalines, BLOCK_SIZE=block_size)
-
-    if multiprocessing:
-        if not ncore:
-            ncore = mp.cpu_count()
-
-        func = partial(__process_sample, nbins)
-        pool = mp.Pool(ncore)
-        data = np.array(pool.map(func, range(nsamples)), dtype='float32').transpose((1, 0, 2))
-        pool.close()
-
-    else:  # Faster if single thread
-        data = np.zeros((nbins, nsamples, 5), dtype='float32')
-        for j in range(nsamples):
-            for i in range(nbins):
-                measurements = kmlines[i + j * nbins].split()
-                data[i, j, 0] = float(measurements[0])
-                data[i, j, 1] = float(measurements[1])
-                data[i, j, 2] = float(measurements[2])
-                data[i, j, 3] = float(measurements[3])
-                data[i, j, 4] = float(measurements[4])
-
-    del kmlines
-    if ndiv:
-        nbins = int(np.ceil(data.shape[0] / ndiv))  # overwrite nbins
-        npad = nbins * ndiv - data.shape[0]
-        data = np.pad(data, [(0, npad), (0, 0), (0, 0)])
-        data = np.sum(data.reshape((-1, ndiv, data.shape[1], data.shape[2])), axis=1)
-
+    data = __modal_analysis_read(nbins, nsamples, km_path, ndiv, multiprocessing, ncore, block_size)
     out = dict()
     directions = __get_direction(directions)
     if 'x' in directions:
@@ -337,6 +361,29 @@ def load_saved_kappamode(filename='kappamode.npy', directory=None):
 
     Returns:
         dict: Dictionary with all modal thermal conductivities previously requested
+
+    """
+
+    if directory:
+        path = os.path.join(directory, filename)
+    else:
+        path = os.path.join(os.getcwd(), filename)
+    return np.load(path, allow_pickle=True).item()
+
+
+def load_saved_heatmode(filename='heatmode.npy', directory=None):
+    """
+    Loads data saved by the 'load_heatmode' function and returns the original dictionary.
+
+    Args:
+        filename (str):
+            Name of the file to load
+
+        directory (str):
+            Directory the data file is located in
+
+    Returns:
+        dict: Dictionary with all modal heat flux previously requested
 
     """
 
@@ -720,10 +767,10 @@ def load_shc(Nc, directory='', filename='shc.out'):
     Returns:
         dict: Dictionary of in- and out-of-plane shc results (average)
     """
-    if (not type(Nc) == int):
+    if not type(Nc) == int:
         raise ValueError('Nc must be an int.')
         
-    if directory=='':
+    if directory == '':
         shc_path = os.path.join(os.getcwd(),filename)
     else:
         shc_path = os.path.join(directory,filename)
@@ -747,6 +794,7 @@ def load_shc(Nc, directory='', filename='shc.out'):
     out['shc_in'] = shc_in
     out['shc_out'] = shc_out
     return out
+
 
 def load_kappa(directory='', filename='kappa.out'):
     """
@@ -787,6 +835,7 @@ def load_kappa(directory='', filename='kappa.out'):
         out['kz'][i] = float(nums[4])
 
     return out
+
 
 def load_hac(directory='',filename='hac.out'):
     """
@@ -890,3 +939,72 @@ def load_hac(directory='',filename='hac.out'):
     out['t'] = t
 
     return out
+
+
+def get_frequency_info(bin_f_size, eigfile='eigenvector.out', directory=None):
+    """
+    Gathers eigen-frequency information from the eigenvector file and sorts
+    it appropriately based on the selected frequency bins (identical to
+    internal GPUMD representation).
+
+    Args:
+        bin_f_size (float):
+            The frequency-based bin size (in THz)
+
+        eigfile (str):
+            The filename of the eigenvector output/input file created by GPUMD
+            phonon package
+
+        directory (str):
+            Directory eigfile is stored
+
+    Returns:
+        dict: Dictionary with the system eigen-freqeuency information along
+        with binning information
+
+    """
+    if not directory:
+        eigpath = os.path.join(os.getcwd(), eigfile)
+    else:
+        eigpath = os.path.join(directory, eigfile)
+
+    with open(eigpath, 'r') as f:
+        om2 = [float(x) for x in f.readline().split()]
+
+    fq = np.sign(om2) * np.sqrt(abs(np.array(om2))) / (2 * np.pi)
+    fmax = (np.floor(np.abs(fq[-1]) / bin_f_size) + 1) * bin_f_size
+    fmin = np.floor(np.abs(fq[0]) / bin_f_size) * bin_f_size
+    shift = int(np.floor(np.abs(fmin) / bin_f_size))
+    nbins = int(np.floor((fmax - fmin) / bin_f_size))
+    bin_count = np.zeros(nbins)
+    for freq in fq:
+        bin_count[int(np.floor(np.abs(freq) / bin_f_size) - shift)] += 1
+    return {'fq': fq, 'fmax': fmax, 'fmin': fmin, 'shift': shift,
+            'nbins': nbins, 'bin_count': bin_count, 'bin_f_size': bin_f_size}
+
+
+def reduce_frequency_info(freq, ndiv=1):
+    """
+    Recalculates frequency binning information based on how many times larger bins are wanted.
+
+    Args:
+        freq (dict): Dictionary with frequency binning information from the get_frequency_info function output
+
+        ndiv (int):
+            Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
+            need not be an integer
+
+    Returns:
+        dict: Dictionary with the system eigen freqeuency information along with binning information
+
+    """
+    freq = copy.deepcopy(freq)
+    freq['bin_f_size'] = freq['bin_f_size'] * ndiv
+    freq['fmax'] = (np.floor(np.abs(freq['fq'][-1]) / freq['bin_f_size']) + 1) * freq['bin_f_size']
+    nbins_new = int(np.ceil(freq['nbins'] / ndiv))
+    npad = nbins_new * ndiv - freq['nbins']
+    freq['nbins'] = nbins_new
+    freq['bin_count'] = np.pad(freq['bin_count'], [(0, npad)])
+    freq['bin_count'] = np.sum(freq['bin_count'].reshape(-1, ndiv), axis=1)
+    freq['ndiv'] = ndiv
+    return freq
