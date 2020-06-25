@@ -142,7 +142,7 @@ def __modal_analysis_read(nbins, nsamples, datapath,
     with open(datapath, 'rb') as f:
         malines = tail(f, datalines, BLOCK_SIZE=block_size)
 
-    if multiprocessing:
+    if multiprocessing:  # TODO Improve memory efficiency of multiprocessing
         if not ncore:
             ncore = mp.cpu_count()
 
@@ -182,7 +182,7 @@ def load_heatmode(nbins, nsamples, directory=None,
                    multiprocessing=False, ncore=None, block_size=65536, return_out=True):
     """
     Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.
-    WARNING: During this function call, memory usage can be much larger than file size
+    WARNING: If using multiprocessing, memory useage may be significantly larger than file size
 
     Args:
         nbins (int):
@@ -268,7 +268,7 @@ def load_kappamode(nbins, nsamples, directory=None,
                    multiprocessing=False, ncore=None, block_size=65536, return_out=True):
     """
     Loads data from kappamode.out GPUMD file. Option to save as binary file for fast re-load later.
-    WARNING: During this function call, memory usage can be much larger than file size
+    WARNING: If using multiprocessing, memory useage may be significantly larger than file size
 
     Args:
         nbins (int):
