@@ -297,6 +297,50 @@ filename (str): File to load hac from. Default is ‘hac.out’</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="thermo.gpumd.data.load_heatmode">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_heatmode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='heatmode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='heatmode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_out=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_heatmode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_heatmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.
+WARNING: If using multiprocessing, memory useage may be significantly larger than file size</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>nbins (int):</dt><dd><p>Number of bins used during the GPUMD simulation</p>
+</dd>
+<dt>nsamples (int):</dt><dd><p>Number of times heat flux was sampled with GKMA during GPUMD simulation</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Name of directory storing the input file to read</p>
+</dd>
+<dt>inputfile (str):</dt><dd><p>Modal heat flux file output by GPUMD (default: heatmode.out)</p>
+</dd>
+<dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Excluding directions also allowed (i.e. ‘xz’
+is accepted)</p>
+</dd>
+<dt>outputfile (str):</dt><dd><p>File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
+faster than re-reading data files and saving is recommended</p>
+</dd>
+<dt>ndiv (int):</dt><dd><p>Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
+need not be an integer</p>
+</dd>
+<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
+False)</p>
+</dd>
+<dt>multiprocessing (bool):</dt><dd><p>Toggle using multi-core processing for conversion of text file (default: False)</p>
+</dd>
+<dt>ncore (bool):</dt><dd><p>Number of cores to use for multiprocessing. Ignored if multiprocessing is False</p>
+</dd>
+<dt>block_size (int):</dt><dd><p>Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
+and file size (default: 2^16 = 65526)</p>
+</dd>
+<dt>return_out (bool):</dt><dd><p>Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
+save is True (default: True)</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with all modal heat fluxes requested</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="thermo.gpumd.data.load_kappa">
 <code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappa</code><span class="sig-paren">(</span><em class="sig-param">directory=''</em>, <em class="sig-param">filename='kappa.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from kappa.out GPUMD output file which contains HNEMD kappa.</p>
@@ -316,7 +360,9 @@ filename (str): File to load hac from. Default is ‘hac.out’</p>
 <dl class="function">
 <dt id="thermo.gpumd.data.load_kappamode">
 <code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappamode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='kappamode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='kappamode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_out=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappamode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappamode" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
+<dd><p>Loads data from kappamode.out GPUMD file. Option to save as binary file for fast re-load later.
+WARNING: If using multiprocessing, memory useage may be significantly larger than file size</p>
+<dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
 <dt>nbins (int):</dt><dd><p>Number of bins used during the GPUMD simulation</p>
 </dd>
@@ -326,7 +372,7 @@ filename (str): File to load hac from. Default is ‘hac.out’</p>
 </dd>
 <dt>inputfile (str):</dt><dd><p>Modal thermal conductivity file output by GPUMD (default: kappamode.out)</p>
 </dd>
-<dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Exlcuding directions also allowed (i.e. ‘xz’
+<dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Excluding directions also allowed (i.e. ‘xz’
 is accepted)</p>
 </dd>
 <dt>outputfile (str):</dt><dd><p>File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
@@ -351,6 +397,23 @@ save is True (default: True)</p>
 <dt>Returns:</dt><dd><p>dict: Dictionary with all modal thermal conductivities requested</p>
 </dd>
 </dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_saved_heatmode">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_saved_heatmode</code><span class="sig-paren">(</span><em class="sig-param">filename='heatmode.npy'</em>, <em class="sig-param">directory=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_saved_heatmode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_saved_heatmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data saved by the ‘load_heatmode’ function and returns the original dictionary.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>filename (str):</dt><dd><p>Name of the file to load</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory the data file is located in</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with all modal heat flux previously requested</p>
 </dd>
 </dl>
 </dd></dl>
