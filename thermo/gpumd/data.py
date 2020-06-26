@@ -4,6 +4,7 @@ import re
 import copy
 import multiprocessing as mp
 from functools import partial
+from collections import deque
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -140,7 +141,10 @@ def __modal_analysis_read(nbins, nsamples, datapath,
     # Get full set of results
     datalines = nbins * nsamples
     with open(datapath, 'rb') as f:
-        malines = tail(f, datalines, BLOCK_SIZE=block_size)
+        if multiprocessing:
+            malines = tail(f, datalines, BLOCK_SIZE=block_size)
+        else:
+            malines = deque(tail(f, datalines, BLOCK_SIZE=block_size))
 
     if multiprocessing:  # TODO Improve memory efficiency of multiprocessing
         if not ncore:
@@ -155,7 +159,7 @@ def __modal_analysis_read(nbins, nsamples, datapath,
         data = np.zeros((nbins, nsamples, 5), dtype='float32')
         for j in range(nsamples):
             for i in range(nbins):
-                measurements = malines[i + j * nbins].split()
+                measurements = malines.popleft().split()
                 data[i, j, 0] = float(measurements[0])
                 data[i, j, 1] = float(measurements[1])
                 data[i, j, 2] = float(measurements[2])
