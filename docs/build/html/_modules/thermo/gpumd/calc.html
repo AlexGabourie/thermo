@@ -147,12 +147,152 @@
             
   <h1>Source code for thermo.gpumd.calc</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="k">import</span> <span class="n">cumtrapz</span>
 <span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">load_shc</span>
+<span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">__get_direction</span>  <span class="c1"># TODO move function to more accessible location</span>
+<span class="kn">from</span> <span class="nn">thermo.math.correlate</span> <span class="k">import</span> <span class="n">corr</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">integrate</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">__scale_gpumd_tc</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Used to scale the thermal conductivity when converting GPUMD heat-flux correlations</span>
+<span class="sd">    to thermal conductivity.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vol (float):</span>
+<span class="sd">            Volume in angstroms^3</span>
+
+<span class="sd">        T (float):</span>
+<span class="sd">            Temperature in K</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Converted value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">one</span> <span class="o">=</span> <span class="mf">1.602176634e-19</span> <span class="o">*</span> <span class="mf">9.651599e7</span>  <span class="c1"># eV^3/amu -&gt; Jm^2/s^2*eV</span>
+    <span class="n">two</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="mf">1.e15</span>  <span class="c1"># fs -&gt; s</span>
+    <span class="n">three</span> <span class="o">=</span> <span class="mf">1.e30</span> <span class="o">/</span> <span class="mf">8.617333262145e-5</span>  <span class="c1"># K/(eV*Ang^3) -&gt; K/(eV*m^3) w/ Boltzmann</span>
+    <span class="k">return</span> <span class="n">one</span> <span class="o">*</span> <span class="n">two</span> <span class="o">*</span> <span class="n">three</span> <span class="o">/</span> <span class="p">(</span><span class="n">T</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">vol</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_gkma_kappa"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.calc.get_gkma_kappa">[docs]</a><span class="k">def</span> <span class="nf">get_gkma_kappa</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_tau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the Green-Kubo thermal conductivity from modal heat current data from &#39;load_heatmode&#39;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (dict):</span>
+<span class="sd">            Dictionary with heat currents loaded by &#39;load_heatmode&#39;</span>
+
+<span class="sd">        nbins (int):</span>
+<span class="sd">            Number of bins used during the GPUMD simulation</span>
+
+<span class="sd">        nsamples (int):</span>
+<span class="sd">            Number of times heat flux was sampled with GKMA during GPUMD simulation</span>
+
+<span class="sd">        dt (float):</span>
+<span class="sd">            Time step during data collection in fs</span>
+
+<span class="sd">        sample_interval (int):</span>
+<span class="sd">            Number of time steps per sample of modal heat flux</span>
+
+<span class="sd">        T (float):</span>
+<span class="sd">            Temperature of system during data collection</span>
+
+<span class="sd">        vol (float):</span>
+<span class="sd">            Volume of system in angstroms^3</span>
+
+<span class="sd">        max_tau (float):</span>
+<span class="sd">            Correlation time to calculate up to. Units of ns</span>
+
+<span class="sd">        directions (str):</span>
+<span class="sd">            Directions to gather data from. Any order of &#39;xyz&#39; is accepted. Excluding directions also allowed (i.e. &#39;xz&#39;</span>
+<span class="sd">            is accepted)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Input data dict but with correlation, thermal conductivity, and lag time data included</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">__scale_gpumd_tc</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+    <span class="c1"># set the heat flux sampling time: rate * timestep * scaling</span>
+    <span class="n">srate</span> <span class="o">=</span> <span class="n">sample_interval</span> <span class="o">*</span> <span class="n">dt</span>  <span class="c1"># [fs]</span>
+
+    <span class="c1"># Calculate total time</span>
+    <span class="n">tot_time</span> <span class="o">=</span> <span class="n">srate</span> <span class="o">*</span> <span class="p">(</span><span class="n">nsamples</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [fs]</span>
+
+    <span class="c1"># set the integration limit (i.e. tau)</span>
+    <span class="k">if</span> <span class="n">max_tau</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_tau</span> <span class="o">=</span> <span class="n">tot_time</span>  <span class="c1"># [fs]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_tau</span> <span class="o">=</span> <span class="n">max_tau</span> <span class="o">*</span> <span class="mf">1e6</span>  <span class="c1"># [fs]</span>
+
+    <span class="n">max_lag</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">max_tau</span> <span class="o">/</span> <span class="n">srate</span><span class="p">))</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_lag</span> <span class="o">*</span> <span class="n">srate</span><span class="p">,</span> <span class="n">max_lag</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># [ns]</span>
+
+    <span class="c1">### AUTOCORRELATION ###</span>
+    <span class="n">directions</span> <span class="o">=</span> <span class="n">__get_direction</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span>
+    <span class="n">cplx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex128</span>
+    <span class="c1"># Note: loops necessary due to memory constraints</span>
+    <span class="c1">#  (can easily max out cluster mem.)</span>
+    <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">in</span> <span class="n">directions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;jmxi&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;jmxo&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;x direction data is missing&quot;</span><span class="p">)</span>
+
+        <span class="n">jxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmxi&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_xmi_xi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmxi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_xmi_xi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">corr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmxi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">jxi</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmxi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_xmi_xi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="k">del</span> <span class="n">jxi</span>
+
+        <span class="n">jxo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmxo&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_xmo_xo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmxo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_xmo_xo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">corr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmxo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">jxo</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmxo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_xmo_xo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="k">del</span> <span class="n">jxo</span>
+
+    <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">directions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;jmyi&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;jmyo&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;y direction data is missing&quot;</span><span class="p">)</span>
+
+        <span class="n">jyi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmyi&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_ymi_yi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmyi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_ymi_yi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">corr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmyi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">jyi</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmyi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_ymi_yi&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="k">del</span> <span class="n">jyi</span>
+
+        <span class="n">jyo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmyo&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_ymo_yo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmyo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_ymo_yo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">corr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmyo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">jyo</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmyo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_ymo_yo&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="k">del</span> <span class="n">jyo</span>
+
+    <span class="k">if</span> <span class="s1">&#39;z&#39;</span> <span class="ow">in</span> <span class="n">directions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;jmz&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;z direction data is missing&quot;</span><span class="p">)</span>
+
+        <span class="n">jz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmz&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_zm_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nbins</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_zm_z&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">corr</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;jmz&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">jz</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cplx</span><span class="p">),</span> <span class="n">max_lag</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kmz&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">integrate</span><span class="o">.</span><span class="n">cumtrapz</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;corr_zm_z&#39;</span><span class="p">][</span><span class="n">m</span><span class="p">,</span> <span class="p">:],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+        <span class="k">del</span> <span class="n">jz</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1.e6</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
 
 <div class="viewcode-block" id="running_ave"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.calc.running_ave">[docs]</a><span class="k">def</span> <span class="nf">running_ave</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>

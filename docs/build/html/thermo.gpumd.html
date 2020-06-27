@@ -160,6 +160,38 @@
 <div class="section" id="module-thermo.gpumd.calc">
 <span id="calculations"></span><h2>Calculations<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="thermo.gpumd.calc.get_gkma_kappa">
+<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">get_gkma_kappa</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">dt</em>, <em class="sig-param">sample_interval</em>, <em class="sig-param">T=300</em>, <em class="sig-param">vol=1</em>, <em class="sig-param">max_tau=None</em>, <em class="sig-param">directions='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#get_gkma_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.get_gkma_kappa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Green-Kubo thermal conductivity from modal heat current data from ‘load_heatmode’</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>data (dict):</dt><dd><p>Dictionary with heat currents loaded by ‘load_heatmode’</p>
+</dd>
+<dt>nbins (int):</dt><dd><p>Number of bins used during the GPUMD simulation</p>
+</dd>
+<dt>nsamples (int):</dt><dd><p>Number of times heat flux was sampled with GKMA during GPUMD simulation</p>
+</dd>
+<dt>dt (float):</dt><dd><p>Time step during data collection in fs</p>
+</dd>
+<dt>sample_interval (int):</dt><dd><p>Number of time steps per sample of modal heat flux</p>
+</dd>
+<dt>T (float):</dt><dd><p>Temperature of system during data collection</p>
+</dd>
+<dt>vol (float):</dt><dd><p>Volume of system in angstroms^3</p>
+</dd>
+<dt>max_tau (float):</dt><dd><p>Correlation time to calculate up to. Units of ns</p>
+</dd>
+<dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Excluding directions also allowed (i.e. ‘xz’
+is accepted)</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Input data dict but with correlation, thermal conductivity, and lag time data included</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="thermo.gpumd.calc.hnemd_spectral_decomp">
 <code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em class="sig-param">dt</em>, <em class="sig-param">Nc</em>, <em class="sig-param">Fmax</em>, <em class="sig-param">Fe</em>, <em class="sig-param">T</em>, <em class="sig-param">V</em>, <em class="sig-param">df=None</em>, <em class="sig-param">Nc_conv=None</em>, <em class="sig-param">shc=None</em>, <em class="sig-param">directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_decomp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the spectral decomposition from HNEMD between two groups
