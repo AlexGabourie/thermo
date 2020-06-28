@@ -329,9 +329,9 @@
 
 
 <div class="viewcode-block" id="load_heatmode"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_heatmode">[docs]</a><span class="k">def</span> <span class="nf">load_heatmode</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">inputfile</span><span class="o">=</span><span class="s1">&#39;heatmode.out&#39;</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span>
-                   <span class="n">outputfile</span><span class="o">=</span><span class="s1">&#39;heatmode.npy&#39;</span><span class="p">,</span> <span class="n">ndiv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">multiprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span> <span class="n">return_out</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                  <span class="n">inputfile</span><span class="o">=</span><span class="s1">&#39;heatmode.out&#39;</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span>
+                  <span class="n">outputfile</span><span class="o">=</span><span class="s1">&#39;heatmode.npy&#39;</span><span class="p">,</span> <span class="n">ndiv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                  <span class="n">multiprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span> <span class="n">return_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.</span>
 <span class="sd">    WARNING: If using multiprocessing, memory useage may be significantly larger than file size</span>
@@ -375,7 +375,7 @@
 <span class="sd">            Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter</span>
 <span class="sd">            and file size (default: 2^16 = 65526)</span>
 
-<span class="sd">        return_out (bool):</span>
+<span class="sd">        return_data (bool):</span>
 <span class="sd">            Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that</span>
 <span class="sd">            save is True (default: True)</span>
 
@@ -409,7 +409,7 @@
     <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
         <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">return_out</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">return_data</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">out</span>
     <span class="k">return</span></div>
 
@@ -417,7 +417,7 @@
 <div class="viewcode-block" id="load_kappamode"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_kappamode">[docs]</a><span class="k">def</span> <span class="nf">load_kappamode</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">inputfile</span><span class="o">=</span><span class="s1">&#39;kappamode.out&#39;</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span>
                    <span class="n">outputfile</span><span class="o">=</span><span class="s1">&#39;kappamode.npy&#39;</span><span class="p">,</span> <span class="n">ndiv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                   <span class="n">multiprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span> <span class="n">return_out</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                   <span class="n">multiprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span> <span class="n">return_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from kappamode.out GPUMD file. Option to save as binary file for fast re-load later.</span>
 <span class="sd">    WARNING: If using multiprocessing, memory useage may be significantly larger than file size</span>
@@ -461,7 +461,7 @@
 <span class="sd">            Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter</span>
 <span class="sd">            and file size (default: 2^16 = 65526)</span>
 
-<span class="sd">        return_out (bool):</span>
+<span class="sd">        return_data (bool):</span>
 <span class="sd">            Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that</span>
 <span class="sd">            save is True (default: True)</span>
 
@@ -495,9 +495,32 @@
     <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
         <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">return_out</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">return_data</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">out</span>
     <span class="k">return</span></div>
+
+
+<span class="k">def</span> <span class="nf">load_saved_heatmode</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;heatmode.npy&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data saved by the &#39;load_heatmode&#39; or  &#39;get_gkma_kappa&#39; function and returns the original dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str):</span>
+<span class="sd">            Name of the file to load</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory the data file is located in</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary with all modal heat flux or thermal conductivities previously requested</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">directory</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="load_saved_kappamode"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_saved_kappamode">[docs]</a><span class="k">def</span> <span class="nf">load_saved_kappamode</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;kappamode.npy&#39;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

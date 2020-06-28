@@ -161,7 +161,7 @@
 <span id="calculations"></span><h2>Calculations<a class="headerlink" href="#module-thermo.gpumd.calc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="thermo.gpumd.calc.get_gkma_kappa">
-<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">get_gkma_kappa</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">dt</em>, <em class="sig-param">sample_interval</em>, <em class="sig-param">T=300</em>, <em class="sig-param">vol=1</em>, <em class="sig-param">max_tau=None</em>, <em class="sig-param">directions='xyz'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#get_gkma_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.get_gkma_kappa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">get_gkma_kappa</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">dt</em>, <em class="sig-param">sample_interval</em>, <em class="sig-param">T=300</em>, <em class="sig-param">vol=1</em>, <em class="sig-param">max_tau=None</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='heatmode.npy'</em>, <em class="sig-param">save=False</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">return_data=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#get_gkma_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.get_gkma_kappa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the Green-Kubo thermal conductivity from modal heat current data from ‘load_heatmode’</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -183,6 +183,17 @@
 </dd>
 <dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Excluding directions also allowed (i.e. ‘xz’
 is accepted)</p>
+</dd>
+<dt>outputfile (str):</dt><dd><p>File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
+faster than re-reading data files and saving is recommended</p>
+</dd>
+<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
+False)</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Name of directory storing the input file to read</p>
+</dd>
+<dt>return_data (bool):</dt><dd><p>Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
+save is True (default: True)</p>
 </dd>
 </dl>
 </dd>
@@ -330,7 +341,7 @@ filename (str): File to load hac from. Default is ‘hac.out’</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_heatmode">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_heatmode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='heatmode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='heatmode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_out=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_heatmode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_heatmode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_heatmode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='heatmode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='heatmode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_data=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_heatmode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_heatmode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.
 WARNING: If using multiprocessing, memory useage may be significantly larger than file size</p>
 <dl class="simple">
@@ -362,7 +373,7 @@ False)</p>
 <dt>block_size (int):</dt><dd><p>Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
 and file size (default: 2^16 = 65526)</p>
 </dd>
-<dt>return_out (bool):</dt><dd><p>Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
+<dt>return_data (bool):</dt><dd><p>Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
 save is True (default: True)</p>
 </dd>
 <dt>Returns:</dt><dd><p>dict: Dictionary with all modal heat fluxes requested</p>
@@ -391,7 +402,7 @@ save is True (default: True)</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_kappamode">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappamode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='kappamode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='kappamode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_out=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappamode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappamode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappamode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='kappamode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='kappamode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_data=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappamode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappamode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from kappamode.out GPUMD file. Option to save as binary file for fast re-load later.
 WARNING: If using multiprocessing, memory useage may be significantly larger than file size</p>
 <dl class="simple">
@@ -423,7 +434,7 @@ False)</p>
 <dt>block_size (int):</dt><dd><p>Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
 and file size (default: 2^16 = 65526)</p>
 </dd>
-<dt>return_out (bool):</dt><dd><p>Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that
+<dt>return_data (bool):</dt><dd><p>Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that
 save is True (default: True)</p>
 </dd>
 <dt>Returns:</dt><dd><p>dict: Dictionary with all modal thermal conductivities requested</p>

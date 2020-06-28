@@ -152,6 +152,7 @@
 <span class="kn">from</span> <span class="nn">.data</span> <span class="k">import</span> <span class="n">__get_direction</span>  <span class="c1"># TODO move function to more accessible location</span>
 <span class="kn">from</span> <span class="nn">thermo.math.correlate</span> <span class="k">import</span> <span class="n">corr</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">integrate</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
@@ -179,7 +180,8 @@
     <span class="k">return</span> <span class="n">one</span> <span class="o">*</span> <span class="n">two</span> <span class="o">*</span> <span class="n">three</span> <span class="o">/</span> <span class="p">(</span><span class="n">T</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">vol</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="get_gkma_kappa"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.calc.get_gkma_kappa">[docs]</a><span class="k">def</span> <span class="nf">get_gkma_kappa</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_tau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_gkma_kappa"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.calc.get_gkma_kappa">[docs]</a><span class="k">def</span> <span class="nf">get_gkma_kappa</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_tau</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directions</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span>
+                   <span class="n">outputfile</span><span class="o">=</span><span class="s1">&#39;heatmode.npy&#39;</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the Green-Kubo thermal conductivity from modal heat current data from &#39;load_heatmode&#39;</span>
 
@@ -212,10 +214,31 @@
 <span class="sd">            Directions to gather data from. Any order of &#39;xyz&#39; is accepted. Excluding directions also allowed (i.e. &#39;xz&#39;</span>
 <span class="sd">            is accepted)</span>
 
+<span class="sd">        outputfile (str):</span>
+<span class="sd">            File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much</span>
+<span class="sd">            faster than re-reading data files and saving is recommended</span>
+
+<span class="sd">        save (bool):</span>
+<span class="sd">            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:</span>
+<span class="sd">            False)</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Name of directory storing the input file to read</span>
+
+<span class="sd">        return_data (bool):</span>
+<span class="sd">            Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that</span>
+<span class="sd">            save is True (default: True)</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Input data dict but with correlation, thermal conductivity, and lag time data included</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">outputfile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
+
     <span class="n">scale</span> <span class="o">=</span> <span class="n">__scale_gpumd_tc</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
     <span class="c1"># set the heat flux sampling time: rate * timestep * scaling</span>
     <span class="n">srate</span> <span class="o">=</span> <span class="n">sample_interval</span> <span class="o">*</span> <span class="n">dt</span>  <span class="c1"># [fs]</span>
@@ -291,7 +314,13 @@
         <span class="k">del</span> <span class="n">jz</span>
 
     <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;tau&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1.e6</span>
-    <span class="k">return</span> <span class="n">data</span></div>
+
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">out_path</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">return</span></div>
 
 
 <div class="viewcode-block" id="running_ave"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.calc.running_ave">[docs]</a><span class="k">def</span> <span class="nf">running_ave</span><span class="p">(</span><span class="n">kappa</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
