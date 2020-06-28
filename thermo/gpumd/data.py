@@ -352,29 +352,6 @@ def load_kappamode(nbins, nsamples, directory=None,
     return
 
 
-def load_saved_heatmode(filename='heatmode.npy', directory=None):
-    """
-    Loads data saved by the 'load_heatmode' or  'get_gkma_kappa' function and returns the original dictionary.
-
-    Args:
-        filename (str):
-            Name of the file to load
-
-        directory (str):
-            Directory the data file is located in
-
-    Returns:
-        dict: Dictionary with all modal heat flux or thermal conductivities previously requested
-
-    """
-
-    if directory:
-        path = os.path.join(directory, filename)
-    else:
-        path = os.path.join(os.getcwd(), filename)
-    return np.load(path, allow_pickle=True).item()
-
-
 def load_saved_kappamode(filename='kappamode.npy', directory=None):
     """
     Loads data saved by the 'load_kappamode' function and returns the original dictionary.
@@ -400,7 +377,7 @@ def load_saved_kappamode(filename='kappamode.npy', directory=None):
 
 def load_saved_heatmode(filename='heatmode.npy', directory=None):
     """
-    Loads data saved by the 'load_heatmode' function and returns the original dictionary.
+    Loads data saved by the 'load_heatmode' or 'get_gkma_kappa' function and returns the original dictionary.
 
     Args:
         filename (str):
