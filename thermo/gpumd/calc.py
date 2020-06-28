@@ -4,6 +4,7 @@ from .data import load_shc
 from .data import __get_direction  # TODO move function to more accessible location
 from thermo.math.correlate import corr
 from scipy import integrate
+import os
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -31,7 +32,8 @@ def __scale_gpumd_tc(vol, T):
     return one * two * three / (T * T * vol)
 
 
-def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max_tau=None, directions='xyz'):
+def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max_tau=None, directions='xyz',
+                   outputfile='heatmode.npy', save=False, directory=None, return_data=True):
     """
     Calculate the Green-Kubo thermal conductivity from modal heat current data from 'load_heatmode'
 
@@ -64,10 +66,31 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
             Directions to gather data from. Any order of 'xyz' is accepted. Excluding directions also allowed (i.e. 'xz'
             is accepted)
 
+        outputfile (str):
+            File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
+            faster than re-reading data files and saving is recommended
+
+        save (bool):
+            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
+            False)
+
+        directory (str):
+            Name of directory storing the input file to read
+
+        return_data (bool):
+            Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
+            save is True (default: True)
+
     Returns:
         dict: Input data dict but with correlation, thermal conductivity, and lag time data included
 
     """
+
+    if not directory:
+        out_path = os.path.join(os.getcwd(), outputfile)
+    else:
+        out_path = os.path.join(directory, outputfile)
+
     scale = __scale_gpumd_tc(vol, T)
     # set the heat flux sampling time: rate * timestep * scaling
     srate = sample_interval * dt  # [fs]
@@ -143,7 +166,13 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
         del jz
 
     data['tau'] = data['tau'] / 1.e6
-    return data
+
+    if save:
+        np.save(out_path, data)
+
+    if return_data:
+        return data
+    return
 
 
 def running_ave(kappa, time):

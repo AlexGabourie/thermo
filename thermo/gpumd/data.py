@@ -181,9 +181,9 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 
 
 def load_heatmode(nbins, nsamples, directory=None,
-                   inputfile='heatmode.out', directions='xyz',
-                   outputfile='heatmode.npy', ndiv=None, save=False,
-                   multiprocessing=False, ncore=None, block_size=65536, return_out=True):
+                  inputfile='heatmode.out', directions='xyz',
+                  outputfile='heatmode.npy', ndiv=None, save=False,
+                  multiprocessing=False, ncore=None, block_size=65536, return_data=True):
     """
     Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.
     WARNING: If using multiprocessing, memory useage may be significantly larger than file size
@@ -227,7 +227,7 @@ def load_heatmode(nbins, nsamples, directory=None,
             Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
             and file size (default: 2^16 = 65526)
 
-        return_out (bool):
+        return_data (bool):
             Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
             save is True (default: True)
 
@@ -261,7 +261,7 @@ def load_heatmode(nbins, nsamples, directory=None,
     if save:
         np.save(out_path, out)
 
-    if return_out:
+    if return_data:
         return out
     return
 
@@ -269,7 +269,7 @@ def load_heatmode(nbins, nsamples, directory=None,
 def load_kappamode(nbins, nsamples, directory=None,
                    inputfile='kappamode.out', directions='xyz',
                    outputfile='kappamode.npy', ndiv=None, save=False,
-                   multiprocessing=False, ncore=None, block_size=65536, return_out=True):
+                   multiprocessing=False, ncore=None, block_size=65536, return_data=True):
     """
     Loads data from kappamode.out GPUMD file. Option to save as binary file for fast re-load later.
     WARNING: If using multiprocessing, memory useage may be significantly larger than file size
@@ -313,7 +313,7 @@ def load_kappamode(nbins, nsamples, directory=None,
             Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
             and file size (default: 2^16 = 65526)
 
-        return_out (bool):
+        return_data (bool):
             Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that
             save is True (default: True)
 
@@ -347,9 +347,32 @@ def load_kappamode(nbins, nsamples, directory=None,
     if save:
         np.save(out_path, out)
 
-    if return_out:
+    if return_data:
         return out
     return
+
+
+def load_saved_heatmode(filename='heatmode.npy', directory=None):
+    """
+    Loads data saved by the 'load_heatmode' or  'get_gkma_kappa' function and returns the original dictionary.
+
+    Args:
+        filename (str):
+            Name of the file to load
+
+        directory (str):
+            Directory the data file is located in
+
+    Returns:
+        dict: Dictionary with all modal heat flux or thermal conductivities previously requested
+
+    """
+
+    if directory:
+        path = os.path.join(directory, filename)
+    else:
+        path = os.path.join(os.getcwd(), filename)
+    return np.load(path, allow_pickle=True).item()
 
 
 def load_saved_kappamode(filename='kappamode.npy', directory=None):
