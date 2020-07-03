@@ -179,6 +179,71 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 # Data-loading Related
 #########################################
 
+def load_thermo(directory='', filename='thermo.out', orthogonal=False, triclinic=False):
+    """
+    loads data from thermo.out GPUMD output file.
+
+    Args:
+        directory (str):
+            Directory to load 'thermo.out' file from (dir. of simulation)
+
+        filename (str):
+            file to load thermo from
+
+        orthogonal (bool):
+            allows user to set as true if orthogonal,  effects the total number of columns of data to add to
+
+        triclinic (bool):
+            allows user to set as true if triclinic, effects the total number of columns of data to add to
+
+        Returns:
+            'output' dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)
+    """
+    if directory == '':
+        t_path = os.path.join(os.getcwd(), filename)
+    else:
+        t_path = os.path.join(directory, filename)
+
+    # probably a much better way to check for these errors
+    # will data always be float?
+    with open(t_path) as f:
+        lines = f.readlines()
+        for i in range(len(lines)):
+            if lines[i] == float('inf') or lines[i] == float('-inf'):
+                raise ValueError("inf or -inf data point")
+            # if type(lines[i]) != float:
+            #     raise ValueError("invalid data")
+
+    output = dict()
+    # possibly another way to filter problematic data?
+    output['T'] = np.loadtxt(t_path, dtype=float, usecols=0)
+    output['K'] = np.loadtxt(t_path, dtype=float, usecols=1)
+    output['U'] = np.loadtxt(t_path,  dtype=float, usecols=2)
+
+    output['Px'] = np.loadtxt(t_path, dtype=float, usecols=3)
+    output['Py'] = np.loadtxt(t_path, dtype=float, usecols=4)
+    output['Pz'] = np.loadtxt(t_path, dtype=float, usecols=5)
+
+    if orthogonal:
+        output['Lx'] = np.loadtxt(t_path, dtype=float, usecols=6)
+        output['Ly'] = np.loadtxt(t_path, dtype=float, usecols=7)
+        output['Lz'] = np.loadtxt(t_path, dtype=float, usecols=8)
+
+    if triclinic:
+        output['ax'] = np.loadtxt(t_path, dtype=float, usecols=9)
+        output['ay'] = np.loadtxt(t_path, dtype=float, usecols=10)
+        output['az'] = np.loadtxt(t_path, dtype=float, usecols=11)
+
+        output['bx'] = np.loadtxt(t_path, dtype=float, usecols=9)
+        output['by'] = np.loadtxt(t_path, dtype=float, usecols=10)
+        output['bz'] = np.loadtxt(t_path, dtype=float, usecols=11)
+
+        output['cx'] = np.loadtxt(t_path, dtype=float, usecols=12)
+        output['cy'] = np.loadtxt(t_path, dtype=float, usecols=13)
+        output['cz'] = np.loadtxt(t_path, dtype=float, usecols=14)
+
+    return output
+
 
 def load_heatmode(nbins, nsamples, directory=None,
                    inputfile='heatmode.out', directions='xyz',
