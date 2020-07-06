@@ -179,7 +179,7 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 # Data-loading Related
 #########################################
 
-def load_thermo(directory='', filename='thermo.out', triclinic=False):
+def load_thermo(directory=None, filename='thermo.out',triclinic=False):
     """
     loads data from thermo.out GPUMD output file.
 
@@ -197,42 +197,47 @@ def load_thermo(directory='', filename='thermo.out', triclinic=False):
         Returns:
             'output' dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)
     """
-    if directory == '':
+    if not directory:
         t_path = os.path.join(os.getcwd(), filename)
     else:
         t_path = os.path.join(directory, filename)
 
-    output = dict()
-    lst = []
+    output = {'T': list(), 'K': list(), 'U': list(), 'Px': list(), 'Py': list(), 'Pz': list()}
+    orthogonal = {'Lx': list(), 'Ly': list(), 'Lz': list()}
+    tri = {'ax': list(), 'ay': list(), 'az': list(), 'bx': list(), 'by': list(), 'bz': list(), 'cx': list(),
+                 'cy': list(), 'cz': list()}
+
     with open(t_path) as f:
         for line in f:
-            lst.append([float(num) for num in line.split()])
-    output['T'] = [num[0] for num in lst]
-    output['K'] = [num[1] for num in lst]
-    output['U'] = [num[2] for num in lst]
+            data = [float(num) for num in line.split()]
+            output['T'].append(data[0])
+            output['K'].append(data[1])
+            output['U'].append(data[2])
 
-    output['Px'] = [num[3] for num in lst]
-    output['Py'] = [num[4] for num in lst]
-    output['Pz'] = [num[5] for num in lst]
+            output['Px'].append(data[3])
+            output['Py'].append(data[4])
+            output['Pz'].append(data[5])
 
-    # orthogonal
-    if not triclinic:
-        output['Lx'] = [num[6] for num in lst]
-        output['Ly'] = [num[7] for num in lst]
-        output['Lz'] = [num[8] for num in lst]
+            # orthogonal
+            if not triclinic:
+                orthogonal['Lx'].append(data[6])
+                orthogonal['Ly'].append(data[7])
+                orthogonal['Lz'].append(data[8])
+                output.update(orthogonal)
 
-    if triclinic:
-        output['ax'] = [num[6] for num in lst]
-        output['ay'] = [num[7] for num in lst]
-        output['az'] = [num[8] for num in lst]
+            if triclinic:
+                tri['ax'].append(data[6])
+                tri['ay'].append(data[7])
+                tri['az'].append(data[8])
 
-        output['bx'] = [num[9] for num in lst]
-        output['by'] = [num[10] for num in lst]
-        output['bz'] = [num[11] for num in lst]
+                tri['bx'].append(data[9])
+                tri['by'].append(data[10])
+                tri['bz'].append(data[11])
 
-        output['cx'] = [num[12] for num in lst]
-        output['cy'] = [num[13] for num in lst]
-        output['cz'] = [num[14] for num in lst]
+                tri['cx'].append(data[12])
+                tri['cy'].append(data[13])
+                tri['cz'].append(data[14])
+                output.update(tri)
 
     return output
 
