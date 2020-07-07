@@ -117,41 +117,35 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
         if 'jmxi' not in data.keys() or 'jmxo' not in data.keys():
             raise ValueError("x direction data is missing")
 
-        jxi = np.sum(data['jmxi'], axis=0)
-        data['corr_xmi_xi'] = np.zeros((nbins, size))
+        jx = np.sum(data['jmxi']+data['jmxo'], axis=0)
+        data['corr_xmi_x'] = np.zeros((nbins, size))
+        data['corr_xmo_x'] = np.zeros((nbins, size))
         data['kmxi'] = np.zeros((nbins, size))
-        for m in range(nbins):
-            data['corr_xmi_xi'][m, :] = corr(data['jmxi'][m, :].astype(cplx), jxi.astype(cplx), max_lag)
-            data['kmxi'][m, :] = integrate.cumtrapz(data['corr_xmi_xi'][m, :], data['tau'], initial=0) * scale
-        del jxi
-
-        jxo = np.sum(data['jmxo'], axis=0)
-        data['corr_xmo_xo'] = np.zeros((nbins, size))
         data['kmxo'] = np.zeros((nbins, size))
         for m in range(nbins):
-            data['corr_xmo_xo'][m, :] = corr(data['jmxo'][m, :].astype(cplx), jxo.astype(cplx), max_lag)
-            data['kmxo'][m, :] = integrate.cumtrapz(data['corr_xmo_xo'][m, :], data['tau'], initial=0) * scale
-        del jxo
+            data['corr_xmi_x'][m, :] = corr(data['jmxi'][m, :].astype(cplx), jx.astype(cplx), max_lag)
+            data['kmxi'][m, :] = integrate.cumtrapz(data['corr_xmi_x'][m, :], data['tau'], initial=0) * scale
+
+            data['corr_xmo_x'][m, :] = corr(data['jmxo'][m, :].astype(cplx), jx.astype(cplx), max_lag)
+            data['kmxo'][m, :] = integrate.cumtrapz(data['corr_xmo_x'][m, :], data['tau'], initial=0) * scale
+        del jx
 
     if 'y' in directions:
         if 'jmyi' not in data.keys() or 'jmyo' not in data.keys():
             raise ValueError("y direction data is missing")
 
-        jyi = np.sum(data['jmyi'], axis=0)
-        data['corr_ymi_yi'] = np.zeros((nbins, size))
+        jy = np.sum(data['jmyi']+data['jmyo'], axis=0)
+        data['corr_ymi_y'] = np.zeros((nbins, size))
+        data['corr_ymo_y'] = np.zeros((nbins, size))
         data['kmyi'] = np.zeros((nbins, size))
-        for m in range(nbins):
-            data['corr_ymi_yi'][m, :] = corr(data['jmyi'][m, :].astype(cplx), jyi.astype(cplx), max_lag)
-            data['kmyi'][m, :] = integrate.cumtrapz(data['corr_ymi_yi'][m, :], data['tau'], initial=0) * scale
-        del jyi
-
-        jyo = np.sum(data['jmyo'], axis=0)
-        data['corr_ymo_yo'] = np.zeros((nbins, size))
         data['kmyo'] = np.zeros((nbins, size))
         for m in range(nbins):
-            data['corr_ymo_yo'][m, :] = corr(data['jmyo'][m, :].astype(cplx), jyo.astype(cplx), max_lag)
-            data['kmyo'][m, :] = integrate.cumtrapz(data['corr_ymo_yo'][m, :], data['tau'], initial=0) * scale
-        del jyo
+            data['corr_ymi_y'][m, :] = corr(data['jmyi'][m, :].astype(cplx), jy.astype(cplx), max_lag)
+            data['kmyi'][m, :] = integrate.cumtrapz(data['corr_ymi_y'][m, :], data['tau'], initial=0) * scale
+
+            data['corr_ymo_y'][m, :] = corr(data['jmyo'][m, :].astype(cplx), jy.astype(cplx), max_lag)
+            data['kmyo'][m, :] = integrate.cumtrapz(data['corr_ymo_y'][m, :], data['tau'], initial=0) * scale
+        del jy
 
     if 'z' in directions:
         if 'jmz' not in data.keys():
