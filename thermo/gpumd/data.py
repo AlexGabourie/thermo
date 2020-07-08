@@ -202,43 +202,22 @@ def load_thermo(directory=None, filename='thermo.out',triclinic=False):
     else:
         t_path = os.path.join(directory, filename)
 
-    output = {'T': list(), 'K': list(), 'U': list(), 'Px': list(), 'Py': list(), 'Pz': list()}
-    orthogonal = {'Lx': list(), 'Ly': list(), 'Lz': list()}
-    tri = {'ax': list(), 'ay': list(), 'az': list(), 'bx': list(), 'by': list(), 'bz': list(), 'cx': list(),
-                 'cy': list(), 'cz': list()}
+    output = {'T': [], 'K': [], 'U': [], 'Px': [], 'Py': [], 'Pz': []}
+
+    # orthogonal
+    if not triclinic:
+        output.update({'Lx': [], 'Ly': [], 'Lz': []})
+
+    # triclinic
+    else:
+        output.update({'ax': [], 'ay': [], 'az': [], 'bx': [], 'by': [], 'bz': [], 'cx': [], 'cy': [], 'cz': []})
 
     with open(t_path) as f:
         for line in f:
             data = [float(num) for num in line.split()]
-            output['T'].append(data[0])
-            output['K'].append(data[1])
-            output['U'].append(data[2])
-
-            output['Px'].append(data[3])
-            output['Py'].append(data[4])
-            output['Pz'].append(data[5])
-
-            # orthogonal
-            if not triclinic:
-                orthogonal['Lx'].append(data[6])
-                orthogonal['Ly'].append(data[7])
-                orthogonal['Lz'].append(data[8])
-                output.update(orthogonal)
-
-            if triclinic:
-                tri['ax'].append(data[6])
-                tri['ay'].append(data[7])
-                tri['az'].append(data[8])
-
-                tri['bx'].append(data[9])
-                tri['by'].append(data[10])
-                tri['bz'].append(data[11])
-
-                tri['cx'].append(data[12])
-                tri['cy'].append(data[13])
-                tri['cz'].append(data[14])
-                output.update(tri)
-
+            for key in output.keys():
+                index = list(output.keys()).index(key)
+                output[key].append(data[index])
     return output
 
 
