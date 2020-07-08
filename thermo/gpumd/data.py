@@ -179,6 +179,47 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 # Data-loading Related
 #########################################
 
+def load_thermo(directory=None, filename='thermo.out',triclinic=False):
+    """
+    loads data from thermo.out GPUMD output file.
+
+    Args:
+        directory (str):
+            Directory to load 'thermo.out' file from (dir. of simulation)
+
+        filename (str):
+            file to load thermo from
+
+        triclinic (bool):
+            allows user to set as true if triclinic, effects the total number of columns of data to add to.
+            if triclinic is false, then orthogonal by default.
+
+        Returns:
+            'output' dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)
+    """
+    if not directory:
+        t_path = os.path.join(os.getcwd(), filename)
+    else:
+        t_path = os.path.join(directory, filename)
+
+    output = {'T': [], 'K': [], 'U': [], 'Px': [], 'Py': [], 'Pz': []}
+
+    # orthogonal
+    if not triclinic:
+        output.update({'Lx': [], 'Ly': [], 'Lz': []})
+
+    # triclinic
+    else:
+        output.update({'ax': [], 'ay': [], 'az': [], 'bx': [], 'by': [], 'bz': [], 'cx': [], 'cy': [], 'cz': []})
+
+    with open(t_path) as f:
+        for line in f:
+            data = [float(num) for num in line.split()]
+            for key in output.keys():
+                index = list(output.keys()).index(key)
+                output[key].append(data[index])
+    return output
+
 
 def load_heatmode(nbins, nsamples, directory=None,
                   inputfile='heatmode.out', directions='xyz',
