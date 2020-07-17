@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+import csv
 import os
 import re
 import copy
@@ -178,6 +180,59 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 #########################################
 # Data-loading Related
 #########################################
+
+def load_compute(directory=None, filename='compute.out', quantities=None, M=None):
+    """
+    directory (str):
+    filename (str)
+    quantities (list(str))
+    M (int)
+    Add Args...
+    """
+    if not directory:
+        com = os.path.join(os.getcwd(), filename)
+    else:
+        com = os.path.join(directory, filename)
+
+    output = dict()
+    com_n = pd.read_csv(com, delimiter=" ", header=None)
+
+    if not quantities:
+        if 'temperature' in quantities:
+            t = np.array(com_n.iloc[:,:M])
+            hi_d = np.array(com_n.iloc[:, len(com)-2: len(com)-1])
+            ho_d = np.array(com_n.iloc[:, len(com)-1:])
+            output['temperature'] = t
+            output['hi'] = hi_d
+            output['ho'] = ho_d
+            com_n = com_n.shift(periods=-M, axis="columns")
+
+        if 'potential' in quantities:
+            p = np.array(com_n.iloc[:,M+1:2*M])
+            output['potential'] = p
+            com_n = com_n.shift(periods=-M, axis="columns")
+
+        if 'force' in quantities:
+            f = np.array(com_n.iloc[:,:3*M])
+            output['force'] = f
+            com_n = com_n.shift(periods=-3*M, axis="columns")
+
+        if 'virial' in quantities:
+            v = np.array(com_n.iloc[:,3*M + 2 : 9*M + 1])
+            output['virial'] = v
+            com_n = com_n.shift(periods=-3 * M, axis="columns")
+
+        if 'jp' in quantities:
+            jp_d = np.array(com_n.iloc[:,3*M + 2 : 9*M + 1])
+            output['jp'] = jp_d
+            com_n = com_n.shift(periods=-3 * M, axis="columns")
+
+        if 'jk' in quantities:
+            jk_d = np.array(com_n.iloc[:,3*M + 2 : 9*M + 1])
+            output['jk'] = jk_d
+
+    return output
+
 
 def load_thermo(directory=None, filename='thermo.out',triclinic=False):
     """
