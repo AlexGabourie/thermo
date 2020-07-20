@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import csv
 import os
 import re
 import copy
@@ -181,55 +180,70 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 # Data-loading Related
 #########################################
 
-def load_compute(directory=None, filename='compute.out', quantities=None, M=None):
+def load_compute(directory=None, filename='compute.out', quantities=None):
     """
-    directory (str):
-    filename (str)
-    quantities (list(str))
-    M (int)
-    Add Args...
+    loads data from compute.out GPUMD output file 
+
+    Args:
+        directory (str):
+            Directory to load 'compute.out' file from (dir. of simulation)
+
+        filename (str):
+            file to load compute from
+
+        quantities (str):
+            allows user to set which quantities to extract from compute.out (such as temperature, force, jp, jk, etc.)
+
+        Returns:
+            'output' dictionary containing the data from compute.out
     """
+
+    # test 1 was completed in 0.020443599999907747 seconds
+    # test 2 was completed in 2.4768514999999987 seconds
     if not directory:
-        com = os.path.join(os.getcwd(), filename)
+        com_n = os.path.join(os.getcwd(), filename)
     else:
-        com = os.path.join(directory, filename)
+        com_n = os.path.join(directory, filename)
 
+    com_n = pd.read_csv(com_n, sep="\s+", header=None)
+
+    total_cols = len(com_n.columns)
+    q_count = {'temperature': 1, 'potential': 1, 'force': 3, 'virial': 3, 'jp': 3, 'jk': 3}
     output = dict()
-    com_n = pd.read_csv(com, delimiter=" ", header=None)
 
-    if not quantities:
-        if 'temperature' in quantities:
-            t = np.array(com_n.iloc[:,:M])
-            hi_d = np.array(com_n.iloc[:, len(com)-2: len(com)-1])
-            ho_d = np.array(com_n.iloc[:, len(com)-1:])
-            output['temperature'] = t
-            output['hi'] = hi_d
-            output['ho'] = ho_d
-            com_n = com_n.shift(periods=-M, axis="columns")
+    count = 0
+    for value in quantities:
+        count += q_count[value]
+    if 'temperature' in quantities:
+        m = int((total_cols - 2) / count)
+    if 'temperature' not in quantities:
+        m = int(total_cols / count)
 
-        if 'potential' in quantities:
-            p = np.array(com_n.iloc[:,M+1:2*M])
-            output['potential'] = p
-            com_n = com_n.shift(periods=-M, axis="columns")
+    start = 0
+    if 'temperature' in quantities:
+        output['temperature'] = np.array(com_n.iloc[:, :m])
+        output['heat_in'] = np.array(com_n.iloc[:, total_cols - 1:total_cols])
+        output['heat_out'] = np.array(com_n.iloc[:, total_cols:])
+        start = m
 
-        if 'force' in quantities:
-            f = np.array(com_n.iloc[:,:3*M])
-            output['force'] = f
-            com_n = com_n.shift(periods=-3*M, axis="columns")
+    if 'potential' in quantities:
+        output['potential'] = np.array(com_n.iloc[:, start: m])
+        start = m
 
-        if 'virial' in quantities:
-            v = np.array(com_n.iloc[:,3*M + 2 : 9*M + 1])
-            output['virial'] = v
-            com_n = com_n.shift(periods=-3 * M, axis="columns")
+    if 'force' in quantities:
+        output['force'] = np.array(com_n.iloc[:, start: start + (3 * m)])
+        start = start + (3 * m)
 
-        if 'jp' in quantities:
-            jp_d = np.array(com_n.iloc[:,3*M + 2 : 9*M + 1])
-            output['jp'] = jp_d
-            com_n = com_n.shift(periods=-3 * M, axis="columns")
+    if 'virial' in quantities:
+        output['virial'] = np.array(com_n.iloc[:, start: start + (3 * m)])
+        start = start + (3 * m)
 
-        if 'jk' in quantities:
-            jk_d = np.array(com_n.iloc[:,3*M + 2 : 9*M + 1])
-            output['jk'] = jk_d
+    if 'jp' in quantities:
+        output['jp'] = np.array(com_n.iloc[:, start: start + (3 * m)])
+        start = start + (3 * m)
+
+    if 'jk' in quantities:
+        output['jk'] = np.array(com_n.iloc[:, start: start + (3 * m)])
 
     return output
 
