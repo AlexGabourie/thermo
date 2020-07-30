@@ -180,6 +180,35 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 # Data-loading Related
 #########################################
 
+def load_omega2(directory=None, filename='omega2.out'):
+    """
+    loads data from omega2.out Phonon output file
+    Args:
+        directory (str):
+            Directory to load 'omega2.out' from
+
+        filename (str):
+            file to load omega2.out
+
+        Returns:
+            'output' dictionary, where each row/k-point is the key, and the contents of that row are the values.
+    """
+    if not directory:
+        omega_o = os.path.join(os.getcwd(), filename)
+    else:
+        omega_o = os.path.join(directory, filename)
+
+    output = dict()
+    start = 1
+    with open(omega_o) as f:
+        text = f.readlines()
+        for line in text:
+            new_line = line.split()
+            output[start] = new_line
+            start += 1
+
+    return output
+
 def load_dout(directory=None, filename='D.out'):
     """
     loads data from D.out Phonon output file
@@ -233,7 +262,7 @@ def load_dout(directory=None, filename='D.out'):
     im = []
     real = []
     output = dict()
-    start = 1
+    start = 0
     with open(d_out) as f:
         for line in f:
             data = [float(num) for num in line.split()]
