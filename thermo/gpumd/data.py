@@ -180,6 +180,76 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 # Data-loading Related
 #########################################
 
+def load_dout(directory=None, filename='D.out'):
+    """
+    loads data from D.out Phonon output file
+    Args:
+        directory (str):
+            Directory to load 'D.out' from
+
+        filename (str):
+            file to load D.out
+
+        Returns:
+            'output' dictionary containing the data from D.out
+    """
+#     where to put this function?
+#     0.2607736999998451 seconds
+    if not directory:
+        d_out = os.path.join(os.getcwd(), filename)
+    else:
+        d_out = os.path.join(directory, filename)
+#
+#     out = pd.read_csv(d_out, sep="\s+", header=None)
+#     im = []
+#     real = []
+#     n_rows = int(len(out.index))
+#     total_cols = len(out.columns)
+#     # 3*n_basis
+#     split = 3*(int(total_cols / 6))
+#
+#     output = dict()
+#     start = 0
+#     end = split
+#     while start <= n_rows:
+#         im.append(np.array(out.iloc[start:end, :split]))
+#         real.append(np.array(out.iloc[start:end, split:]))
+#         start += 6
+#         end += 6
+#
+#     for i in range(len(real)):
+#         output[i + 1] = real[i]
+#
+#     for i in range(len(im)):
+#         output[i + 1] = im[i]
+#
+#     return output
+
+    # 0.23909840000033 seconds
+    # s=0
+    total_cols = len(d_out.columns)
+    # 3*n_basis
+    split = 3*(int(total_cols / 6))
+    im = []
+    real = []
+    output = dict()
+    start = 1
+    with open(d_out) as f:
+        for line in f:
+            data = [float(num) for num in line.split()]
+            real.append(data[:split])
+            im.append(data[split:])
+            if (start % split) == 0:
+                real.append(data[:split])
+                im.append(data[split:])
+                output['real' + str(start/split)] = np.array(real[:split])
+                output['im' + str(start/split)] = np.array(im[:split])
+                del real[:split]
+                del im[:split]
+    #             s+=6
+    #             n+=6
+            start += 1
+
 def load_compute(directory=None, filename='compute.out', quantities=None):
     """
     loads data from compute.out GPUMD output file 
@@ -232,15 +302,15 @@ def load_compute(directory=None, filename='compute.out', quantities=None):
 
     if 'force' in quantities:
         output['force'] = np.array(com_n.iloc[:, start: start + (3 * m)])
-        start = start + (3 * m)
+        start += 3 * m
 
     if 'virial' in quantities:
         output['virial'] = np.array(com_n.iloc[:, start: start + (3 * m)])
-        start = start + (3 * m)
+        start += 3 * m
 
     if 'jp' in quantities:
         output['jp'] = np.array(com_n.iloc[:, start: start + (3 * m)])
-        start = start + (3 * m)
+        start += 3 * m
 
     if 'jk' in quantities:
         output['jk'] = np.array(com_n.iloc[:, start: start + (3 * m)])
