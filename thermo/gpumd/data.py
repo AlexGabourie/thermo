@@ -6,6 +6,7 @@ import copy
 import multiprocessing as mp
 from functools import partial
 from collections import deque
+import csv
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -222,62 +223,53 @@ def load_dout(directory=None, filename='D.out'):
         Returns:
             'output' dictionary containing the data from D.out
     """
-#     where to put this function?
-#     0.2607736999998451 seconds
     if not directory:
         d_out = os.path.join(os.getcwd(), filename)
     else:
         d_out = os.path.join(directory, filename)
-#
-#     out = pd.read_csv(d_out, sep="\s+", header=None)
-#     im = []
-#     real = []
-#     n_rows = int(len(out.index))
-#     total_cols = len(out.columns)
-#     # 3*n_basis
-#     split = 3*(int(total_cols / 6))
-#
-#     output = dict()
-#     start = 0
-#     end = split
-#     while start <= n_rows:
-#         im.append(np.array(out.iloc[start:end, :split]))
-#         real.append(np.array(out.iloc[start:end, split:]))
-#         start += 6
-#         end += 6
-#
-#     for i in range(len(real)):
-#         output[i + 1] = real[i]
-#
-#     for i in range(len(im)):
-#         output[i + 1] = im[i]
-#
-#     return output
 
-    # 0.23909840000033 seconds
-    # s=0
-    total_cols = len(d_out.columns)
-    # 3*n_basis
-    split = 3*(int(total_cols / 6))
-    im = []
-    real = []
-    output = dict()
+    # Doesn't separate imaginary from real
+    # 0.06876979999992727 seconds
+
+    # start = 0
+    # num = list()
+    # output = dict()
+    # with open(d_out) as f:
+    #     reader = csv.reader(f, delimiter=' ', skipinitialspace=True)
+    #     num_cols = len(next(reader))
+    #     n_basis = int(num_cols / 6)
+    #     f.seek(0)
+    #     for row in reader:
+    #         num.append(row)
+    #         start += 1
+    #         if start % (3*n_basis) == 0:
+    #             output[int(start / (3*n_basis))] = np.array(num)
+    #             num.clear()
+    # return output
+
+#     separates imaginary from real
+#     0.08443489999990561 seconds
     start = 0
+    output = dict()
+    real = list()
+    im = list()
     with open(d_out) as f:
-        for line in f:
-            data = [float(num) for num in line.split()]
-            real.append(data[:split])
-            im.append(data[split:])
-            if (start % split) == 0:
-                real.append(data[:split])
-                im.append(data[split:])
-                output['real' + str(start/split)] = np.array(real[:split])
-                output['im' + str(start/split)] = np.array(im[:split])
-                del real[:split]
-                del im[:split]
-    #             s+=6
-    #             n+=6
+        reader = csv.reader(f, delimiter=' ', skipinitialspace=True)
+        first_row = next(reader)
+        num_cols = len(first_row)
+        n_basis = int(num_cols/6)
+        f.seek(0)
+        for row in reader:
+            real.append(row[:3*n_basis])
+            im.append(row[3*n_basis:])
             start += 1
+            if start % (3*n_basis) == 0:
+                output['r' + str(start/(3*n_basis))] = np.array(real)
+                output['im' + str(start/(3*n_basis))] = np.array(im)
+                real.clear()
+                im.clear()
+    return output
+
 
 def load_compute(directory=None, filename='compute.out', quantities=None):
     """
@@ -327,7 +319,7 @@ def load_compute(directory=None, filename='compute.out', quantities=None):
 
     if 'potential' in quantities:
         output['potential'] = np.array(com_n.iloc[:, start: m])
-        start = m
+        # start = m
 
     if 'force' in quantities:
         output['force'] = np.array(com_n.iloc[:, start: start + (3 * m)])
