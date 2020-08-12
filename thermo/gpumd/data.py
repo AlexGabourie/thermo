@@ -7,6 +7,7 @@ import multiprocessing as mp
 from functools import partial
 from collections import deque
 import csv
+from ase.build import molecule
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -180,96 +181,6 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 #########################################
 # Data-loading Related
 #########################################
-
-def load_omega2(directory=None, filename='omega2.out'):
-    """
-    loads data from omega2.out Phonon output file
-    Args:
-        directory (str):
-            Directory to load 'omega2.out' from
-
-        filename (str):
-            file to load omega2.out
-
-        Returns:
-            'output' dictionary, where each row/k-point is the key, and the contents of that row are the values.
-    """
-    if not directory:
-        omega_o = os.path.join(os.getcwd(), filename)
-    else:
-        omega_o = os.path.join(directory, filename)
-
-    output = dict()
-    start = 1
-    with open(omega_o) as f:
-        text = f.readlines()
-        for line in text:
-            new_line = line.split()
-            output[start] = new_line
-            start += 1
-
-    return output
-
-def load_dout(directory=None, filename='D.out'):
-    """
-    loads data from D.out Phonon output file
-    Args:
-        directory (str):
-            Directory to load 'D.out' from
-
-        filename (str):
-            file to load D.out
-
-        Returns:
-            'output' dictionary containing the data from D.out
-    """
-    if not directory:
-        d_out = os.path.join(os.getcwd(), filename)
-    else:
-        d_out = os.path.join(directory, filename)
-
-    # Doesn't separate imaginary from real
-    # 0.06876979999992727 seconds
-
-    # start = 0
-    # num = list()
-    # output = dict()
-    # with open(d_out) as f:
-    #     reader = csv.reader(f, delimiter=' ', skipinitialspace=True)
-    #     num_cols = len(next(reader))
-    #     n_basis = int(num_cols / 6)
-    #     f.seek(0)
-    #     for row in reader:
-    #         num.append(row)
-    #         start += 1
-    #         if start % (3*n_basis) == 0:
-    #             output[int(start / (3*n_basis))] = np.array(num)
-    #             num.clear()
-    # return output
-
-#     separates imaginary from real
-#     0.08443489999990561 seconds
-    start = 0
-    output = dict()
-    real = list()
-    im = list()
-    with open(d_out) as f:
-        reader = csv.reader(f, delimiter=' ', skipinitialspace=True)
-        first_row = next(reader)
-        num_cols = len(first_row)
-        n_basis = int(num_cols/6)
-        f.seek(0)
-        for row in reader:
-            real.append(row[:3*n_basis])
-            im.append(row[3*n_basis:])
-            start += 1
-            if start % (3*n_basis) == 0:
-                output['r' + str(start/(3*n_basis))] = np.array(real)
-                output['im' + str(start/(3*n_basis))] = np.array(im)
-                real.clear()
-                im.clear()
-    return output
-
 
 def load_compute(directory=None, filename='compute.out', quantities=None):
     """
