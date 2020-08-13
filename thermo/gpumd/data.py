@@ -6,8 +6,6 @@ import copy
 import multiprocessing as mp
 from functools import partial
 from collections import deque
-import csv
-from ase.build import molecule
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -200,8 +198,6 @@ def load_compute(directory=None, filename='compute.out', quantities=None):
             'output' dictionary containing the data from compute.out
     """
 
-    # test 1 was completed in 0.020443599999907747 seconds
-    # test 2 was completed in 2.4768514999999987 seconds
     if not directory:
         com_n = os.path.join(os.getcwd(), filename)
     else:
@@ -216,10 +212,10 @@ def load_compute(directory=None, filename='compute.out', quantities=None):
     count = 0
     for value in quantities:
         count += q_count[value]
+
+    m = int(total_cols / count)
     if 'temperature' in quantities:
         m = int((total_cols - 2) / count)
-    if 'temperature' not in quantities:
-        m = int(total_cols / count)
 
     start = 0
     if 'temperature' in quantities:
@@ -230,7 +226,7 @@ def load_compute(directory=None, filename='compute.out', quantities=None):
 
     if 'potential' in quantities:
         output['potential'] = np.array(com_n.iloc[:, start: m])
-        # start = m
+        start += m
 
     if 'force' in quantities:
         output['force'] = np.array(com_n.iloc[:, start: start + (3 * m)])
