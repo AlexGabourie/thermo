@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import os
 import re
 import copy
@@ -178,6 +179,72 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 #########################################
 # Data-loading Related
 #########################################
+
+def load_compute(directory=None, filename='compute.out', quantities=None):
+    """
+    loads data from compute.out GPUMD output file 
+
+    Args:
+        directory (str):
+            Directory to load 'compute.out' file from (dir. of simulation)
+
+        filename (str):
+            file to load compute from
+
+        quantities (str):
+            allows user to set which quantities to extract from compute.out (such as temperature, force, jp, jk, etc.)
+
+        Returns:
+            'output' dictionary containing the data from compute.out
+    """
+
+    if not directory:
+        com_n = os.path.join(os.getcwd(), filename)
+    else:
+        com_n = os.path.join(directory, filename)
+
+    com_n = pd.read_csv(com_n, sep="\s+", header=None)
+
+    total_cols = len(com_n.columns)
+    q_count = {'temperature': 1, 'potential': 1, 'force': 3, 'virial': 3, 'jp': 3, 'jk': 3}
+    output = dict()
+
+    count = 0
+    for value in quantities:
+        count += q_count[value]
+
+    m = int(total_cols / count)
+    if 'temperature' in quantities:
+        m = int((total_cols - 2) / count)
+
+    start = 0
+    if 'temperature' in quantities:
+        output['temperature'] = np.array(com_n.iloc[:, :m])
+        output['heat_in'] = np.array(com_n.iloc[:, total_cols - 1:total_cols])
+        output['heat_out'] = np.array(com_n.iloc[:, total_cols:])
+        start = m
+
+    if 'potential' in quantities:
+        output['potential'] = np.array(com_n.iloc[:, start: m])
+        start += m
+
+    if 'force' in quantities:
+        output['force'] = np.array(com_n.iloc[:, start: start + (3 * m)])
+        start += 3 * m
+
+    if 'virial' in quantities:
+        output['virial'] = np.array(com_n.iloc[:, start: start + (3 * m)])
+        start += 3 * m
+
+    if 'jp' in quantities:
+        output['jp'] = np.array(com_n.iloc[:, start: start + (3 * m)])
+        start += 3 * m
+
+    if 'jk' in quantities:
+        output['jk'] = np.array(com_n.iloc[:, start: start + (3 * m)])
+
+    return output
+
 
 def load_thermo(directory=None, filename='thermo.out',triclinic=False):
     """
