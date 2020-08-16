@@ -6,6 +6,7 @@ import copy
 import multiprocessing as mp
 from functools import partial
 from collections import deque
+from ase.build import bulk
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -179,6 +180,47 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 #########################################
 # Data-loading Related
 #########################################
+
+def create_basis(name, transform):
+    """
+    Creates the file "basis.in", which maps atoms in the super cell to the atoms in the unit cell
+
+    Args:
+        name (str):
+            atom to build
+
+        transform (int | 3 floats):
+            creates the super cell by making the unit cell larger by these 3 amounts.
+            ex: (2, 2, 2)
+
+        Returns:
+
+    """
+
+    #     unit cell information
+    unit_c = bulk(name)
+    num_unit = len(unit_c)
+    unit_mass = unit_c.get_masses()
+    amount = len(unit_mass)
+
+    #     supercell information
+    supercell = unit_c.repeat(transform)
+    num_super = len(supercell)
+
+    #     creating basis
+    basis = list()
+    for i in range(num_super):
+        for j in range(num_unit):
+            basis.append(j)
+
+    #     creating file
+    with open("basis.in", "w") as f:
+        f.write(str(num_unit) + '\n')
+        for i in range(amount):
+            f.write(str(i) + ' ' + str(round(unit_mass[i])) + '\n')
+        for value in basis:
+            f.write(str(value) + '\n')
+    return
 
 def load_compute(directory=None, filename='compute.out', quantities=None):
     """
