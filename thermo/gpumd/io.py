@@ -250,6 +250,36 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 # Write Related
 #########################################
 
+def create_kpoints(special_points, npoints, atom_c):
+    """
+     Creates the file "kpoints.in", which specifies the kpoints needed for src/phonon
+
+    Args:
+        atom_c (ase.Atom):
+            atom to build
+
+        special_points (str):
+            specify special points for kpoint generation
+
+        npoints (int):
+            specifies the number of kpoints to generate
+    """
+
+    path = atom_c.cell.bandpath(special_points,npoints)
+    s_int = int(path.kpts.size / 3)
+    s_str = str(s_int)
+
+    kpts = str(path.kpts)
+    kpts = kpts.replace("[[", "")
+    kpts = kpts.replace(" [", "")
+    kpts = kpts.replace("]", "")
+    kpts = kpts.replace("0. ", "0  ")
+
+    with open("kpoints.in", "w") as f:
+        f.write(s_str + "\n" + kpts)
+
+    return
+
 def create_basis(atom, transform):
     """
     Creates the file "basis.in", which maps atoms in the super cell to the atoms in the unit cell
