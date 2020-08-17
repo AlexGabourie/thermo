@@ -265,7 +265,7 @@ def create_kpoints(special_points, npoints, atom_c):
             specifies the number of kpoints to generate
     """
 
-    path = atom_c.cell.bandpath(special_points,npoints)
+    path = atom_c.cell.bandpath(special_points, npoints)
     s_int = int(path.kpts.size / 3)
     s_str = str(s_int)
 
