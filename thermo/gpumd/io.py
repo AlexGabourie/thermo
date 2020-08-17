@@ -4,6 +4,7 @@ from ase import Atom, Atoms
 from math import floor
 import numpy as np
 import sys
+from ase.build import bulk
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -248,6 +249,31 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 #########################################
 # Write Related
 #########################################
+
+def create_basis(atom, transform):
+    """
+    Creates the file "basis.in", which maps atoms in the super cell to the atoms in the unit cell
+
+    Args:
+        atom (ase.Atom):
+            atom to build
+
+        transform (int | 3 floats):
+            creates the super cell by making the unit cell larger by these 3 amounts.
+            ex: (2, 2, 2)
+
+    """
+    unit_mass = atom.get_masses()
+    supercell = atom.repeat(transform)
+
+    with open("basis.in", "w") as f:
+        f.write(str(len(unit_mass)) + '\n')
+        for i in range(len(unit_mass)):
+            f.write(str(i) + ' ' + str(round(unit_mass[i])) + '\n')
+        for i in range(len(supercell)):
+            for j in range(len(atom)):
+                f.write(str(j) + '\n')
+    return
 
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
                             format='xyz', atom_types=None):
