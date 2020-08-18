@@ -249,7 +249,7 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 # Write Related
 #########################################
 
-def create_kpoints(atoms, special_points, npoints):
+def create_kpoints(atoms, special_points='G', npoints=100):
     """
      Creates the file "kpoints.in", which specifies the kpoints needed for src/phonon
 
@@ -272,7 +272,6 @@ def create_kpoints(atoms, special_points, npoints):
     kpts = kpts.replace("[[", "")
     kpts = kpts.replace(" [", "")
     kpts = kpts.replace("]", "")
-    kpts = kpts.replace("0. ", "0  ")
 
     with open("kpoints.in", "w") as f:
         f.write(s_str + "\n" + kpts)
@@ -288,7 +287,9 @@ def create_basis(atoms, transform):
         transform (int | 3 floats):
             Creates the supercell by repeating the unit cell by these 3 amounts.
             ex: (2, 2, 2)
-
+    
+    Returns:
+        Atoms of supercell created from transform.
     """
     unit_mass = atoms.get_masses()
     supercell = atoms.repeat(transform)
@@ -300,6 +301,8 @@ def create_basis(atoms, transform):
         for i in range(len(supercell)):
             for j in range(len(atoms)):
                 f.write(str(j) + '\n')
+                
+    return supercell
 
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
                             format='xyz', atom_types=None):
