@@ -249,7 +249,7 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 # Write Related
 #########################################
 
-def create_kpoints(special_points, npoints, atom_c):
+def create_kpoints(atoms, special_points = 'G', npoints=1):
     """
      Creates the file "kpoints.in", which specifies the kpoints needed for src/phonon
 
