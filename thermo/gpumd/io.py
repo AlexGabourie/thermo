@@ -249,6 +249,58 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 # Write Related
 #########################################
 
+def create_kpoints(atoms, special_points, npoints):
+    """
+     Creates the file "kpoints.in", which specifies the kpoints needed for src/phonon
+
+    Args:
+        atoms (ase.Atoms):
+            Atoms used to generate kpoints.in.
+
+        special_points (str):
+            Specifies special points for kpoint generation
+
+        npoints (int):
+            Specifies the number of kpoints to generate
+    """
+
+    path = atoms.cell.bandpath(special_points, npoints)
+    s_int = int(path.kpts.size / 3)
+    s_str = str(s_int)
+
+    kpts = str(path.kpts)
+    kpts = kpts.replace("[[", "")
+    kpts = kpts.replace(" [", "")
+    kpts = kpts.replace("]", "")
+    kpts = kpts.replace("0. ", "0  ")
+
+    with open("kpoints.in", "w") as f:
+        f.write(s_str + "\n" + kpts)
+
+def create_basis(atoms, transform):
+    """
+    Creates the file "basis.in", which maps atoms in the supercell to the atoms in the unit cell
+
+    Args:
+        atoms (ase.Atoms):
+            Atoms of unit cell used to generate basis.in
+
+        transform (int | 3 floats):
+            Creates the supercell by repeating the unit cell by these 3 amounts.
+            ex: (2, 2, 2)
+
+    """
+    unit_mass = atoms.get_masses()
+    supercell = atoms.repeat(transform)
+
+    with open("basis.in", "w") as f:
+        f.write(str(len(unit_mass)) + '\n')
+        for i in range(len(unit_mass)):
+            f.write(str(i) + ' ' + str(round(unit_mass[i])) + '\n')
+        for i in range(len(supercell)):
+            for j in range(len(atoms)):
+                f.write(str(j) + '\n')
+
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
                             format='xyz', atom_types=None):
     """
