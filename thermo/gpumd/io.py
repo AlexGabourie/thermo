@@ -425,7 +425,7 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
                num_groups if groups else '0','\n'])
 
     # if orthorhombic
-    if (a1 == a2 == a3):
+    if (a1 == a2 == a3 == 90):
         summary = summary.replace('@', '0')
         lx, ly, lz = str(lx), str(ly), str(lz)
         summary += ' '.join(pbc + [lx, ly, lz] + ['\n'])
