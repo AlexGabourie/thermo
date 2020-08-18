@@ -249,22 +249,22 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 # Write Related
 #########################################
 
-def create_kpoints(atoms, special_points = 'G', npoints=1):
+def create_kpoints(atoms, special_points, npoints):
     """
      Creates the file "kpoints.in", which specifies the kpoints needed for src/phonon
 
     Args:
-        atom_c (ase.Atom):
-            atom to build
+        atoms (ase.Atoms):
+            Atoms used to generate kpoints.in.
 
         special_points (str):
-            specify special points for kpoint generation
+            Specifies special points for kpoint generation
 
         npoints (int):
-            specifies the number of kpoints to generate
+            Specifies the number of kpoints to generate
     """
 
-    path = atom_c.cell.bandpath(special_points, npoints)
+    path = atoms.cell.bandpath(special_points, npoints)
     s_int = int(path.kpts.size / 3)
     s_str = str(s_int)
 
@@ -277,32 +277,29 @@ def create_kpoints(atoms, special_points = 'G', npoints=1):
     with open("kpoints.in", "w") as f:
         f.write(s_str + "\n" + kpts)
 
-    return
-
-def create_basis(atom, transform):
+def create_basis(atoms, transform):
     """
-    Creates the file "basis.in", which maps atoms in the super cell to the atoms in the unit cell
+    Creates the file "basis.in", which maps atoms in the supercell to the atoms in the unit cell
 
     Args:
-        atom (ase.Atom):
-            atom to build
+        atoms (ase.Atoms):
+            Atoms of unit cell used to generate basis.in
 
         transform (int | 3 floats):
-            creates the super cell by making the unit cell larger by these 3 amounts.
+            Creates the supercell by repeating the unit cell by these 3 amounts.
             ex: (2, 2, 2)
 
     """
-    unit_mass = atom.get_masses()
-    supercell = atom.repeat(transform)
+    unit_mass = atoms.get_masses()
+    supercell = atoms.repeat(transform)
 
     with open("basis.in", "w") as f:
         f.write(str(len(unit_mass)) + '\n')
         for i in range(len(unit_mass)):
             f.write(str(i) + ' ' + str(round(unit_mass[i])) + '\n')
         for i in range(len(supercell)):
-            for j in range(len(atom)):
+            for j in range(len(atoms)):
                 f.write(str(j) + '\n')
-    return
 
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
                             format='xyz', atom_types=None):
