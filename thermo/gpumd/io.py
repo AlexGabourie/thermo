@@ -265,16 +265,7 @@ def create_kpoints(atoms, special_points='G', npoints=100):
     """
 
     path = atoms.cell.bandpath(special_points, npoints)
-    s_int = int(path.kpts.size / 3)
-    s_str = str(s_int)
-
-    kpts = str(path.kpts)
-    kpts = kpts.replace("[[", "")
-    kpts = kpts.replace(" [", "")
-    kpts = kpts.replace("]", "")
-
-    with open("kpoints.in", "w") as f:
-        f.write(s_str + "\n" + kpts)
+    np.savetxt('kpoints.in', path.kpts, header=str(npoints), comments='', fmt='%1.8f')
 
 def create_basis(atoms, transform):
     """
