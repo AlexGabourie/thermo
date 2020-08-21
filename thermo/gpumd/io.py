@@ -264,18 +264,8 @@ def create_kpoints(atoms, special_points, npoints):
             Specifies the number of kpoints to generate
     """
 
-    path = atoms.cell.bandpath(special_points, npoints)
-    s_int = int(path.kpts.size / 3)
-    s_str = str(s_int)
-
-    kpts = str(path.kpts)
-    kpts = kpts.replace("[[", "")
-    kpts = kpts.replace(" [", "")
-    kpts = kpts.replace("]", "")
-    kpts = kpts.replace("0. ", "0  ")
-
-    with open("kpoints.in", "w") as f:
-        f.write(s_str + "\n" + kpts)
+    paths = atoms.cell.bandpath(special_points, npoints)
+    np.savetxt("kpoints.in", paths.kpts, header=str(npoints), comments='', fmt='%1.8f')
 
 def create_basis(atoms, transform):
     """
@@ -300,6 +290,8 @@ def create_basis(atoms, transform):
         for i in range(len(supercell)):
             for j in range(len(atoms)):
                 f.write(str(j) + '\n')
+
+    return supercell
 
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
                             format='xyz', atom_types=None):
