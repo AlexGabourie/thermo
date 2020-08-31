@@ -914,6 +914,15 @@ def load_shc(Nc, num_omega, directory='', filename='shc.out'):
 
     Returns:
         dict: Dictionary of in- and out-of-plane shc results (average)
+
+
+    Each run is a dictionary with keys:\n
+    - t (ps)
+    - K_in (ev*A/ps)
+    - K_out (ev*A/ps)
+    - nu (THz)
+    - J_in (A*eV/ps/THz)
+    - J_out (A*eV/ps/THz)
     """
 
     Nc = __check_int_list(Nc, varname='Nc')
@@ -932,26 +941,26 @@ def load_shc(Nc, num_omega, directory='', filename='shc.out'):
         ndata = 2*Nc_i-1
         run = dict()
         run['t'] = np.zeros(ndata)  # ps
-        run['Kin'] = np.zeros(ndata)  # eV*A/ps
-        run['Kout'] = np.zeros(ndata)  # eV*A/ps
+        run['K_in'] = np.zeros(ndata)  # eV*A/ps
+        run['K_out'] = np.zeros(ndata)  # eV*A/ps
         end = start + ndata
         # correlation data
         for j, line in enumerate(lines[start:end]):
             data = line.split()
             run['t'][j] = float(data[0])
-            run['Kin'][j] = float(data[1])
-            run['Kout'][j] = float(data[2])
+            run['K_in'][j] = float(data[1])
+            run['K_out'][j] = float(data[2])
         start = end
         end = end + num_omega_i
         # spectral heat current
         run['nu'] = np.zeros(num_omega_i)  # THz
-        run['Jin'] = np.zeros(num_omega_i)  # A*eV/ps/THz
-        run['Jout'] = np.zeros(num_omega_i)  # A*eV/ps/THz
+        run['J_in'] = np.zeros(num_omega_i)  # A*eV/ps/THz
+        run['J_out'] = np.zeros(num_omega_i)  # A*eV/ps/THz
         for j, line in enumerate(lines[start:end]):
             data = line.split()
             run['nu'][j] = float(data[0])/(2*np.pi)
-            run['Jin'][j] = float(data[1])
-            run['Jout'][j] = float(data[2])
+            run['J_in'][j] = float(data[1])
+            run['J_out'][j] = float(data[2])
         start = end
         out['run{}'.format(i)] = run
 
@@ -1017,14 +1026,14 @@ def load_hac(directory='',filename='hac.out'):
     Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]
 
     Abbreviated description of keys in output:\n
-    * hacf_x: ave. of i/o components
-    * hacf_y: ave. of i/o components
-    * k_x: ave. of i/o components
-    * k_y: ave. of i/o components
-    * k_i: ave. of x/y components
-    * k_o: ave. of x/y components
-    * k: ave of all in-plane components
-    * t: correlation time
+    - hacf_x: ave. of i/o components
+    - hacf_y: ave. of i/o components
+    - k_x: ave. of i/o components
+    - k_y: ave. of i/o components
+    - k_i: ave. of x/y components
+    - k_o: ave. of x/y components
+    - k: ave of all in-plane components
+    - t: correlation time
     """
 
     if directory=='':
