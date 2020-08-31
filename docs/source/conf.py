@@ -1,6 +1,6 @@
 autodoc_mock_imports = ['ase.io', 'numpy', 'scipy.integrate', 'os', 'math',
     'ase', 'pyfftw', 'multiprocessing', 'traceback', 'scipy', 'scipy.io',
-    're', 'atomman']
+    're', 'atomman', 'pandas']
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.

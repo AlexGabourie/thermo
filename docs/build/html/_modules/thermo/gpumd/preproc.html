@@ -146,12 +146,7 @@
            <div itemprop="articleBody">
             
   <h1>Source code for thermo.gpumd.preproc</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">ase</span> <span class="k">import</span> <span class="n">Atom</span><span class="p">,</span> <span class="n">Atoms</span>
-<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">floor</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
 
@@ -160,7 +155,7 @@
 <span class="c1">#########################################</span>
 
 <span class="k">def</span> <span class="nf">__get_group</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gets the group that an atom belongs to based on its position. Only works in</span>
 <span class="sd">    one direction as it is used for NEMD.</span>
 
@@ -178,7 +173,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        int: Group of atom</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
@@ -186,17 +181,18 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">errmsg</span> <span class="o">=</span> <span class="s1">&#39;Out of bounds error: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">split</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">split</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">val</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
             <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">if</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="n">val</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">split</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">i</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
     <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
 
+
 <span class="k">def</span> <span class="nf">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initializes the index key for the info dict.</span>
 
 <span class="sd">    Args:</span>
@@ -212,15 +208,16 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        int: Index of atom in the Atoms object.</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">num_atoms</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">num_atoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
         <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">index</span>
 
+
 <span class="k">def</span> <span class="nf">__handle_end</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Duplicates the index -1 entry for key that&#39;s num_atoms-1. Works in-place.</span>
 
 <span class="sd">    Args:</span>
@@ -230,11 +227,12 @@
 <span class="sd">        num_atoms (int):</span>
 <span class="sd">            Number of atoms in the Atoms object.</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">info</span><span class="p">[</span><span class="n">num_atoms</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">info</span><span class="p">[</span><span class="n">num_atoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
 
 <div class="viewcode-block" id="add_group_by_position"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.add_group_by_position">[docs]</a><span class="k">def</span> <span class="nf">add_group_by_position</span><span class="p">(</span><span class="n">split</span><span class="p">,</span> <span class="n">atoms</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assigns groups to all atoms based on its position. Only works in</span>
 <span class="sd">    one direction as it is used for NEMD.</span>
 <span class="sd">    Returns a bookkeeping parameter, but atoms will be udated in-place.</span>
@@ -253,9 +251,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        int: A list of number of atoms in each group.</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
@@ -269,8 +267,9 @@
     <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
     <span class="k">return</span> <span class="n">counts</span></div>
 
-<div class="viewcode-block" id="add_group_by_type"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.add_group_by_type">[docs]</a><span class="k">def</span> <span class="nf">add_group_by_type</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="add_group_by_type"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.add_group_by_type">[docs]</a><span class="k">def</span> <span class="nf">add_group_by_type</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">types</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assigns groups to all atoms based on atom types. Returns a</span>
 <span class="sd">    bookkeeping parameter, but atoms will be udated in-place.</span>
 
@@ -286,22 +285,22 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        int: A list of number of atoms in each group.</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># atom symbol checking</span>
-    <span class="n">all_symbols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+    <span class="n">all_symbols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">types</span><span class="p">)</span>
     <span class="c1"># check that symbol set matches symbol set of atoms</span>
     <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">atoms</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Group symbols do not match atoms symbols.&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Group not assigned to all atom types.&#39;</span><span class="p">)</span>
 
-    <span class="n">num_groups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">groups</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">)]))</span>
+    <span class="n">num_groups</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">types</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_symbols</span><span class="p">)]))</span>
     <span class="n">num_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span>
     <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">num_groups</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_groups</span>
     <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">__init_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
-        <span class="n">group</span> <span class="o">=</span> <span class="n">groups</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="n">types</span><span class="p">[</span><span class="n">atom</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
         <span class="n">counts</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
             <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
@@ -310,6 +309,7 @@
     <span class="n">__handle_end</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
     <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span>
     <span class="k">return</span> <span class="n">counts</span></div>
+
 
 <div class="viewcode-block" id="set_velocities"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.set_velocities">[docs]</a><span class="k">def</span> <span class="nf">set_velocities</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">custom</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>

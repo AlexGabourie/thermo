@@ -203,37 +203,29 @@ save is True (default: True)</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="thermo.gpumd.calc.hnemd_spectral_decomp">
-<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">hnemd_spectral_decomp</code><span class="sig-paren">(</span><em class="sig-param">dt</em>, <em class="sig-param">Nc</em>, <em class="sig-param">Fmax</em>, <em class="sig-param">Fe</em>, <em class="sig-param">T</em>, <em class="sig-param">V</em>, <em class="sig-param">df=None</em>, <em class="sig-param">Nc_conv=None</em>, <em class="sig-param">shc=None</em>, <em class="sig-param">directory=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_decomp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_decomp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the spectral decomposition from HNEMD between two groups
-of atoms.</p>
+<dt id="thermo.gpumd.calc.hnemd_spectral_kappa">
+<code class="sig-prename descclassname">thermo.gpumd.calc.</code><code class="sig-name descname">hnemd_spectral_kappa</code><span class="sig-paren">(</span><em class="sig-param">shc</em>, <em class="sig-param">Fe</em>, <em class="sig-param">T</em>, <em class="sig-param">V</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/calc.html#hnemd_spectral_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.calc.hnemd_spectral_kappa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spectral thermal conductivity calculation from an SHC run</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>dt (float):</dt><dd><p>Sample period (in fs) of SHC method</p>
-</dd>
-<dt>Nc (int):</dt><dd><p>Maximum number of correlation steps</p>
-</dd>
-<dt>Fmax (float):</dt><dd><p>Maximum frequency (THz) to compute spectral decomposition to</p>
+<dt>shc (dict):</dt><dd><p>The data from a single SHC run as output by thermo.gpumd.data.load_shc</p>
 </dd>
 <dt>Fe (float):</dt><dd><p>HNEMD force in (1/A)</p>
 </dd>
 <dt>T (float):</dt><dd><p>HNEMD run temperature (in K)</p>
 </dd>
-<dt>V (float):</dt><dd><p>Volume (A^3) that heat flows over</p>
-</dd>
-<dt>df (float):</dt><dd><p>Spacing of frequencies in output (THz)</p>
-</dd>
-<dt>Nc_conv (int):</dt><dd><p>Number of correlations steps to use for calculation</p>
-</dd>
-<dt>shc (dict):</dt><dd><p>Dictionary from load_shc if already created</p>
-</dd>
-<dt>directory (str):</dt><dd><p>Directory to load ‘shc.out’ file from (dir. of simulation)</p>
+<dt>V (float):</dt><dd><p>Volume (A^3) during HNEMD run</p>
 </dd>
 </dl>
 </dd>
-<dt>Returns:</dt><dd><p>dict: Dictionary with the spectral decomposition</p>
+<dt>Returns:</dt><dd><p>dict: Same as shc argument, but with spectral thermal conductivity included</p>
 </dd>
 </dl>
+<p>Adds the following keys to the shc dictionary:</p>
+<ul class="simple">
+<li><p>k_in (W/m/K/THz)</p></li>
+<li><p>k_out (W/m/K/THz)</p></li>
+</ul>
 </dd></dl>
 
 <dl class="function">
@@ -276,8 +268,28 @@ with binning information</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="thermo.gpumd.data.load_compute">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_compute</code><span class="sig-paren">(</span><em class="sig-param">quantities=None</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='compute.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads data from compute.out GPUMD output file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>quantities (str or list(str)):</dt><dd><p>Quantities to extract from compute.out Accepted quantities are:
+[‘temperature’, ‘potential’, ‘force’, ‘virial’, ‘jp’, ‘jk’]. Other quantity will be ignored.</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory to load ‘compute.out’ file from (dir. of simulation)</p>
+</dd>
+<dt>filename (str):</dt><dd><p>file to load compute from</p>
+</dd>
+<dt>Returns:</dt><dd><p>‘output’ dictionary containing the data from compute.out</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="thermo.gpumd.data.load_dos">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_dos</code><span class="sig-paren">(</span><em class="sig-param">points_per_run</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='dos.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_dos</code><span class="sig-paren">(</span><em class="sig-param">points_per_run</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='dos.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from dos.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -313,7 +325,7 @@ each individual run.</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_hac">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_hac</code><span class="sig-paren">(</span><em class="sig-param">directory=''</em>, <em class="sig-param">filename='hac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_hac</code><span class="sig-paren">(</span><em class="sig-param">directory=None</em>, <em class="sig-param">filename='hac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from hac.out GPUMD output file which contains the
 heat-current autocorrelation and running thermal conductivity values.</p>
 <p><strong>Created for GPUMD-v1.9</strong></p>
@@ -343,7 +355,7 @@ filename (str): File to load hac from. Default is ‘hac.out’</p>
 <dt id="thermo.gpumd.data.load_heatmode">
 <code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_heatmode</code><span class="sig-paren">(</span><em class="sig-param">nbins</em>, <em class="sig-param">nsamples</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">inputfile='heatmode.out'</em>, <em class="sig-param">directions='xyz'</em>, <em class="sig-param">outputfile='heatmode.npy'</em>, <em class="sig-param">ndiv=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">multiprocessing=False</em>, <em class="sig-param">ncore=None</em>, <em class="sig-param">block_size=65536</em>, <em class="sig-param">return_data=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_heatmode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_heatmode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.
-WARNING: If using multiprocessing, memory useage may be significantly larger than file size</p>
+WARNING: If using multiprocessing, memory usage may be significantly larger than file size</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
 <dt>nbins (int):</dt><dd><p>Number of bins used during the GPUMD simulation</p>
@@ -385,7 +397,7 @@ save is True (default: True)</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_kappa">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappa</code><span class="sig-paren">(</span><em class="sig-param">directory=''</em>, <em class="sig-param">filename='kappa.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_kappa</code><span class="sig-paren">(</span><em class="sig-param">directory=None</em>, <em class="sig-param">filename='kappa.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_kappa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_kappa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from kappa.out GPUMD output file which contains HNEMD kappa.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -480,7 +492,7 @@ save is True (default: True)</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_sdc">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_sdc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='sdc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_sdc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_sdc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_sdc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='sdc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_sdc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_sdc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from sdc.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -527,11 +539,13 @@ Each run is a dictionary with keys:</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_shc">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_shc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='shc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_shc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_shc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_shc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_omega</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='shc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_shc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_shc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads the data from shc.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>Nc (int):</dt><dd><p>Maximum number of correlation steps</p>
+<dt>Nc (int or list(int)):</dt><dd><p>Maximum number of correlation steps. If multiple shc runs, can provide a list of Nc.</p>
+</dd>
+<dt>num_omega (int or list(int)):</dt><dd><p>Number of frequency points. If multiple shc runs, can provide a list of num_omega.</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘shc.out’ file from (dir. of simulation)</p>
 </dd>
@@ -542,11 +556,40 @@ Each run is a dictionary with keys:</p>
 <dt>Returns:</dt><dd><p>dict: Dictionary of in- and out-of-plane shc results (average)</p>
 </dd>
 </dl>
+<p>Each run is a dictionary with keys:</p>
+<ul class="simple">
+<li><p>t (ps)</p></li>
+<li><p>K_in (ev*A/ps)</p></li>
+<li><p>K_out (ev*A/ps)</p></li>
+<li><p>nu (THz)</p></li>
+<li><p>J_in (A*eV/ps/THz)</p></li>
+<li><p>J_out (A*eV/ps/THz)</p></li>
+</ul>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_thermo">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_thermo</code><span class="sig-paren">(</span><em class="sig-param">directory=None</em>, <em class="sig-param">filename='thermo.out'</em>, <em class="sig-param">triclinic=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_thermo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_thermo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from thermo.out GPUMD output file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>directory (str):</dt><dd><p>Directory to load ‘thermo.out’ file from (dir. of simulation)</p>
+</dd>
+<dt>filename (str):</dt><dd><p>file to load thermo from</p>
+</dd>
+<dt>triclinic (bool):</dt><dd><p>allows user to set as true if triclinic, effects the total number of columns of data to add to.
+if triclinic is false, then orthogonal by default.</p>
+</dd>
+<dt>Returns:</dt><dd><p>‘output’ dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_vac">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_vac</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=''</em>, <em class="sig-param">filename='mvac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_vac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_vac" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_vac</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='mvac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_vac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_vac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from mvac.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
@@ -678,6 +721,43 @@ output structure file.
 </dd></dl>
 
 <dl class="function">
+<dt id="thermo.gpumd.io.create_basis">
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">create_basis</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">transform</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#create_basis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.create_basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the file “basis.in”, which maps atoms in the supercell to the atoms in the unit cell</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms of unit cell used to generate basis.in</p>
+</dd>
+<dt>transform (int | 3 floats):</dt><dd><p>Creates the supercell by repeating the unit cell by these 3 amounts.
+ex: (2, 2, 2)</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>Atoms of supercell created from transform.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.io.create_kpoints">
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">create_kpoints</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">special_points='G'</em>, <em class="sig-param">npoints=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#create_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.create_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Creates the file “kpoints.in”, which specifies the kpoints needed for src/phonon</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms used to generate kpoints.in.</p>
+</dd>
+<dt>special_points (str):</dt><dd><p>Specifies special points for kpoint generation</p>
+</dd>
+<dt>npoints (int):</dt><dd><p>Specifies the number of kpoints to generate</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="thermo.gpumd.io.import_trajectory">
 <code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">import_trajectory</code><span class="sig-paren">(</span><em class="sig-param">filename='movie.xyz'</em>, <em class="sig-param">in_file=None</em>, <em class="sig-param">atom_types=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#import_trajectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.import_trajectory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the trajectory from GPUMD run and creates a list of ASE atoms.</p>
@@ -770,7 +850,7 @@ box in specified direction and the last the upper.</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.preproc.add_group_by_type">
-<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_group_by_type</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">groups</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_group_by_type</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">types</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns groups to all atoms based on atom types. Returns a
 bookkeeping parameter, but atoms will be udated in-place.</p>
 <dl class="simple">

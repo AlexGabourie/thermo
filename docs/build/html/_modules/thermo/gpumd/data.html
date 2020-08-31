@@ -147,12 +147,14 @@
             
   <h1>Source code for thermo.gpumd.data</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1">#TODO remove Pandas dependence</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span>
+<span class="kn">from</span> <span class="nn">.common</span> <span class="k">import</span> <span class="n">__get_path</span><span class="p">,</span> <span class="n">__get_direction</span><span class="p">,</span> <span class="n">__check_list</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
@@ -160,25 +162,6 @@
 <span class="c1">#########################################</span>
 <span class="c1"># Helper Functions</span>
 <span class="c1">#########################################</span>
-
-
-<span class="k">def</span> <span class="nf">__get_direction</span><span class="p">(</span><span class="n">directions</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Creates a sorted list showing which directions the user asked for. Ex: &#39;xyz&#39; -&gt; [&#39;x&#39;, &#39;y&#39;, &#39;z&#39;]</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        directions (str):</span>
-<span class="sd">            A string containing the directions the user wants to process (Ex: &#39;xyz&#39;, &#39;zy&#39;, &#39;x&#39;)</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list(str): An ordered list that simplifies the user input for future processing</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^[xyz]+$&#39;</span><span class="p">,</span><span class="n">directions</span><span class="p">))</span>
-            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span>
-            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid directions used.&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">directions</span><span class="p">)))</span>
 
 
 <span class="k">def</span> <span class="nf">__process_sample</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
@@ -323,9 +306,111 @@
 
     <span class="k">return</span> <span class="n">data</span>
 
+
 <span class="c1">#########################################</span>
 <span class="c1"># Data-loading Related</span>
 <span class="c1">#########################################</span>
+
+<div class="viewcode-block" id="load_compute"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_compute">[docs]</a><span class="k">def</span> <span class="nf">load_compute</span><span class="p">(</span><span class="n">quantities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;compute.out&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    loads data from compute.out GPUMD output file </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        quantities (str or list(str)):</span>
+<span class="sd">            Quantities to extract from compute.out Accepted quantities are:</span>
+<span class="sd">            [&#39;temperature&#39;, &#39;potential&#39;, &#39;force&#39;, &#39;virial&#39;, &#39;jp&#39;, &#39;jk&#39;]. Other quantity will be ignored.</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load &#39;compute.out&#39; file from (dir. of simulation)</span>
+
+<span class="sd">        filename (str):</span>
+<span class="sd">            file to load compute from</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            &#39;output&#39; dictionary containing the data from compute.out</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">com_n</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">com_n</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">com_n</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">total_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">q_count</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;potential&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;virial&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;jp&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;jk&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="n">q_count</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_cols</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;temperature&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">total_cols</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="s1">&#39;temperature&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="n">m</span><span class="p">])</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;heat_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">total_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span><span class="n">total_cols</span><span class="p">])</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;heat_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">total_cols</span><span class="p">:])</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">m</span>
+
+    <span class="k">if</span> <span class="s1">&#39;potential&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;potential&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">m</span><span class="p">])</span>
+        <span class="n">start</span> <span class="o">+=</span> <span class="n">m</span>
+
+    <span class="k">if</span> <span class="s1">&#39;force&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;force&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
+        <span class="n">start</span> <span class="o">+=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">m</span>
+
+    <span class="k">if</span> <span class="s1">&#39;virial&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;virial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
+        <span class="n">start</span> <span class="o">+=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">m</span>
+
+    <span class="k">if</span> <span class="s1">&#39;jp&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;jp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
+        <span class="n">start</span> <span class="o">+=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">m</span>
+
+    <span class="k">if</span> <span class="s1">&#39;jk&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;jk&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+<div class="viewcode-block" id="load_thermo"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_thermo">[docs]</a><span class="k">def</span> <span class="nf">load_thermo</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;thermo.out&#39;</span><span class="p">,</span><span class="n">triclinic</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data from thermo.out GPUMD output file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load &#39;thermo.out&#39; file from (dir. of simulation)</span>
+
+<span class="sd">        filename (str):</span>
+<span class="sd">            file to load thermo from</span>
+
+<span class="sd">        triclinic (bool):</span>
+<span class="sd">            allows user to set as true if triclinic, effects the total number of columns of data to add to.</span>
+<span class="sd">            if triclinic is false, then orthogonal by default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            &#39;output&#39; dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;K&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Px&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Py&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Pz&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="c1"># orthogonal</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">triclinic</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;Lz&#39;</span><span class="p">:</span> <span class="p">[]})</span>
+
+    <span class="c1"># triclinic</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;ax&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;ay&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;az&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;bx&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;bz&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;cx&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;cy&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;cz&#39;</span><span class="p">:</span> <span class="p">[]})</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">t_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">output</span></div>
 
 
 <div class="viewcode-block" id="load_heatmode"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_heatmode">[docs]</a><span class="k">def</span> <span class="nf">load_heatmode</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -334,7 +419,7 @@
                   <span class="n">multiprocessing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">,</span> <span class="n">return_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.</span>
-<span class="sd">    WARNING: If using multiprocessing, memory useage may be significantly larger than file size</span>
+<span class="sd">    WARNING: If using multiprocessing, memory usage may be significantly larger than file size</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        nbins (int):</span>
@@ -383,14 +468,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">                dict: Dictionary with all modal heat fluxes requested</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
-        <span class="n">jm_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">inputfile</span><span class="p">)</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">outputfile</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">jm_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">)</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
-
+    <span class="n">jm_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">)</span>
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">__modal_analysis_read</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">jm_path</span><span class="p">,</span> <span class="n">ndiv</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="p">,</span> <span class="n">ncore</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">directions</span> <span class="o">=</span> <span class="n">__get_direction</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span>
@@ -469,14 +548,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">                dict: Dictionary with all modal thermal conductivities requested</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
-        <span class="n">km_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">inputfile</span><span class="p">)</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">outputfile</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">km_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">)</span>
-        <span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
-
+    <span class="n">km_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">)</span>
+    <span class="n">out_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">__modal_analysis_read</span><span class="p">(</span><span class="n">nbins</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">,</span> <span class="n">km_path</span><span class="p">,</span> <span class="n">ndiv</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="p">,</span> <span class="n">ncore</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">directions</span> <span class="o">=</span> <span class="n">__get_direction</span><span class="p">(</span><span class="n">directions</span><span class="p">)</span>
@@ -515,11 +588,7 @@
 <span class="sd">        dict: Dictionary with all modal thermal conductivities previously requested</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">directory</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
 
 
@@ -539,14 +608,11 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">directory</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="load_sdc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_sdc">[docs]</a><span class="k">def</span> <span class="nf">load_sdc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;sdc.out&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_sdc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_sdc">[docs]</a><span class="k">def</span> <span class="nf">load_sdc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;sdc.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from sdc.out GPUMD output file.</span>
 
@@ -605,11 +671,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">Nc</span> <span class="o">=</span> <span class="n">Nc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-
+    <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sdc_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
@@ -696,7 +758,7 @@
     <span class="k">return</span> <span class="n">sdc</span><span class="p">,</span> <span class="n">vac</span></div>
 
 
-<div class="viewcode-block" id="load_vac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_vac">[docs]</a><span class="k">def</span> <span class="nf">load_vac</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mvac.out&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_vac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_vac">[docs]</a><span class="k">def</span> <span class="nf">load_vac</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mvac.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from mvac.out GPUMD output file.</span>
 
@@ -743,11 +805,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">Nc</span> <span class="o">=</span> <span class="n">Nc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">directory</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="n">vac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">vac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-
+    <span class="n">vac_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">vac_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
@@ -799,7 +857,7 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="load_dos"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_dos">[docs]</a><span class="k">def</span> <span class="nf">load_dos</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;dos.out&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_dos"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_dos">[docs]</a><span class="k">def</span> <span class="nf">load_dos</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">,</span> <span class="n">num_run</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;dos.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from dos.out GPUMD output file.</span>
 
@@ -846,11 +904,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_int</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points_per_run</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">points_per_run</span> <span class="o">=</span> <span class="n">points_per_run</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">directory</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="n">dos_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">dos_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-
+    <span class="n">dos_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dos_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
@@ -902,13 +956,16 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="load_shc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_shc">[docs]</a><span class="k">def</span> <span class="nf">load_shc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;shc.out&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_shc"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_shc">[docs]</a><span class="k">def</span> <span class="nf">load_shc</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_omega</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;shc.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the data from shc.out GPUMD output file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        Nc (int):</span>
-<span class="sd">            Maximum number of correlation steps</span>
+<span class="sd">        Nc (int or list(int)):</span>
+<span class="sd">            Maximum number of correlation steps. If multiple shc runs, can provide a list of Nc.</span>
+
+<span class="sd">        num_omega (int or list(int)):</span>
+<span class="sd">            Number of frequency points. If multiple shc runs, can provide a list of num_omega.</span>
 
 <span class="sd">        directory (str):</span>
 <span class="sd">            Directory to load &#39;shc.out&#39; file from (dir. of simulation)</span>
@@ -918,37 +975,60 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Dictionary of in- and out-of-plane shc results (average)</span>
+
+
+<span class="sd">    Each run is a dictionary with keys:\n</span>
+<span class="sd">    - t (ps)</span>
+<span class="sd">    - K_in (ev*A/ps)</span>
+<span class="sd">    - K_out (ev*A/ps)</span>
+<span class="sd">    - nu (THz)</span>
+<span class="sd">    - J_in (A*eV/ps/THz)</span>
+<span class="sd">    - J_out (A*eV/ps/THz)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Nc must be an int.&#39;</span><span class="p">)</span>
-        
-    <span class="k">if</span> <span class="n">directory</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="n">shc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span><span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">shc_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">num_omega</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">num_omega</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;num_omega&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_omega</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Nc and num_omega must be the same length.&#39;</span><span class="p">)</span>
+    <span class="n">shc_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">shc_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
-    <span class="n">shc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-        <span class="n">shc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">shc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="n">Ns</span> <span class="o">=</span> <span class="n">shc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="n">Nc</span>
-    <span class="n">shc_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nc</span><span class="p">))</span>
-    <span class="n">shc_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">Ns</span><span class="p">,</span> <span class="n">Nc</span><span class="p">))</span>
-    <span class="n">shc_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">shc_in</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mf">1000.</span><span class="o">/</span><span class="mf">10.18</span> <span class="c1"># eV*A/ps</span>
-    <span class="n">shc_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">shc_out</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mf">1000.</span><span class="o">/</span><span class="mf">10.18</span>
-
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;shc_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shc_in</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;shc_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shc_out</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">varlen</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_omega</span><span class="p">)):</span>
+        <span class="n">Nc_i</span><span class="p">,</span> <span class="n">num_omega_i</span> <span class="o">=</span> <span class="n">varlen</span>
+        <span class="n">ndata</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">Nc_i</span><span class="o">-</span><span class="mi">1</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ndata</span><span class="p">)</span>  <span class="c1"># ps</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ndata</span><span class="p">)</span>  <span class="c1"># eV*A/ps</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ndata</span><span class="p">)</span>  <span class="c1"># eV*A/ps</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">ndata</span>
+        <span class="c1"># correlation data</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_in&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_out&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">end</span> <span class="o">+</span> <span class="n">num_omega_i</span>
+        <span class="c1"># spectral heat current</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_omega_i</span><span class="p">)</span>  <span class="c1"># THz</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_omega_i</span><span class="p">)</span>  <span class="c1"># A*eV/ps/THz</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_omega_i</span><span class="p">)</span>  <span class="c1"># A*eV/ps/THz</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_in&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_out&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
+
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="load_kappa"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_kappa">[docs]</a><span class="k">def</span> <span class="nf">load_kappa</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;kappa.out&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_kappa"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_kappa">[docs]</a><span class="k">def</span> <span class="nf">load_kappa</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;kappa.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from kappa.out GPUMD output file which contains HNEMD kappa.</span>
 
@@ -963,11 +1043,7 @@
 <span class="sd">        dict: A dictionary with keys corresponding to the columns in &#39;kappa.out&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="n">kappa_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span><span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">kappa_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
-
+    <span class="n">kappa_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">kappa_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
 
@@ -989,7 +1065,7 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="load_hac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_hac">[docs]</a><span class="k">def</span> <span class="nf">load_hac</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;hac.out&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_hac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_hac">[docs]</a><span class="k">def</span> <span class="nf">load_hac</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;hac.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data from hac.out GPUMD output file which contains the</span>
 <span class="sd">    heat-current autocorrelation and running thermal conductivity values.</span>
@@ -1007,21 +1083,17 @@
 <span class="sd">    Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]</span>
 
 <span class="sd">    Abbreviated description of keys in output:\n</span>
-<span class="sd">    * hacf_x: ave. of i/o components</span>
-<span class="sd">    * hacf_y: ave. of i/o components</span>
-<span class="sd">    * k_x: ave. of i/o components</span>
-<span class="sd">    * k_y: ave. of i/o components</span>
-<span class="sd">    * k_i: ave. of x/y components</span>
-<span class="sd">    * k_o: ave. of x/y components</span>
-<span class="sd">    * k: ave of all in-plane components</span>
-<span class="sd">    * t: correlation time</span>
+<span class="sd">    - hacf_x: ave. of i/o components</span>
+<span class="sd">    - hacf_y: ave. of i/o components</span>
+<span class="sd">    - k_x: ave. of i/o components</span>
+<span class="sd">    - k_y: ave. of i/o components</span>
+<span class="sd">    - k_i: ave. of x/y components</span>
+<span class="sd">    - k_o: ave. of x/y components</span>
+<span class="sd">    - k: ave of all in-plane components</span>
+<span class="sd">    - t: correlation time</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">directory</span><span class="o">==</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
-        <span class="n">hac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span><span class="n">filename</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">hac_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
-
+    <span class="n">hac_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">hac_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
