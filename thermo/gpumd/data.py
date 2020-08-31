@@ -177,6 +177,38 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 
     return data
 
+def __check_int_list(data, varname=None):
+    """
+    Checks if data is a list of ints or turns an int into a list
+
+    Args:
+        data
+
+        varname (str):
+            Name of variable to check
+
+    Returns:
+        Bool
+    """
+
+    if type(data) == int:
+        return [data]
+
+    if type(data) == list:
+        for elem in data:
+            if not type(elem) == int:
+                if varname:
+                    raise ValueError('All entries for {} must be an int.'.format(str(varname)))
+        return data
+
+    raise ValueError('{} is not the correct type.'.format(str(varname)))
+
+
+def __get_path(directory, filename):
+    if directory == '':
+        return os.path.join(os.getcwd(),filename)
+    return os.path.join(directory,filename)
+
 #########################################
 # Data-loading Related
 #########################################
@@ -295,7 +327,7 @@ def load_heatmode(nbins, nsamples, directory=None,
                   multiprocessing=False, ncore=None, block_size=65536, return_data=True):
     """
     Loads data from heatmode.out GPUMD file. Option to save as binary file for fast re-load later.
-    WARNING: If using multiprocessing, memory useage may be significantly larger than file size
+    WARNING: If using multiprocessing, memory usage may be significantly larger than file size
 
     Args:
         nbins (int):
@@ -863,13 +895,16 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
     return out
 
 
-def load_shc(Nc, directory='', filename='shc.out'):
+def load_shc(Nc, num_omega, directory='', filename='shc.out'):
     """
     Loads the data from shc.out GPUMD output file.
 
     Args:
-        Nc (int):
-            Maximum number of correlation steps
+        Nc (int or list(int)):
+            Maximum number of correlation steps. If multiple shc runs, can provide a list of Nc.
+
+        num_omega (int or list(int)):
+            Number of frequency points. If multiple shc runs, can provide a list of num_omega.
 
         directory (str):
             Directory to load 'shc.out' file from (dir. of simulation)
@@ -879,33 +914,56 @@ def load_shc(Nc, directory='', filename='shc.out'):
 
     Returns:
         dict: Dictionary of in- and out-of-plane shc results (average)
+
+
+    Each run is a dictionary with keys:\n
+    - t (ps)
+    - K_in (ev*A/ps)
+    - K_out (ev*A/ps)
+    - nu (THz)
+    - J_in (A*eV/ps/THz)
+    - J_out (A*eV/ps/THz)
     """
-    if not type(Nc) == int:
-        raise ValueError('Nc must be an int.')
-        
-    if directory == '':
-        shc_path = os.path.join(os.getcwd(),filename)
-    else:
-        shc_path = os.path.join(directory,filename)
+
+    Nc = __check_int_list(Nc, varname='Nc')
+    num_omega = __check_int_list(num_omega, varname='num_omega')
+    if not len(Nc) == len(num_omega):
+        raise ValueError('Nc and num_omega must be the same length.')
+    shc_path = __get_path(directory, filename)
 
     with open(shc_path, 'r') as f:
         lines = f.readlines()
 
-    shc = np.zeros((len(lines), 2))
-    for i, line in enumerate(lines):
-        data = line.split()
-        shc[i, 0] = float(data[0])
-        shc[i, 1] = float(data[1])
-
-    Ns = shc.shape[0]//Nc
-    shc_in = np.reshape(shc[:,0], (Ns, Nc))
-    shc_out = np.reshape(shc[:,1], (Ns, Nc))
-    shc_in = np.mean(shc_in,0)*1000./10.18 # eV*A/ps
-    shc_out = np.mean(shc_out,0)*1000./10.18
-
     out = dict()
-    out['shc_in'] = shc_in
-    out['shc_out'] = shc_out
+    start = 0
+    for i, varlen in enumerate(zip(Nc, num_omega)):
+        Nc_i, num_omega_i = varlen
+        ndata = 2*Nc_i-1
+        run = dict()
+        run['t'] = np.zeros(ndata)  # ps
+        run['K_in'] = np.zeros(ndata)  # eV*A/ps
+        run['K_out'] = np.zeros(ndata)  # eV*A/ps
+        end = start + ndata
+        # correlation data
+        for j, line in enumerate(lines[start:end]):
+            data = line.split()
+            run['t'][j] = float(data[0])
+            run['K_in'][j] = float(data[1])
+            run['K_out'][j] = float(data[2])
+        start = end
+        end = end + num_omega_i
+        # spectral heat current
+        run['nu'] = np.zeros(num_omega_i)  # THz
+        run['J_in'] = np.zeros(num_omega_i)  # A*eV/ps/THz
+        run['J_out'] = np.zeros(num_omega_i)  # A*eV/ps/THz
+        for j, line in enumerate(lines[start:end]):
+            data = line.split()
+            run['nu'][j] = float(data[0])/(2*np.pi)
+            run['J_in'][j] = float(data[1])
+            run['J_out'][j] = float(data[2])
+        start = end
+        out['run{}'.format(i)] = run
+
     return out
 
 
@@ -968,14 +1026,14 @@ def load_hac(directory='',filename='hac.out'):
     Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]
 
     Abbreviated description of keys in output:\n
-    * hacf_x: ave. of i/o components
-    * hacf_y: ave. of i/o components
-    * k_x: ave. of i/o components
-    * k_y: ave. of i/o components
-    * k_i: ave. of x/y components
-    * k_o: ave. of x/y components
-    * k: ave of all in-plane components
-    * t: correlation time
+    - hacf_x: ave. of i/o components
+    - hacf_y: ave. of i/o components
+    - k_x: ave. of i/o components
+    - k_y: ave. of i/o components
+    - k_i: ave. of x/y components
+    - k_o: ave. of x/y components
+    - k: ave of all in-plane components
+    - t: correlation time
     """
 
     if directory=='':
