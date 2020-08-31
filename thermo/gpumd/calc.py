@@ -1,10 +1,8 @@
 import numpy as np
 from scipy.integrate import cumtrapz
-from .data import load_shc
-from .data import __get_direction  # TODO move function to more accessible location
+from .common import __get_direction, __get_path
 from thermo.math.correlate import corr
 from scipy import integrate
-import os
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
@@ -85,12 +83,7 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
         dict: Input data dict but with correlation, thermal conductivity, and lag time data included
 
     """
-
-    if not directory:
-        out_path = os.path.join(os.getcwd(), outputfile)
-    else:
-        out_path = os.path.join(directory, outputfile)
-
+    out_path = __get_path(directory, outputfile)
     scale = __scale_gpumd_tc(vol, T)
     # set the heat flux sampling time: rate * timestep * scaling
     srate = sample_interval * dt  # [fs]

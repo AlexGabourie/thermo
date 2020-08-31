@@ -1,11 +1,11 @@
 import numpy as np
-import pandas as pd
+import pandas as pd  #TODO remove Pandas dependence
 import os
-import re
 import copy
 import multiprocessing as mp
 from functools import partial
 from collections import deque
+from .common import __get_path, __get_direction, __check_list
 
 
 __author__ = "Alexander Gabourie"
@@ -14,25 +14,6 @@ __email__ = "gabourie@stanford.edu"
 #########################################
 # Helper Functions
 #########################################
-
-
-def __get_direction(directions):
-    """
-    Creates a sorted list showing which directions the user asked for. Ex: 'xyz' -> ['x', 'y', 'z']
-
-    Args:
-        directions (str):
-            A string containing the directions the user wants to process (Ex: 'xyz', 'zy', 'x')
-
-    Returns:
-        list(str): An ordered list that simplifies the user input for future processing
-
-    """
-    if not (bool(re.match('^[xyz]+$',directions))
-            or len(directions) > 3
-            or len(directions) == 0):
-        raise ValueError('Invalid directions used.')
-    return sorted(list(set(directions)))
 
 
 def __process_sample(nbins, i):
@@ -177,65 +158,32 @@ def __modal_analysis_read(nbins, nsamples, datapath,
 
     return data
 
-def __check_int_list(data, varname=None):
-    """
-    Checks if data is a list of ints or turns an int into a list
-
-    Args:
-        data
-
-        varname (str):
-            Name of variable to check
-
-    Returns:
-        Bool
-    """
-
-    if type(data) == int:
-        return [data]
-
-    if type(data) == list:
-        for elem in data:
-            if not type(elem) == int:
-                if varname:
-                    raise ValueError('All entries for {} must be an int.'.format(str(varname)))
-        return data
-
-    raise ValueError('{} is not the correct type.'.format(str(varname)))
-
-
-def __get_path(directory, filename):
-    if directory == '':
-        return os.path.join(os.getcwd(),filename)
-    return os.path.join(directory,filename)
 
 #########################################
 # Data-loading Related
 #########################################
 
-def load_compute(directory=None, filename='compute.out', quantities=None):
+def load_compute(quantities=None, directory=None, filename='compute.out'):
     """
     loads data from compute.out GPUMD output file 
 
     Args:
+        quantities (str or list(str)):
+            Quantities to extract from compute.out Accepted quantities are:
+            ['temperature', 'potential', 'force', 'virial', 'jp', 'jk']. Other quantity will be ignored.
+
         directory (str):
             Directory to load 'compute.out' file from (dir. of simulation)
 
         filename (str):
             file to load compute from
 
-        quantities (str):
-            allows user to set which quantities to extract from compute.out (such as temperature, force, jp, jk, etc.)
-
         Returns:
             'output' dictionary containing the data from compute.out
     """
-
-    if not directory:
-        com_n = os.path.join(os.getcwd(), filename)
-    else:
-        com_n = os.path.join(directory, filename)
-
+    if not quantities:
+        return None
+    com_n = __get_path(directory, filename)
     com_n = pd.read_csv(com_n, sep="\s+", header=None)
 
     total_cols = len(com_n.columns)
@@ -281,7 +229,7 @@ def load_compute(directory=None, filename='compute.out', quantities=None):
 
 def load_thermo(directory=None, filename='thermo.out',triclinic=False):
     """
-    loads data from thermo.out GPUMD output file.
+    Loads data from thermo.out GPUMD output file.
 
     Args:
         directory (str):
@@ -297,11 +245,7 @@ def load_thermo(directory=None, filename='thermo.out',triclinic=False):
         Returns:
             'output' dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)
     """
-    if not directory:
-        t_path = os.path.join(os.getcwd(), filename)
-    else:
-        t_path = os.path.join(directory, filename)
-
+    t_path = __get_path(directory, filename)
     output = {'T': [], 'K': [], 'U': [], 'Px': [], 'Py': [], 'Pz': []}
 
     # orthogonal
@@ -376,14 +320,8 @@ def load_heatmode(nbins, nsamples, directory=None,
         Returns:
                 dict: Dictionary with all modal heat fluxes requested
     """
-
-    if not directory:
-        jm_path = os.path.join(os.getcwd(), inputfile)
-        out_path = os.path.join(os.getcwd(), outputfile)
-    else:
-        jm_path = os.path.join(directory, inputfile)
-        out_path = os.path.join(directory, outputfile)
-
+    jm_path = __get_path(directory, inputfile)
+    out_path = __get_path(directory, outputfile)
     data = __modal_analysis_read(nbins, nsamples, jm_path, ndiv, multiprocessing, ncore, block_size)
     out = dict()
     directions = __get_direction(directions)
@@ -462,14 +400,8 @@ def load_kappamode(nbins, nsamples, directory=None,
         Returns:
                 dict: Dictionary with all modal thermal conductivities requested
     """
-
-    if not directory:
-        km_path = os.path.join(os.getcwd(), inputfile)
-        out_path = os.path.join(os.getcwd(), outputfile)
-    else:
-        km_path = os.path.join(directory, inputfile)
-        out_path = os.path.join(directory, outputfile)
-
+    km_path = __get_path(directory, inputfile)
+    out_path = __get_path(directory, outputfile)
     data = __modal_analysis_read(nbins, nsamples, km_path, ndiv, multiprocessing, ncore, block_size)
     out = dict()
     directions = __get_direction(directions)
@@ -508,11 +440,7 @@ def load_saved_kappamode(filename='kappamode.npy', directory=None):
         dict: Dictionary with all modal thermal conductivities previously requested
 
     """
-
-    if directory:
-        path = os.path.join(directory, filename)
-    else:
-        path = os.path.join(os.getcwd(), filename)
+    path = __get_path(directory, filename)
     return np.load(path, allow_pickle=True).item()
 
 
@@ -532,14 +460,11 @@ def load_saved_heatmode(filename='heatmode.npy', directory=None):
 
     """
 
-    if directory:
-        path = os.path.join(directory, filename)
-    else:
-        path = os.path.join(os.getcwd(), filename)
+    path = __get_path(directory, filename)
     return np.load(path, allow_pickle=True).item()
 
 
-def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
+def load_sdc(Nc, num_run=1, average=False, directory=None, filename='sdc.out'):
     """
     Loads data from sdc.out GPUMD output file.
 
@@ -598,11 +523,7 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
     if not is_int and len(Nc) == 1:
         Nc = Nc[0]
 
-    if directory=='':
-        sdc_path = os.path.join(os.getcwd(), filename)
-    else:
-        sdc_path = os.path.join(directory, filename)
-
+    sdc_path = __get_path(directory, filename)
     with open(sdc_path, 'r') as f:
         lines = f.readlines()
 
@@ -689,7 +610,7 @@ def load_sdc(Nc, num_run=1, average=False, directory='', filename='sdc.out'):
     return sdc, vac
 
 
-def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
+def load_vac(Nc, num_run=1, average=False, directory=None, filename='mvac.out'):
     """
     Loads data from mvac.out GPUMD output file.
 
@@ -736,11 +657,7 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
     if not is_int and len(Nc) == 1:
         Nc = Nc[0]
 
-    if directory == '':
-        vac_path = os.path.join(os.getcwd(), filename)
-    else:
-        vac_path = os.path.join(directory, filename)
-
+    vac_path = __get_path(directory, filename)
     with open(vac_path, 'r') as f:
         lines = f.readlines()
 
@@ -792,7 +709,7 @@ def load_vac(Nc, num_run=1, average=False, directory='', filename='mvac.out'):
     return out
 
 
-def load_dos(points_per_run, num_run=1, average=False, directory='', filename='dos.out'):
+def load_dos(points_per_run, num_run=1, average=False, directory=None, filename='dos.out'):
     """
     Loads data from dos.out GPUMD output file.
 
@@ -839,11 +756,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
     if not is_int and len(points_per_run) == 1:
         points_per_run = points_per_run[0]
 
-    if directory == '':
-        dos_path = os.path.join(os.getcwd(), filename)
-    else:
-        dos_path = os.path.join(directory, filename)
-
+    dos_path = __get_path(directory, filename)
     with open(dos_path, 'r') as f:
         lines = f.readlines()
 
@@ -895,7 +808,7 @@ def load_dos(points_per_run, num_run=1, average=False, directory='', filename='d
     return out
 
 
-def load_shc(Nc, num_omega, directory='', filename='shc.out'):
+def load_shc(Nc, num_omega, directory=None, filename='shc.out'):
     """
     Loads the data from shc.out GPUMD output file.
 
@@ -925,8 +838,8 @@ def load_shc(Nc, num_omega, directory='', filename='shc.out'):
     - J_out (A*eV/ps/THz)
     """
 
-    Nc = __check_int_list(Nc, varname='Nc')
-    num_omega = __check_int_list(num_omega, varname='num_omega')
+    Nc = __check_list(Nc, varname='Nc',dtype=int)
+    num_omega = __check_list(num_omega, varname='num_omega', dtype=int)
     if not len(Nc) == len(num_omega):
         raise ValueError('Nc and num_omega must be the same length.')
     shc_path = __get_path(directory, filename)
@@ -967,7 +880,7 @@ def load_shc(Nc, num_omega, directory='', filename='shc.out'):
     return out
 
 
-def load_kappa(directory='', filename='kappa.out'):
+def load_kappa(directory=None, filename='kappa.out'):
     """
     Loads data from kappa.out GPUMD output file which contains HNEMD kappa.
 
@@ -982,11 +895,7 @@ def load_kappa(directory='', filename='kappa.out'):
         dict: A dictionary with keys corresponding to the columns in 'kappa.out'
     """
 
-    if directory=='':
-        kappa_path = os.path.join(os.getcwd(),filename)
-    else:
-        kappa_path = os.path.join(directory,filename)
-
+    kappa_path = __get_path(directory, filename)
     with open(kappa_path, 'r') as f:
         lines = f.readlines()
 
@@ -1008,7 +917,7 @@ def load_kappa(directory='', filename='kappa.out'):
     return out
 
 
-def load_hac(directory='',filename='hac.out'):
+def load_hac(directory=None,filename='hac.out'):
     """
     Loads data from hac.out GPUMD output file which contains the
     heat-current autocorrelation and running thermal conductivity values.
@@ -1036,11 +945,7 @@ def load_hac(directory='',filename='hac.out'):
     - t: correlation time
     """
 
-    if directory=='':
-        hac_path = os.path.join(os.getcwd(),filename)
-    else:
-        hac_path = os.path.join(directory,filename)
-
+    hac_path = __get_path(directory, filename)
     with open(hac_path, 'r') as f:
         lines = f.readlines()
         N = len(lines)

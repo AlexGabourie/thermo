@@ -1,3 +1,5 @@
 matplotlib
 pyfftw
 scipy
+numpy
+ase

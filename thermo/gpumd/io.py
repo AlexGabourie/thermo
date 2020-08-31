@@ -1,7 +1,6 @@
 from ase.io import write
 from ase.io import read
 from ase import Atom, Atoms
-from math import floor
 import numpy as np
 import sys
 
@@ -12,8 +11,9 @@ __email__ = "gabourie@stanford.edu"
 # Helper Functions
 #########################################
 
+
 def __get_atom_line(atom, velocity, groups, type_dict, info):
-    '''
+    """
     Constructs an atom's line in an xyz.in file.
 
     Args:
@@ -35,7 +35,7 @@ def __get_atom_line(atom, velocity, groups, type_dict, info):
     Returns:
         str:
             The line to be printed to file.
-    '''
+    """
     optional = ''
     if info:
         try:
@@ -52,6 +52,7 @@ def __get_atom_line(atom, velocity, groups, type_dict, info):
 
     return required + optional
 
+
 def __set_atoms(atoms, types):
     """
     Sets the atom symbols for atoms loaded from GPUMD where in.xyz does not
@@ -67,6 +68,7 @@ def __set_atoms(atoms, types):
     """
     for atom in atoms:
         atom.symbol = types[atom.number]
+
 
 def __atom_type_sortkey(atom, order=None):
     """
@@ -86,6 +88,7 @@ def __atom_type_sortkey(atom, order=None):
                 return i
     else:
         ValueError('type sortkey error: Missing order.')
+
 
 def __atom_group_sortkey(atom, info=None, group_index=None, order=None):
     """
@@ -121,6 +124,7 @@ def __atom_group_sortkey(atom, info=None, group_index=None, order=None):
 #########################################
 # Read Related
 #########################################
+
 
 def load_xyz(filename='xyz.in', atom_types=None):
     """
@@ -194,6 +198,7 @@ def load_xyz(filename='xyz.in', atom_types=None):
 
     return atoms, M, cutoff
 
+
 def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
     """
     Reads the trajectory from GPUMD run and creates a list of ASE atoms.
@@ -249,6 +254,7 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 # Write Related
 #########################################
 
+
 def create_kpoints(atoms, special_points='G', npoints=100):
     """
      Creates the file "kpoints.in", which specifies the kpoints needed for src/phonon
@@ -266,6 +272,7 @@ def create_kpoints(atoms, special_points='G', npoints=100):
 
     path = atoms.cell.bandpath(special_points, npoints)
     np.savetxt('kpoints.in', path.kpts, header=str(npoints), comments='', fmt='%1.8f')
+
 
 def create_basis(atoms, transform):
     """
@@ -295,6 +302,7 @@ def create_basis(atoms, transform):
                 
     return supercell
 
+
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
                             format='xyz', atom_types=None):
     """
@@ -319,6 +327,7 @@ def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',
     atoms, M, cutoff = load_xyz(in_file, atom_types)
     write(out_filename, atoms, format)
     return
+
 
 def lammps_atoms_to_gpumd(filename, M, cutoff, style='atomic',
                         gpumd_file='xyz.in'):
@@ -414,12 +423,12 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
     N = len(atoms)
     pbc = [str(1) if val else str(0) for val in atoms.get_pbc()]
     lx, ly, lz, a1, a2, a3 = tuple(atoms.get_cell_lengths_and_angles())
-    summary = ' '.join([str(N), str(M), str(cutoff), '@', \
-               '1' if velocity else '0', \
-               num_groups if groups else '0','\n'])
+    summary = ' '.join([str(N), str(M), str(cutoff), '@',
+                        '1' if velocity else '0',
+                        num_groups if groups else '0','\n'])
 
     # if orthorhombic
-    if (a1 == a2 == a3 == 90):
+    if a1 == a2 == a3 == 90:
         summary = summary.replace('@', '0')
         lx, ly, lz = str(lx), str(ly), str(lz)
         summary += ' '.join(pbc + [lx, ly, lz] + ['\n'])
