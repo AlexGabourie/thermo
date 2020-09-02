@@ -709,23 +709,13 @@ def load_vac(Nc, num_run=1, average=False, directory=None, filename='mvac.out'):
     return out
 
 
-def load_dos(points_per_run, num_run=1, average=False, directory=None, filename='dos.out'):
+def load_dos(num_dos_points, directory=None, filename='dos.out'):
     """
     Loads data from dos.out GPUMD output file.
 
     Args:
-        points_per_run (int or list(int)):
-            Number of frequency points the DOS is computed for. For num_run>1,
-            a list can be provided to specify number of points in each run if they
-            are different. Otherwise, it is assumed that the same number of points
-            are used per run
-
-        num_run (int):
-            Number of DOS runs in the dos.out file
-
-        average (bool):
-            Averages all of the runs to a single output. Default is False. Only works
-            if points_per_run is an int.
+        num_dos_points (int or list(int)):
+            Number of frequency points the DOS is computed for.
 
         directory (str):
             Directory to load 'dos.out' file from (dir. of simulation)
@@ -743,67 +733,32 @@ def load_dos(points_per_run, num_run=1, average=False, directory=None, filename=
     - DOS_y (1/THz)
     - DOS_z (1/THz)
 
-    If average=True, this will also be stored as a run with the same run keys.
     """
-    is_int = type(points_per_run) == int
-    # do input checks
-    if not is_int and average:
-        raise ValueError('average cannot be used if points_per_run is not an int.')
-
-    if not is_int and len(points_per_run) != num_run:
-        raise ValueError('length of points_per_run must be equal to num_run.')
-
-    if not is_int and len(points_per_run) == 1:
-        points_per_run = points_per_run[0]
-
+    num_dos_points = __check_list(num_dos_points, varname='num_dos_points', dtype=int)
     dos_path = __get_path(directory, filename)
     with open(dos_path, 'r') as f:
         lines = f.readlines()
 
     out = dict()
-    idx_shift = 0
-    for run_num in range(num_run):
-        if is_int:
-            pt_rng = points_per_run
-        else:
-            pt_rng = points_per_run[run_num]
-
+    start = 0
+    for i, npoints in enumerate(num_dos_points):
         run = dict()
-        run['nu'] = np.zeros(pt_rng)
-        run['DOS_x'] = np.zeros(pt_rng)
-        run['DOS_y'] = np.zeros(pt_rng)
-        run['DOS_z'] = np.zeros(pt_rng)
-        for point in range(pt_rng):
-            data = lines[idx_shift + point].split()
-            run['nu'][point] = float(data[0])/(6.283185307179586)
-            run['DOS_x'][point] = float(data[1])
-            run['DOS_y'][point] = float(data[2])
-            run['DOS_z'][point] = float(data[3])
-        idx_shift += pt_rng
+        end = start + npoints
+        if end > len(lines):
+            raise IndexError("More data requested than exists.")
 
-        out['run'+str(run_num)] = run
-
-    if average:
-        pt_rng = points_per_run  # required for average, checked above
-        ave = dict()
-        ave['nu'] = np.zeros(pt_rng)
-        ave['DOS_x'] = np.zeros(pt_rng)
-        ave['DOS_y'] = np.zeros(pt_rng)
-        ave['DOS_z'] = np.zeros(pt_rng)
-
-        for key in out:
-            run = out[key]
-            ave['nu'] += run['nu']
-            ave['DOS_x'] += run['DOS_x']
-            ave['DOS_y'] += run['DOS_y']
-            ave['DOS_z'] += run['DOS_z']
-
-        ave['nu'] /= num_run
-        ave['DOS_x'] /= num_run
-        ave['DOS_y'] /= num_run
-        ave['DOS_z'] /= num_run
-
-        out['ave'] = ave
+        run['nu'] = np.zeros(npoints)
+        run['DOS_x'] = np.zeros(npoints)
+        run['DOS_y'] = np.zeros(npoints)
+        run['DOS_z'] = np.zeros(npoints)
+        for j, line in enumerate(lines[start:end]):
+            data = line.split()
+            run['nu'][j] = float(data[0])/(2*np.pi)
+            run['DOS_x'][j] = float(data[1])
+            run['DOS_y'][j] = float(data[2])
+            run['DOS_z'][j] = float(data[3])
+        start = end
+        out['run{}'.format(i)] = run
 
     return out
 
@@ -852,11 +807,14 @@ def load_shc(Nc, num_omega, directory=None, filename='shc.out'):
     for i, varlen in enumerate(zip(Nc, num_omega)):
         Nc_i, num_omega_i = varlen
         ndata = 2*Nc_i-1
+        end = start + ndata
+        print(end, end + num_omega_i, len(lines))
+        if end > len(lines) or end + num_omega_i > len(lines):
+            raise IndexError("More data requested than exists.")
         run = dict()
         run['t'] = np.zeros(ndata)  # ps
         run['K_in'] = np.zeros(ndata)  # eV*A/ps
         run['K_out'] = np.zeros(ndata)  # eV*A/ps
-        end = start + ndata
         # correlation data
         for j, line in enumerate(lines[start:end]):
             data = line.split()
@@ -864,7 +822,7 @@ def load_shc(Nc, num_omega, directory=None, filename='shc.out'):
             run['K_in'][j] = float(data[1])
             run['K_out'][j] = float(data[2])
         start = end
-        end = end + num_omega_i
+        end += num_omega_i
         # spectral heat current
         run['nu'] = np.zeros(num_omega_i)  # THz
         run['J_in'] = np.zeros(num_omega_i)  # A*eV/ps/THz
