@@ -69,15 +69,14 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
             faster than re-reading data files and saving is recommended
 
         save (bool):
-            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
-            False)
+            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended
 
         directory (str):
             Name of directory storing the input file to read
 
         return_data (bool):
             Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
-            save is True (default: True)
+            save is True
 
     Returns:
         dict: Input data dict but with correlation, thermal conductivity, and lag time data included

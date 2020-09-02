@@ -376,7 +376,7 @@ def ase_atoms_to_gpumd(atoms, M, cutoff, gpumd_file='xyz.in', sort_key=None,
             File to save the structure data to
 
         sort_key (str):
-            How to sort atoms ('group', 'type'). Default is None.
+            How to sort atoms ('group', 'type').
 
         order (list(type)):
             List to sort by. Provide str for 'type', and int for 'group'

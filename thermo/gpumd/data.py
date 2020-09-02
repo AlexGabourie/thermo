@@ -227,20 +227,19 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
     return output
 
 
-def load_thermo(directory=None, filename='thermo.out',triclinic=False):
+def load_thermo(directory=None, filename='thermo.out', triclinic=False):
     """
     Loads data from thermo.out GPUMD output file.
 
     Args:
         directory (str):
-            Directory to load 'thermo.out' file from (dir. of simulation)
+            Directory to load 'thermo.out' file from
 
         filename (str):
-            file to load thermo from
+            Name of thermal data file
 
         triclinic (bool):
-            allows user to set as true if triclinic, effects the total number of columns of data to add to.
-            if triclinic is false, then orthogonal by default.
+            Specifies if structure was triclinic
 
         Returns:
             'output' dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)
@@ -284,7 +283,7 @@ def load_heatmode(nbins, nsamples, directory=None,
             Name of directory storing the input file to read
 
         inputfile (str):
-            Modal heat flux file output by GPUMD (default: heatmode.out)
+            Modal heat flux file output by GPUMD
 
         directions (str):
             Directions to gather data from. Any order of 'xyz' is accepted. Excluding directions also allowed (i.e. 'xz'
@@ -299,22 +298,21 @@ def load_heatmode(nbins, nsamples, directory=None,
             need not be an integer
 
         save (bool):
-            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
-            False)
+            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended
 
         multiprocessing (bool):
-            Toggle using multi-core processing for conversion of text file (default: False)
+            Toggle using multi-core processing for conversion of text file
 
         ncore (bool):
             Number of cores to use for multiprocessing. Ignored if multiprocessing is False
 
         block_size (int):
             Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
-            and file size (default: 2^16 = 65526)
+            and file size
 
         return_data (bool):
             Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
-            save is True (default: True)
+            save is True
 
 
         Returns:
@@ -364,7 +362,7 @@ def load_kappamode(nbins, nsamples, directory=None,
             Name of directory storing the input file to read
 
         inputfile (str):
-            Modal thermal conductivity file output by GPUMD (default: kappamode.out)
+            Modal thermal conductivity file output by GPUMD
 
         directions (str):
             Directions to gather data from. Any order of 'xyz' is accepted. Excluding directions also allowed (i.e. 'xz'
@@ -379,22 +377,21 @@ def load_kappamode(nbins, nsamples, directory=None,
             need not be an integer
 
         save (bool):
-            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
-            False)
+            Toggle saving data to binary dictionary. Loading from save file is much faster and recommended
 
         multiprocessing (bool):
-            Toggle using multi-core processing for conversion of text file (default: False)
+            Toggle using multi-core processing for conversion of text file
 
         ncore (bool):
             Number of cores to use for multiprocessing. Ignored if multiprocessing is False
 
         block_size (int):
             Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
-            and file size (default: 2^16 = 65526)
+            and file size
 
         return_data (bool):
             Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that
-            save is True (default: True)
+            save is True
 
 
         Returns:
@@ -479,14 +476,14 @@ def load_sdc(Nc, num_run=1, average=False, directory=None, filename='sdc.out'):
             Number of SDC runs in the sdc.out file
 
         average (bool):
-            Averages all of the runs to a single output. Default is False. Only works
+            Averages all of the runs to a single output. Only works
             if points_per_run is an int.
 
         directory (str):
             Directory to load 'sdc.out' file from (dir. of simulation)
 
         filename (str):
-            File to load SDC from. Default is sdc.out
+            File to load SDC from
 
     Returns:
         tuple: sdc, vac
@@ -625,14 +622,14 @@ def load_vac(Nc, num_run=1, average=False, directory=None, filename='mvac.out'):
             Number of VAC runs in the mvac.out file
 
         average (bool):
-            Averages all of the runs to a single output. Default is False. Only works
+            Averages all of the runs to a single output. Only works
             if points_per_run is an int.
 
         directory (str):
             Directory to load 'mvac.out' file from (dir. of simulation)
 
         filename (str):
-            File to load VAC from. Default is mvac.out
+            File to load VAC from.
 
     Returns:
         dict(dict):
@@ -721,7 +718,7 @@ def load_dos(num_dos_points, directory=None, filename='dos.out'):
             Directory to load 'dos.out' file from (dir. of simulation)
 
         filename (str):
-            File to load DOS from. Default is dos.out
+            File to load DOS from.
 
     Returns:
         dict(dict)): Dictonary with DOS data. The outermost dictionary stores
@@ -778,7 +775,7 @@ def load_shc(Nc, num_omega, directory=None, filename='shc.out'):
             Directory to load 'shc.out' file from (dir. of simulation)
 
         filename (str):
-            File to load SHC from. Default is shc.out
+            File to load SHC from.
 
     Returns:
         dict: Dictionary of in- and out-of-plane shc results (average)
@@ -847,7 +844,7 @@ def load_kappa(directory=None, filename='kappa.out'):
             Directory to load 'kappa.out' file from (dir. of simulation)
 
         filename (str):
-            File to load kappa from. Default is kappa.out
+            File to load kappa from.
 
     Returns:
         dict: A dictionary with keys corresponding to the columns in 'kappa.out'
@@ -884,7 +881,7 @@ def load_hac(directory=None,filename='hac.out'):
 
     Args:
         directory (str): Directory storing heat flux file.
-        filename (str): File to load hac from. Default is 'hac.out'
+        filename (str): File to load hac from. 
 
     Returns:
         dict: A dictionary with keys corresponding to the columns in
