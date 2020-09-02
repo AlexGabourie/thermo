@@ -461,23 +461,13 @@ def load_saved_heatmode(filename='heatmode.npy', directory=None):
     return np.load(path, allow_pickle=True).item()
 
 
-def load_sdc(Nc, num_run=1, average=False, directory=None, filename='sdc.out'):
+def load_sdc(Nc, directory=None, filename='sdc.out'):
     """
     Loads data from sdc.out GPUMD output file.
 
     Args:
         Nc (int or list(int)):
-            Number of time correlation points the VAC/SDC is computed for. For num_run>1,
-            a list can be provided to specify number of points in each run if they
-            are different. Otherwise, it is assumed that the same number of points
-            are used per run
-
-        num_run (int):
-            Number of SDC runs in the sdc.out file
-
-        average (bool):
-            Averages all of the runs to a single output. Only works
-            if points_per_run is an int.
+            Number of time correlation points the VAC/SDC is computed for.
 
         directory (str):
             Directory to load 'sdc.out' file from (dir. of simulation)
@@ -492,117 +482,57 @@ def load_sdc(Nc, num_run=1, average=False, directory=None, filename='sdc.out'):
     Dictionary with SDC data. The outermost dictionary stores each individual run.
     Each run is a dictionary with keys:\n
     - t (ps)
-    - SDC_x (Angstrom^2/ps)
-    - SDC_y (Angstrom^2/ps)
-    - SDC_z (Angstrom^2/ps)
-
-    If average=True, this will also be stored as a run with the same run keys.
+    - SDC_x (A^2/ps)
+    - SDC_y (A^2/ps)
+    - SDC_z (A^2/ps)
 
     vac (dict(dict)):
     Dictonary with VAC data. The outermost dictionary stores each individual run.
     Each run is a dictionary with keys:\n
     - t (ps)
-    - VAC_x (Angstrom^2/ps^2)
-    - VAC_y (Angstrom^2/ps^2)
-    - VAC_z (Angstrom^2/ps^2)
-
-    If average=True, this will also be stored as a run with the same run keys.
-
+    - VAC_x (A^2/ps^2)
+    - VAC_y (A^2/ps^2)
+    - VAC_z (A^2/ps^2)
     """
-    is_int = type(Nc) == int
-    # do input checks
-    if not is_int and average:
-        raise ValueError('average cannot be used if Nc is not an int.')
-
-    if not is_int and len(Nc) != num_run:
-        raise ValueError('length of Nc must be equal to num_run.')
-
-    if not is_int and len(Nc) == 1:
-        Nc = Nc[0]
-
+    Nc = __check_list(Nc, varname='Nc', dtype=int)
     sdc_path = __get_path(directory, filename)
     with open(sdc_path, 'r') as f:
         lines = f.readlines()
 
-    vac = dict()
     sdc = dict()
-    idx_shift = 0
-    for run_num in range(num_run):
-        if is_int:
-            pt_rng = Nc
-        else:
-            pt_rng = Nc[run_num]
-
-        vrun = dict()
+    vac = dict()
+    start = 0
+    for i, npoints in enumerate(Nc):
         srun = dict()
-        vrun['t'] = np.zeros(pt_rng)
-        srun['t'] = np.zeros(pt_rng)
+        vrun = dict()
+        end = start + npoints
+        if end > len(lines):
+            raise IndexError("More data requested than exists.")
 
-        vrun['VAC_x'] = np.zeros(pt_rng)
-        vrun['VAC_y'] = np.zeros(pt_rng)
-        vrun['VAC_z'] = np.zeros(pt_rng)
+        vrun['t'] = np.zeros(npoints)
+        vrun['VAC_x'] = np.zeros(npoints)
+        vrun['VAC_y'] = np.zeros(npoints)
+        vrun['VAC_z'] = np.zeros(npoints)
 
-        srun['SDC_x'] = np.zeros(pt_rng)
-        srun['SDC_y'] = np.zeros(pt_rng)
-        srun['SDC_z'] = np.zeros(pt_rng)
-        for point in range(pt_rng):
-            data = lines[idx_shift + point].split()
-            srun['t'][point] = float(data[0])
-            vrun['t'][point] = float(data[0])
+        srun['t'] = np.zeros(npoints)
+        srun['SDC_x'] = np.zeros(npoints)
+        srun['SDC_y'] = np.zeros(npoints)
+        srun['SDC_z'] = np.zeros(npoints)
+        for j, line in enumerate(lines[start:end]):
+            data = line.split()
 
-            vrun['VAC_x'][point] = float(data[1])
-            vrun['VAC_y'][point] = float(data[2])
-            vrun['VAC_z'][point] = float(data[3])
+            vrun['t'][j] = float(data[0]) / (2 * np.pi)
+            vrun['VAC_x'][j] = float(data[1])
+            vrun['VAC_y'][j] = float(data[2])
+            vrun['VAC_z'][j] = float(data[3])
 
-            srun['SDC_x'][point] = float(data[4])
-            srun['SDC_y'][point] = float(data[5])
-            srun['SDC_z'][point] = float(data[6])
-        idx_shift += pt_rng
-
-        vac['run'+str(run_num)] = vrun
-        sdc['run'+str(run_num)] = srun
-
-    if average:
-        pt_rng = Nc # Required for average, checked above
-        vave = dict()
-        save = dict()
-
-        vave['t'] = np.zeros(pt_rng)
-        vave['VAC_x'] = np.zeros(pt_rng)
-        vave['VAC_y'] = np.zeros(pt_rng)
-        vave['VAC_z'] = np.zeros(pt_rng)
-
-        save['t'] = np.zeros(pt_rng)
-        save['SDC_x'] = np.zeros(pt_rng)
-        save['SDC_y'] = np.zeros(pt_rng)
-        save['SDC_z'] = np.zeros(pt_rng)
-
-        for key in sdc:
-            vrun = vac[key]
-            srun = sdc[key]
-
-            vave['t'] += vrun['t']
-            vave['VAC_x'] += vrun['VAC_x']
-            vave['VAC_y'] += vrun['VAC_y']
-            vave['VAC_z'] += vrun['VAC_z']
-
-            save['t'] += srun['t']
-            save['SDC_x'] += srun['SDC_x']
-            save['SDC_y'] += srun['SDC_y']
-            save['SDC_z'] += srun['SDC_z']
-
-        vave['t'] /= num_run
-        vave['VAC_x'] /= num_run
-        vave['VAC_y'] /= num_run
-        vave['VAC_z'] /= num_run
-
-        save['t'] /= num_run
-        save['SDC_x'] /= num_run
-        save['SDC_y'] /= num_run
-        save['SDC_z'] /= num_run
-
-        sdc['ave'] = save
-        vac['ave'] = vave
+            srun['t'][j] = float(data[0]) / (2 * np.pi)
+            srun['SDC_x'][j] = float(data[4])
+            srun['SDC_y'][j] = float(data[5])
+            srun['SDC_z'][j] = float(data[6])
+        start = end
+        vac['run{}'.format(i)] = vrun
+        sdc['run{}'.format(i)] = srun
 
     return sdc, vac
 
@@ -616,7 +546,7 @@ def load_vac(Nc, directory=None, filename='mvac.out'):
             Number of time correlation points the VAC is computed for.
 
         directory (str):
-            Directory to load 'mvac.out' file from 
+            Directory to load 'mvac.out' file from
 
         filename (str):
             File to load VAC from.
@@ -645,13 +575,13 @@ def load_vac(Nc, directory=None, filename='mvac.out'):
         if end > len(lines):
             raise IndexError("More data requested than exists.")
 
-        run['nu'] = np.zeros(npoints)
+        run['t'] = np.zeros(npoints)
         run['VAC_x'] = np.zeros(npoints)
         run['VAC_y'] = np.zeros(npoints)
         run['VAC_z'] = np.zeros(npoints)
         for j, line in enumerate(lines[start:end]):
             data = line.split()
-            run['nu'][j] = float(data[0]) / (2 * np.pi)
+            run['t'][j] = float(data[0]) / (2 * np.pi)
             run['VAC_x'][j] = float(data[1])
             run['VAC_y'][j] = float(data[2])
             run['VAC_z'][j] = float(data[3])
