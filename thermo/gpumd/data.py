@@ -607,26 +607,16 @@ def load_sdc(Nc, num_run=1, average=False, directory=None, filename='sdc.out'):
     return sdc, vac
 
 
-def load_vac(Nc, num_run=1, average=False, directory=None, filename='mvac.out'):
+def load_vac(Nc, directory=None, filename='mvac.out'):
     """
     Loads data from mvac.out GPUMD output file.
 
     Args:
         Nc (int or list(int)):
-            Number of time correlation points the VAC is computed for. For num_run>1,
-            a list can be provided to specify number of points in each run if they
-            are different. Otherwise, it is assumed that the same number of points
-            are used per run
-
-        num_run (int):
-            Number of VAC runs in the mvac.out file
-
-        average (bool):
-            Averages all of the runs to a single output. Only works
-            if points_per_run is an int.
+            Number of time correlation points the VAC is computed for.
 
         directory (str):
-            Directory to load 'mvac.out' file from (dir. of simulation)
+            Directory to load 'mvac.out' file from 
 
         filename (str):
             File to load VAC from.
@@ -641,67 +631,32 @@ def load_vac(Nc, num_run=1, average=False, directory=None, filename='mvac.out'):
     - VAC_y (Angstrom^2/ps^2)
     - VAC_z (Angstrom^2/ps^2)
 
-    If average=True, this will also be stored as a run with the same run keys.
     """
-    is_int = type(Nc) == int
-    # do input checks
-    if not is_int and average:
-        raise ValueError('average cannot be used if Nc is not an int.')
-
-    if not is_int and len(Nc) != num_run:
-        raise ValueError('length of Nc must be equal to num_run.')
-
-    if not is_int and len(Nc) == 1:
-        Nc = Nc[0]
-
+    Nc = __check_list(Nc, varname='Nc', dtype=int)
     vac_path = __get_path(directory, filename)
     with open(vac_path, 'r') as f:
         lines = f.readlines()
 
     out = dict()
-    idx_shift = 0
-    for run_num in range(num_run):
-        if is_int:
-            pt_rng = Nc
-        else:
-            pt_rng = Nc[run_num]
-
+    start = 0
+    for i, npoints in enumerate(Nc):
         run = dict()
-        run['t'] = np.zeros(pt_rng)
-        run['VAC_x'] = np.zeros(pt_rng)
-        run['VAC_y'] = np.zeros(pt_rng)
-        run['VAC_z'] = np.zeros(pt_rng)
-        for point in range(pt_rng):
-            data = lines[idx_shift + point].split()
-            run['t'][point] = float(data[0])
-            run['VAC_x'][point] = float(data[1])
-            run['VAC_y'][point] = float(data[2])
-            run['VAC_z'][point] = float(data[3])
-        idx_shift += pt_rng
+        end = start + npoints
+        if end > len(lines):
+            raise IndexError("More data requested than exists.")
 
-        out['run'+str(run_num)] = run
-
-    if average:
-        pt_rng = Nc  # Required for average, checked above
-        ave = dict()
-        ave['t'] = np.zeros(pt_rng)
-        ave['VAC_x'] = np.zeros(pt_rng)
-        ave['VAC_y'] = np.zeros(pt_rng)
-        ave['VAC_z'] = np.zeros(pt_rng)
-
-        for key in out:
-            run = out[key]
-            ave['t'] += run['t']
-            ave['VAC_x'] += run['VAC_x']
-            ave['VAC_y'] += run['VAC_y']
-            ave['VAC_z'] += run['VAC_z']
-
-        ave['t'] /= num_run
-        ave['VAC_x'] /= num_run
-        ave['VAC_y'] /= num_run
-        ave['VAC_z'] /= num_run
-
-        out['ave'] = ave
+        run['nu'] = np.zeros(npoints)
+        run['VAC_x'] = np.zeros(npoints)
+        run['VAC_y'] = np.zeros(npoints)
+        run['VAC_z'] = np.zeros(npoints)
+        for j, line in enumerate(lines[start:end]):
+            data = line.split()
+            run['nu'][j] = float(data[0]) / (2 * np.pi)
+            run['VAC_x'][j] = float(data[1])
+            run['VAC_y'][j] = float(data[2])
+            run['VAC_z'][j] = float(data[3])
+        start = end
+        out['run{}'.format(i)] = run
 
     return out
 
@@ -881,7 +836,7 @@ def load_hac(directory=None,filename='hac.out'):
 
     Args:
         directory (str): Directory storing heat flux file.
-        filename (str): File to load hac from. 
+        filename (str): File to load hac from.
 
     Returns:
         dict: A dictionary with keys corresponding to the columns in
