@@ -289,19 +289,11 @@ with binning information</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_dos">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_dos</code><span class="sig-paren">(</span><em class="sig-param">points_per_run</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='dos.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_dos</code><span class="sig-paren">(</span><em class="sig-param">num_dos_points</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='dos.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_dos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from dos.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>points_per_run (int or list(int)):</dt><dd><p>Number of frequency points the DOS is computed for. For num_run&gt;1,
-a list can be provided to specify number of points in each run if they
-are different. Otherwise, it is assumed that the same number of points
-are used per run</p>
-</dd>
-<dt>num_run (int):</dt><dd><p>Number of DOS runs in the dos.out file</p>
-</dd>
-<dt>average (bool):</dt><dd><p>Averages all of the runs to a single output. Default is False. Only works
-if points_per_run is an int.</p>
+<dt>num_dos_points (int or list(int)):</dt><dd><p>Number of frequency points the DOS is computed for.</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘dos.out’ file from (dir. of simulation)</p>
 </dd>
@@ -320,7 +312,6 @@ each individual run.</p>
 <li><p>DOS_y (1/THz)</p></li>
 <li><p>DOS_z (1/THz)</p></li>
 </ul>
-<p>If average=True, this will also be stored as a run with the same run keys.</p>
 </dd></dl>
 
 <dl class="function">
