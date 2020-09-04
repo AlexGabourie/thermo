@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd  #TODO remove Pandas dependence
+import pandas as pd
 import os
 import copy
 import multiprocessing as mp
@@ -246,7 +246,6 @@ def load_thermo(directory=None, filename='thermo.out'):
 
        **key**,T,K,U,Px,Py,Pz,Lx,Ly,Lz,ax,ay,az,bx,by,bz,cx,cy,cz
        **units**,K,eV,eV,GPa,GPa,GPa,A,A,A,A,A,A,A,A,A,A,A,A
-
 
     """
     thermo_path = __get_path(directory, filename)
@@ -727,10 +726,10 @@ def load_kappa(directory=None, filename='kappa.out'):
 
     Args:
         directory (str):
-            Directory to load 'kappa.out' file from (dir. of simulation)
+            Directory containing kappa data file
 
         filename (str):
-            File to load kappa from.
+            The kappa data file
 
     Returns:
         dict: A dictionary with keys corresponding to the columns in 'kappa.out'
@@ -758,103 +757,52 @@ def load_kappa(directory=None, filename='kappa.out'):
     return out
 
 
-def load_hac(directory=None,filename='hac.out'):
+def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
     """
-    Loads data from hac.out GPUMD output file which contains the
-    heat-current autocorrelation and running thermal conductivity values.
-
-    **Created for GPUMD-v1.9**
+    Loads data from hac.out GPUMD output file.
 
     Args:
-        directory (str): Directory storing heat flux file.
-        filename (str): File to load hac from.
+        Nc (int or list(int)):
+            Number of correlation steps
+
+        output_interval (int or list(int)):
+            Output interval for HAC and RTC data
+
+        directory (str):
+            Directory containing hac data file
+
+        filename (str):
+            The hac data file
 
     Returns:
-        dict: A dictionary with keys corresponding to the columns in
-        'hac.out' with some additional keys for aggregated values (see description)
+        dict: A dictionary containing the data from hac runs
 
-    Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
 
-    Abbreviated description of keys in output:\n
-    - hacf_x: ave. of i/o components
-    - hacf_y: ave. of i/o components
-    - k_x: ave. of i/o components
-    - k_y: ave. of i/o components
-    - k_i: ave. of x/y components
-    - k_o: ave. of x/y components
-    - k: ave of all in-plane components
-    - t: correlation time
+       **key**,t, corr_xi_x, corr_xo_x, corr_yi_y, corr_yo_y, corr_z_z, kxi, kxo, kyi, kyo, kz
+       **units**,ps,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K
     """
 
+    Nc = __check_list(Nc, varname='Nc', dtype=int)
+    output_interval = __check_list(output_interval, varname='output_interval', dtype=int)
+    if not len(Nc) == len(output_interval):
+        raise ValueError('Nc and output_interval must be the same length.')
+
+    npoints = [int(x / y) for x, y in zip(Nc, output_interval)]
     hac_path = __get_path(directory, filename)
-    with open(hac_path, 'r') as f:
-        lines = f.readlines()
-        N = len(lines)
-        t = np.zeros((N, 1))
-        x_ac_i = np.zeros((N, 1))  # autocorrelation IN, X
-        x_ac_o = np.zeros((N, 1))  # autocorrelation OUT, X
-
-        y_ac_i = np.zeros((N, 1))  # autocorrelation IN, Y
-        y_ac_o = np.zeros((N, 1)) # autocorrelation OUT, Y
-
-        z_ac = np.zeros((N, 1))  # autocorrelation Z
-
-        kx_i = np.zeros((N, 1))  # kappa IN, X
-        kx_o = np.zeros((N, 1))  # kappa OUT, X
-
-        ky_i = np.zeros((N, 1))  # kappa IN, Y
-        ky_o = np.zeros((N, 1))  # kappa OUT, Y
-
-        kz = np.zeros((N, 1))  # kappa, Z
-
-        for i, line in enumerate(lines):
-            vals = line.split()
-            t[i] = vals[0]
-            x_ac_i[i] = vals[1]
-            x_ac_o[i] = vals[2]
-            y_ac_i[i] = vals[3]
-            y_ac_o[i] = vals[4]
-            z_ac[i] = vals[5]
-            kx_i[i] = vals[6]
-            kx_o[i] = vals[7]
-            ky_i[i] = vals[8]
-            ky_o[i] = vals[9]
-            kz[i] = vals[10]
-
+    data = pd.read_csv(hac_path, delim_whitespace=True, header=None)
+    labels = ['t', 'corr_xi_x', 'corr_xo_x', 'corr_yi_y', 'corr_yo_y',
+              'corr_z_z', 'kxi', 'kxo', 'kyi', 'kyo', 'kz']
+    start = 0
     out = dict()
-    # x-direction heat flux autocorrelation function
-    out['hacf_xi'] = x_ac_i
-    out['hacf_xo'] = x_ac_o
-    out['hacf_x'] = x_ac_i + x_ac_o
-
-    # y-direction heat flux autocorrelation function
-    out['hacf_yi'] = y_ac_i
-    out['hacf_yo'] = y_ac_o
-    out['hacf_y'] = y_ac_i + y_ac_o
-
-    # z-direction heat flux autocorrelation function
-    out['hacf_z'] = z_ac
-
-    # x-direction thermal conductivity
-    out['k_xi'] = kx_i
-    out['k_xo'] = kx_o
-    out['k_x'] = kx_i + kx_o
-
-    # y-direction thermal conductivity
-    out['k_yi'] = ky_i
-    out['k_yo'] = ky_o
-    out['k_y'] = ky_i + ky_o
-
-    # z-direction thermal conductivity
-    out['k_z'] = kz
-
-    # Combined thermal conductivities (isotropic)
-    out['k_i'] = (kx_i + ky_i)/2.
-    out['k_o'] = (kx_o + ky_o)/2.
-    out['k'] = (out['k_x'] + out['k_y'])/2.
-
-    out['t'] = t
-
+    for i, varlen in enumerate(npoints):
+        end = start + varlen
+        run = dict()
+        for j, key in enumerate(labels):
+            run[key] = data[j][start:end]
+        start = end
+        out['run{}'.format(i)] = run
     return out
 
 

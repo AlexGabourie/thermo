@@ -3,3 +3,4 @@ pyfftw
 scipy
 numpy
 ase
+pandas
