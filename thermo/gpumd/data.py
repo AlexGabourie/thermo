@@ -733,27 +733,20 @@ def load_kappa(directory=None, filename='kappa.out'):
 
     Returns:
         dict: A dictionary with keys corresponding to the columns in 'kappa.out'
+
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,kxi, kxo, kyi, kyo, kz
+       **units**,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K        
     """
 
     kappa_path = __get_path(directory, filename)
-    with open(kappa_path, 'r') as f:
-        lines = f.readlines()
-
+    data = pd.read_csv(kappa_path, delim_whitespace=True, header=None)
+    labels = ['kxi', 'kxo', 'kyi', 'kyo', 'kz']
     out = dict()
-    out['kx_in'] = np.zeros(len(lines))
-    out['kx_out'] = np.zeros(len(lines))
-    out['ky_in'] = np.zeros(len(lines))
-    out['ky_out'] = np.zeros(len(lines))
-    out['kz'] = np.zeros(len(lines))
-
-    for i, line in enumerate(lines):
-        nums = line.split()
-        out['kx_in'][i] = float(nums[0])
-        out['kx_out'][i] = float(nums[1])
-        out['ky_in'][i] = float(nums[2])
-        out['ky_out'][i] = float(nums[3])
-        out['kz'][i] = float(nums[4])
-
+    for i, key in enumerate(labels):
+        out[key] = data[i].to_numpy()
     return out
 
 
@@ -800,7 +793,7 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
         end = start + varlen
         run = dict()
         for j, key in enumerate(labels):
-            run[key] = data[j][start:end]
+            run[key] = data[j][start:end].to_numpy()
         start = end
         out['run{}'.format(i)] = run
     return out
