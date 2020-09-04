@@ -315,30 +315,68 @@ each individual run.</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_hac">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_hac</code><span class="sig-paren">(</span><em class="sig-param">directory=None</em>, <em class="sig-param">filename='hac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads data from hac.out GPUMD output file which contains the
-heat-current autocorrelation and running thermal conductivity values.</p>
-<p><strong>Created for GPUMD-v1.9</strong></p>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_hac</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">output_interval</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='hac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_hac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_hac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from hac.out GPUMD output file.</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>directory (str): Directory storing heat flux file.
-filename (str): File to load hac from.</p>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>Nc (int or list(int)):</dt><dd><p>Number of correlation steps</p>
 </dd>
-<dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in
-‘hac.out’ with some additional keys for aggregated values (see description)</p>
+<dt>output_interval (int or list(int)):</dt><dd><p>Output interval for HAC and RTC data</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory containing hac data file</p>
+</dd>
+<dt>filename (str):</dt><dd><p>The hac data file</p>
 </dd>
 </dl>
-<p>Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]</p>
-<p>Abbreviated description of keys in output:</p>
-<ul class="simple">
-<li><p>hacf_x: ave. of i/o components</p></li>
-<li><p>hacf_y: ave. of i/o components</p></li>
-<li><p>k_x: ave. of i/o components</p></li>
-<li><p>k_y: ave. of i/o components</p></li>
-<li><p>k_i: ave. of x/y components</p></li>
-<li><p>k_o: ave. of x/y components</p></li>
-<li><p>k: ave of all in-plane components</p></li>
-<li><p>t: correlation time</p></li>
-</ul>
+</dd>
+<dt>Returns:</dt><dd><p>dict: A dictionary containing the data from hac runs</p>
+</dd>
+</dl>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>t</p></td>
+<td><p>corr_xi_x</p></td>
+<td><p>corr_xo_x</p></td>
+<td><p>corr_yi_y</p></td>
+<td><p>corr_yo_y</p></td>
+<td><p>corr_z_z</p></td>
+<td><p>kxi</p></td>
+<td><p>kxo</p></td>
+<td><p>kyi</p></td>
+<td><p>kyo</p></td>
+<td><p>kz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>ps</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>W/m/K</p></td>
+<td><p>W/m/K</p></td>
+<td><p>W/m/K</p></td>
+<td><p>W/m/K</p></td>
+<td><p>W/m/K</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -390,9 +428,9 @@ save is True</p>
 <dd><p>Loads data from kappa.out GPUMD output file which contains HNEMD kappa.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>directory (str):</dt><dd><p>Directory to load ‘kappa.out’ file from (dir. of simulation)</p>
+<dt>directory (str):</dt><dd><p>Directory containing kappa data file</p>
 </dd>
-<dt>filename (str):</dt><dd><p>File to load kappa from.</p>
+<dt>filename (str):</dt><dd><p>The kappa data file</p>
 </dd>
 </dl>
 </dd>
@@ -560,8 +598,8 @@ Each run is a dictionary with keys:</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 5%" />
 <col style="width: 5%" />

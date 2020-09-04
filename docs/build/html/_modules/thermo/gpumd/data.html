@@ -395,7 +395,6 @@
 <span class="sd">       **key**,T,K,U,Px,Py,Pz,Lx,Ly,Lz,ax,ay,az,bx,by,bz,cx,cy,cz</span>
 <span class="sd">       **units**,K,eV,eV,GPa,GPa,GPa,A,A,A,A,A,A,A,A,A,A,A,A</span>
 
-
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">thermo_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">thermo_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -875,10 +874,10 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        directory (str):</span>
-<span class="sd">            Directory to load &#39;kappa.out&#39; file from (dir. of simulation)</span>
+<span class="sd">            Directory containing kappa data file</span>
 
 <span class="sd">        filename (str):</span>
-<span class="sd">            File to load kappa from.</span>
+<span class="sd">            The kappa data file</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: A dictionary with keys corresponding to the columns in &#39;kappa.out&#39;</span>
@@ -906,103 +905,52 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="load_hac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_hac">[docs]</a><span class="k">def</span> <span class="nf">load_hac</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;hac.out&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_hac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_hac">[docs]</a><span class="k">def</span> <span class="nf">load_hac</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">output_interval</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;hac.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Loads data from hac.out GPUMD output file which contains the</span>
-<span class="sd">    heat-current autocorrelation and running thermal conductivity values.</span>
-
-<span class="sd">    **Created for GPUMD-v1.9**</span>
+<span class="sd">    Loads data from hac.out GPUMD output file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        directory (str): Directory storing heat flux file.</span>
-<span class="sd">        filename (str): File to load hac from.</span>
+<span class="sd">        Nc (int or list(int)):</span>
+<span class="sd">            Number of correlation steps</span>
+
+<span class="sd">        output_interval (int or list(int)):</span>
+<span class="sd">            Output interval for HAC and RTC data</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory containing hac data file</span>
+
+<span class="sd">        filename (str):</span>
+<span class="sd">            The hac data file</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict: A dictionary with keys corresponding to the columns in</span>
-<span class="sd">        &#39;hac.out&#39; with some additional keys for aggregated values (see description)</span>
+<span class="sd">        dict: A dictionary containing the data from hac runs</span>
 
-<span class="sd">    Units: hacf [ev^3/amu]; k [W/m/K]; t [ps]</span>
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
 
-<span class="sd">    Abbreviated description of keys in output:\n</span>
-<span class="sd">    - hacf_x: ave. of i/o components</span>
-<span class="sd">    - hacf_y: ave. of i/o components</span>
-<span class="sd">    - k_x: ave. of i/o components</span>
-<span class="sd">    - k_y: ave. of i/o components</span>
-<span class="sd">    - k_i: ave. of x/y components</span>
-<span class="sd">    - k_o: ave. of x/y components</span>
-<span class="sd">    - k: ave of all in-plane components</span>
-<span class="sd">    - t: correlation time</span>
+<span class="sd">       **key**,t, corr_xi_x, corr_xo_x, corr_yi_y, corr_yo_y, corr_z_z, kxi, kxo, kyi, kyo, kz</span>
+<span class="sd">       **units**,ps,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">output_interval</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">output_interval</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;output_interval&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_interval</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Nc and output_interval must be the same length.&#39;</span><span class="p">)</span>
+
+    <span class="n">npoints</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">output_interval</span><span class="p">)]</span>
     <span class="n">hac_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">hac_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">x_ac_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation IN, X</span>
-        <span class="n">x_ac_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation OUT, X</span>
-
-        <span class="n">y_ac_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation IN, Y</span>
-        <span class="n">y_ac_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="c1"># autocorrelation OUT, Y</span>
-
-        <span class="n">z_ac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># autocorrelation Z</span>
-
-        <span class="n">kx_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa IN, X</span>
-        <span class="n">kx_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa OUT, X</span>
-
-        <span class="n">ky_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa IN, Y</span>
-        <span class="n">ky_o</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa OUT, Y</span>
-
-        <span class="n">kz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># kappa, Z</span>
-
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-            <span class="n">vals</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">x_ac_i</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">x_ac_o</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-            <span class="n">y_ac_i</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-            <span class="n">y_ac_o</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
-            <span class="n">z_ac</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
-            <span class="n">kx_i</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
-            <span class="n">kx_o</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
-            <span class="n">ky_i</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
-            <span class="n">ky_o</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
-            <span class="n">kz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
-
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">hac_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_xi_x&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_xo_x&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_yi_y&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_yo_y&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;corr_z_z&#39;</span><span class="p">,</span> <span class="s1">&#39;kxi&#39;</span><span class="p">,</span> <span class="s1">&#39;kxo&#39;</span><span class="p">,</span> <span class="s1">&#39;kyi&#39;</span><span class="p">,</span> <span class="s1">&#39;kyo&#39;</span><span class="p">,</span> <span class="s1">&#39;kz&#39;</span><span class="p">]</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="c1"># x-direction heat flux autocorrelation function</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;hacf_xi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_ac_i</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;hacf_xo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_ac_o</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;hacf_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_ac_i</span> <span class="o">+</span> <span class="n">x_ac_o</span>
-
-    <span class="c1"># y-direction heat flux autocorrelation function</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;hacf_yi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_ac_i</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;hacf_yo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_ac_o</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;hacf_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_ac_i</span> <span class="o">+</span> <span class="n">y_ac_o</span>
-
-    <span class="c1"># z-direction heat flux autocorrelation function</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;hacf_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_ac</span>
-
-    <span class="c1"># x-direction thermal conductivity</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_xi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kx_i</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_xo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kx_o</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kx_i</span> <span class="o">+</span> <span class="n">kx_o</span>
-
-    <span class="c1"># y-direction thermal conductivity</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_yi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ky_i</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_yo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ky_o</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ky_i</span> <span class="o">+</span> <span class="n">ky_o</span>
-
-    <span class="c1"># z-direction thermal conductivity</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kz</span>
-
-    <span class="c1"># Combined thermal conductivities (isotropic)</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_i&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">kx_i</span> <span class="o">+</span> <span class="n">ky_i</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_o&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">kx_o</span> <span class="o">+</span> <span class="n">ky_o</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span>
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_x&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">out</span><span class="p">[</span><span class="s1">&#39;k_y&#39;</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span>
-
-    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
-
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">varlen</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">npoints</span><span class="p">):</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">varlen</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+            <span class="n">run</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
 
