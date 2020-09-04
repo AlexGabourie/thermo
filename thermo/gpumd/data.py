@@ -227,7 +227,7 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
     return output
 
 
-def load_thermo(directory=None, filename='thermo.out', triclinic=False):
+def load_thermo(directory=None, filename='thermo.out'):
     """
     Loads data from thermo.out GPUMD output file.
 
@@ -238,30 +238,31 @@ def load_thermo(directory=None, filename='thermo.out', triclinic=False):
         filename (str):
             Name of thermal data file
 
-        triclinic (bool):
-            Specifies if structure was triclinic
-
         Returns:
-            'output' dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)
+            'output' dictionary containing the data from thermo.out
+
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,T,K,U,Px,Py,Pz,Lx,Ly,Lz,ax,ay,az,bx,by,bz,cx,cy,cz
+       **units**,K,eV,eV,GPa,GPa,GPa,A,A,A,A,A,A,A,A,A,A,A,A
+
+
     """
-    t_path = __get_path(directory, filename)
-    output = {'T': [], 'K': [], 'U': [], 'Px': [], 'Py': [], 'Pz': []}
+    thermo_path = __get_path(directory, filename)
+    data = pd.read_csv(thermo_path, delim_whitespace=True, header=None)
+    labels = ['T', 'K', 'U', 'Px', 'Py', 'Pz']
+    # Orthogonal
+    if data.shape[1] == 9:
+        labels += ['Lx', 'Ly', 'Lz']
+    elif data.shape[1] == 15:
+        labels += ['ax', 'ay', 'az', 'bx', 'by', 'bz', 'cx', 'cy', 'cz']
 
-    # orthogonal
-    if not triclinic:
-        output.update({'Lx': [], 'Ly': [], 'Lz': []})
+    out = dict()
+    for i in range(data.shape[1]):
+        out[labels[i]] = data[i].to_numpy()
 
-    # triclinic
-    else:
-        output.update({'ax': [], 'ay': [], 'az': [], 'bx': [], 'by': [], 'bz': [], 'cx': [], 'cy': [], 'cz': []})
-
-    with open(t_path) as f:
-        for line in f:
-            data = [float(num) for num in line.split()]
-            for key in output.keys():
-                index = list(output.keys()).index(key)
-                output[key].append(data[index])
-    return output
+    return out
 
 
 def load_heatmode(nbins, nsamples, directory=None,
