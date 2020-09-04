@@ -187,13 +187,12 @@ is accepted)</p>
 <dt>outputfile (str):</dt><dd><p>File name to save read data to. Output file is a binary dictionary. Loading from a binary file is much
 faster than re-reading data files and saving is recommended</p>
 </dd>
-<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
-False)</p>
+<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Name of directory storing the input file to read</p>
 </dd>
 <dt>return_data (bool):</dt><dd><p>Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
-save is True (default: True)</p>
+save is True</p>
 </dd>
 </dl>
 </dd>
@@ -297,7 +296,7 @@ with binning information</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘dos.out’ file from (dir. of simulation)</p>
 </dd>
-<dt>filename (str):</dt><dd><p>File to load DOS from. Default is dos.out</p>
+<dt>filename (str):</dt><dd><p>File to load DOS from.</p>
 </dd>
 </dl>
 </dd>
@@ -322,7 +321,7 @@ heat-current autocorrelation and running thermal conductivity values.</p>
 <p><strong>Created for GPUMD-v1.9</strong></p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>directory (str): Directory storing heat flux file.
-filename (str): File to load hac from. Default is ‘hac.out’</p>
+filename (str): File to load hac from.</p>
 </dd>
 <dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in
 ‘hac.out’ with some additional keys for aggregated values (see description)</p>
@@ -355,7 +354,7 @@ WARNING: If using multiprocessing, memory usage may be significantly larger than
 </dd>
 <dt>directory (str):</dt><dd><p>Name of directory storing the input file to read</p>
 </dd>
-<dt>inputfile (str):</dt><dd><p>Modal heat flux file output by GPUMD (default: heatmode.out)</p>
+<dt>inputfile (str):</dt><dd><p>Modal heat flux file output by GPUMD</p>
 </dd>
 <dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Excluding directions also allowed (i.e. ‘xz’
 is accepted)</p>
@@ -366,18 +365,17 @@ faster than re-reading data files and saving is recommended</p>
 <dt>ndiv (int):</dt><dd><p>Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
 need not be an integer</p>
 </dd>
-<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
-False)</p>
+<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended</p>
 </dd>
-<dt>multiprocessing (bool):</dt><dd><p>Toggle using multi-core processing for conversion of text file (default: False)</p>
+<dt>multiprocessing (bool):</dt><dd><p>Toggle using multi-core processing for conversion of text file</p>
 </dd>
 <dt>ncore (bool):</dt><dd><p>Number of cores to use for multiprocessing. Ignored if multiprocessing is False</p>
 </dd>
 <dt>block_size (int):</dt><dd><p>Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
-and file size (default: 2^16 = 65526)</p>
+and file size</p>
 </dd>
 <dt>return_data (bool):</dt><dd><p>Toggle returning the loaded modal heat flux data. If this is False, the user should ensure that
-save is True (default: True)</p>
+save is True</p>
 </dd>
 <dt>Returns:</dt><dd><p>dict: Dictionary with all modal heat fluxes requested</p>
 </dd>
@@ -394,7 +392,7 @@ save is True (default: True)</p>
 <dt>Args:</dt><dd><dl class="simple">
 <dt>directory (str):</dt><dd><p>Directory to load ‘kappa.out’ file from (dir. of simulation)</p>
 </dd>
-<dt>filename (str):</dt><dd><p>File to load kappa from. Default is kappa.out</p>
+<dt>filename (str):</dt><dd><p>File to load kappa from.</p>
 </dd>
 </dl>
 </dd>
@@ -416,7 +414,7 @@ WARNING: If using multiprocessing, memory useage may be significantly larger tha
 </dd>
 <dt>directory (str):</dt><dd><p>Name of directory storing the input file to read</p>
 </dd>
-<dt>inputfile (str):</dt><dd><p>Modal thermal conductivity file output by GPUMD (default: kappamode.out)</p>
+<dt>inputfile (str):</dt><dd><p>Modal thermal conductivity file output by GPUMD</p>
 </dd>
 <dt>directions (str):</dt><dd><p>Directions to gather data from. Any order of ‘xyz’ is accepted. Excluding directions also allowed (i.e. ‘xz’
 is accepted)</p>
@@ -427,18 +425,17 @@ faster than re-reading data files and saving is recommended</p>
 <dt>ndiv (int):</dt><dd><p>Integer used to shrink number of bins output. If originally have 10 bins, but want 5, ndiv=2. nbins/ndiv
 need not be an integer</p>
 </dd>
-<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended (default:
-False)</p>
+<dt>save (bool):</dt><dd><p>Toggle saving data to binary dictionary. Loading from save file is much faster and recommended</p>
 </dd>
-<dt>multiprocessing (bool):</dt><dd><p>Toggle using multi-core processing for conversion of text file (default: False)</p>
+<dt>multiprocessing (bool):</dt><dd><p>Toggle using multi-core processing for conversion of text file</p>
 </dd>
 <dt>ncore (bool):</dt><dd><p>Number of cores to use for multiprocessing. Ignored if multiprocessing is False</p>
 </dd>
 <dt>block_size (int):</dt><dd><p>Size of block (in bytes) to be read per read operation. File reading performance depend on this parameter
-and file size (default: 2^16 = 65526)</p>
+and file size</p>
 </dd>
 <dt>return_data (bool):</dt><dd><p>Toggle returning the loaded modal thermal conductivity data. If this is False, the user should ensure that
-save is True (default: True)</p>
+save is True</p>
 </dd>
 <dt>Returns:</dt><dd><p>dict: Dictionary with all modal thermal conductivities requested</p>
 </dd>
@@ -483,23 +480,15 @@ save is True (default: True)</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_sdc">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_sdc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='sdc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_sdc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_sdc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_sdc</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='sdc.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_sdc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_sdc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from sdc.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC/SDC is computed for. For num_run&gt;1,
-a list can be provided to specify number of points in each run if they
-are different. Otherwise, it is assumed that the same number of points
-are used per run</p>
-</dd>
-<dt>num_run (int):</dt><dd><p>Number of SDC runs in the sdc.out file</p>
-</dd>
-<dt>average (bool):</dt><dd><p>Averages all of the runs to a single output. Default is False. Only works
-if points_per_run is an int.</p>
+<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC/SDC is computed for.</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘sdc.out’ file from (dir. of simulation)</p>
 </dd>
-<dt>filename (str):</dt><dd><p>File to load SDC from. Default is sdc.out</p>
+<dt>filename (str):</dt><dd><p>File to load SDC from</p>
 </dd>
 </dl>
 </dd>
@@ -511,21 +500,19 @@ Dictionary with SDC data. The outermost dictionary stores each individual run.
 Each run is a dictionary with keys:</p>
 <ul class="simple">
 <li><p>t (ps)</p></li>
-<li><p>SDC_x (Angstrom^2/ps)</p></li>
-<li><p>SDC_y (Angstrom^2/ps)</p></li>
-<li><p>SDC_z (Angstrom^2/ps)</p></li>
+<li><p>SDC_x (A^2/ps)</p></li>
+<li><p>SDC_y (A^2/ps)</p></li>
+<li><p>SDC_z (A^2/ps)</p></li>
 </ul>
-<p>If average=True, this will also be stored as a run with the same run keys.</p>
 <p>vac (dict(dict)):
 Dictonary with VAC data. The outermost dictionary stores each individual run.
 Each run is a dictionary with keys:</p>
 <ul class="simple">
 <li><p>t (ps)</p></li>
-<li><p>VAC_x (Angstrom^2/ps^2)</p></li>
-<li><p>VAC_y (Angstrom^2/ps^2)</p></li>
-<li><p>VAC_z (Angstrom^2/ps^2)</p></li>
+<li><p>VAC_x (A^2/ps^2)</p></li>
+<li><p>VAC_y (A^2/ps^2)</p></li>
+<li><p>VAC_z (A^2/ps^2)</p></li>
 </ul>
-<p>If average=True, this will also be stored as a run with the same run keys.</p>
 </dd></dl>
 
 <dl class="function">
@@ -540,7 +527,7 @@ Each run is a dictionary with keys:</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘shc.out’ file from (dir. of simulation)</p>
 </dd>
-<dt>filename (str):</dt><dd><p>File to load SHC from. Default is shc.out</p>
+<dt>filename (str):</dt><dd><p>File to load SHC from.</p>
 </dd>
 </dl>
 </dd>
@@ -560,43 +547,98 @@ Each run is a dictionary with keys:</p>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_thermo">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_thermo</code><span class="sig-paren">(</span><em class="sig-param">directory=None</em>, <em class="sig-param">filename='thermo.out'</em>, <em class="sig-param">triclinic=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_thermo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_thermo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_thermo</code><span class="sig-paren">(</span><em class="sig-param">directory=None</em>, <em class="sig-param">filename='thermo.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_thermo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_thermo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from thermo.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>directory (str):</dt><dd><p>Directory to load ‘thermo.out’ file from (dir. of simulation)</p>
+<dt>directory (str):</dt><dd><p>Directory to load ‘thermo.out’ file from</p>
 </dd>
-<dt>filename (str):</dt><dd><p>file to load thermo from</p>
+<dt>filename (str):</dt><dd><p>Name of thermal data file</p>
 </dd>
-<dt>triclinic (bool):</dt><dd><p>allows user to set as true if triclinic, effects the total number of columns of data to add to.
-if triclinic is false, then orthogonal by default.</p>
-</dd>
-<dt>Returns:</dt><dd><p>‘output’ dictionary containing the data from thermo.out (ex: temperature, kinetic energy, etc.)</p>
+<dt>Returns:</dt><dd><p>‘output’ dictionary containing the data from thermo.out</p>
 </dd>
 </dl>
 </dd>
 </dl>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>T</p></td>
+<td><p>K</p></td>
+<td><p>U</p></td>
+<td><p>Px</p></td>
+<td><p>Py</p></td>
+<td><p>Pz</p></td>
+<td><p>Lx</p></td>
+<td><p>Ly</p></td>
+<td><p>Lz</p></td>
+<td><p>ax</p></td>
+<td><p>ay</p></td>
+<td><p>az</p></td>
+<td><p>bx</p></td>
+<td><p>by</p></td>
+<td><p>bz</p></td>
+<td><p>cx</p></td>
+<td><p>cy</p></td>
+<td><p>cz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>K</p></td>
+<td><p>eV</p></td>
+<td><p>eV</p></td>
+<td><p>GPa</p></td>
+<td><p>GPa</p></td>
+<td><p>GPa</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+<td><p>A</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.data.load_vac">
-<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_vac</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">num_run=1</em>, <em class="sig-param">average=False</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='mvac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_vac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_vac" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_vac</code><span class="sig-paren">(</span><em class="sig-param">Nc</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='mvac.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_vac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_vac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from mvac.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC is computed for. For num_run&gt;1,
-a list can be provided to specify number of points in each run if they
-are different. Otherwise, it is assumed that the same number of points
-are used per run</p>
+<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC is computed for.</p>
 </dd>
-<dt>num_run (int):</dt><dd><p>Number of VAC runs in the mvac.out file</p>
+<dt>directory (str):</dt><dd><p>Directory to load ‘mvac.out’ file from</p>
 </dd>
-<dt>average (bool):</dt><dd><p>Averages all of the runs to a single output. Default is False. Only works
-if points_per_run is an int.</p>
-</dd>
-<dt>directory (str):</dt><dd><p>Directory to load ‘mvac.out’ file from (dir. of simulation)</p>
-</dd>
-<dt>filename (str):</dt><dd><p>File to load VAC from. Default is mvac.out</p>
+<dt>filename (str):</dt><dd><p>File to load VAC from.</p>
 </dd>
 </dl>
 </dd>
@@ -613,7 +655,6 @@ if points_per_run is an int.</p>
 <li><p>VAC_y (Angstrom^2/ps^2)</p></li>
 <li><p>VAC_z (Angstrom^2/ps^2)</p></li>
 </ul>
-<p>If average=True, this will also be stored as a run with the same run keys.</p>
 </dd></dl>
 
 <dl class="function">
@@ -679,7 +720,7 @@ final m number of runs of the simulation</p>
 </dd>
 <dt>gpumd_file (str):</dt><dd><p>File to save the structure data to</p>
 </dd>
-<dt>sort_key (str):</dt><dd><p>How to sort atoms (‘group’, ‘type’). Default is None.</p>
+<dt>sort_key (str):</dt><dd><p>How to sort atoms (‘group’, ‘type’).</p>
 </dd>
 <dt>order (list(type)):</dt><dd><p>List to sort by. Provide str for ‘type’, and int for ‘group’</p>
 </dd>
@@ -900,7 +941,7 @@ a 3-element list for [vx, vy, vz]</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Alexander Gabourie
+        &copy; Copyright 2020, Alexander Gabourie
 
     </p>
   </div>
