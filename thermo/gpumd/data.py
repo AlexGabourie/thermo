@@ -522,39 +522,28 @@ def load_vac(Nc, directory=None, filename='mvac.out'):
         dict(dict):
             Dictonary with VAC data. The outermost dictionary stores each individual run
 
-    Each run is a dictionary with keys:\n
-    - t (ps)
-    - VAC_x (Angstrom^2/ps^2)
-    - VAC_y (Angstrom^2/ps^2)
-    - VAC_z (Angstrom^2/ps^2)
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,t,VACx,VACy,VACz
+       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2
 
     """
     Nc = __check_list(Nc, varname='Nc', dtype=int)
-    vac_path = __get_path(directory, filename)
-    with open(vac_path, 'r') as f:
-        lines = f.readlines()
+    sdc_path = __get_path(directory, filename)
+    data = pd.read_csv(sdc_path, delim_whitespace=True, header=None)
+    __check_range(Nc, data.shape[0])
+    labels = ['t', 'VACx', 'VACy', 'VACz']
 
-    out = dict()
     start = 0
+    out = dict()
     for i, npoints in enumerate(Nc):
-        run = dict()
         end = start + npoints
-        if end > len(lines):
-            raise IndexError("More data requested than exists.")
-
-        run['t'] = np.zeros(npoints)
-        run['VAC_x'] = np.zeros(npoints)
-        run['VAC_y'] = np.zeros(npoints)
-        run['VAC_z'] = np.zeros(npoints)
-        for j, line in enumerate(lines[start:end]):
-            data = line.split()
-            run['t'][j] = float(data[0])
-            run['VAC_x'][j] = float(data[1])
-            run['VAC_y'][j] = float(data[2])
-            run['VAC_z'][j] = float(data[3])
+        run = dict()
+        for j, key in enumerate(labels):
+            run[key] = data[j][start:end].to_numpy()
         start = end
         out['run{}'.format(i)] = run
-
     return out
 
 
