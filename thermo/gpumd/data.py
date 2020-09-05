@@ -740,7 +740,7 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
     .. csv-table:: Output dictionary
        :stub-columns: 1
 
-       **key**,t, corr_xi_x, corr_xo_x, corr_yi_y, corr_yo_y, corr_z_z, kxi, kxo, kyi, kyo, kz
+       **key**,t, HACxix, HACxox, HACyiy, HACyoy, HACzz, kxi, kxo, kyi, kyo, kz
        **units**,ps,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K
     """
 
@@ -752,8 +752,9 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
     npoints = [int(x / y) for x, y in zip(Nc, output_interval)]
     hac_path = __get_path(directory, filename)
     data = pd.read_csv(hac_path, delim_whitespace=True, header=None)
-    labels = ['t', 'corr_xi_x', 'corr_xo_x', 'corr_yi_y', 'corr_yo_y',
-              'corr_z_z', 'kxi', 'kxo', 'kyi', 'kyo', 'kz']
+    __check_range(npoints, data.shape[0])
+    labels = ['t', 'HACxix', 'HACxox', 'HACyiy', 'HACyoy', 'HACzz',
+              'kxi', 'kxo', 'kyi', 'kyo', 'kz']
     start = 0
     out = dict()
     for i, varlen in enumerate(npoints):

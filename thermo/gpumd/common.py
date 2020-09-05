@@ -35,7 +35,8 @@ def __check_list(data, varname=None, dtype=None):
     Checks if data is a list of dtype or turns a variable of dtype into a list
 
     Args:
-        data
+        data:
+            Data to check
 
         varname (str):
             Name of variable to check
@@ -43,7 +44,7 @@ def __check_list(data, varname=None, dtype=None):
         dtype (type)
             Data type to check data against
     Returns:
-        Bool
+        list(dtype)
     """
 
     if type(data) == dtype:
@@ -57,3 +58,25 @@ def __check_list(data, varname=None, dtype=None):
         return data
 
     raise ValueError('{} is not the correct type.'.format(str(varname)))
+
+
+def __check_range(npoints, maxpoints):
+    """
+    Checks if requested points are valid
+
+    Args:
+        npoints (list(int)):
+            Points to check
+
+        maxpoints (int):
+            Maximum number of points to read
+
+    Returns:
+        None
+    """
+    if sum(npoints) > maxpoints:
+        raise ValueError("More data requested than exists.")
+
+    for points in npoints:
+        if points < 1:
+            raise ValueError("Only strictly positive numbers are allowed.")
