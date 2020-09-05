@@ -705,7 +705,7 @@ def load_kappa(directory=None, filename='kappa.out'):
        :stub-columns: 1
 
        **key**,kxi, kxo, kyi, kyo, kz
-       **units**,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K        
+       **units**,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K
     """
 
     kappa_path = __get_path(directory, filename)
@@ -740,8 +740,8 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
     .. csv-table:: Output dictionary
        :stub-columns: 1
 
-       **key**,t, HACxix, HACxox, HACyiy, HACyoy, HACzz, kxi, kxo, kyi, kyo, kz
-       **units**,ps,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K
+       **key**,t, kxi, kxo, kyi, kyo, kz, jxijx, jxojx, jyijy, jyoJy, jzjz
+       **units**,ps,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu
     """
 
     Nc = __check_list(Nc, varname='Nc', dtype=int)
@@ -753,7 +753,7 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
     hac_path = __get_path(directory, filename)
     data = pd.read_csv(hac_path, delim_whitespace=True, header=None)
     __check_range(npoints, data.shape[0])
-    labels = ['t', 'HACxix', 'HACxox', 'HACyiy', 'HACyoy', 'HACzz',
+    labels = ['t', 'jxijx', 'jxojx', 'jyijy', 'jyoJy', 'jzjz',
               'kxi', 'kxo', 'kyi', 'kyo', 'kz']
     start = 0
     out = dict()
