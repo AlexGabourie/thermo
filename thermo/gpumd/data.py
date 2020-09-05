@@ -5,7 +5,7 @@ import copy
 import multiprocessing as mp
 from functools import partial
 from collections import deque
-from .common import __get_path, __get_direction, __check_list
+from .common import __get_path, __get_direction, __check_list, __check_range
 
 
 __author__ = "Alexander Gabourie"
@@ -467,7 +467,7 @@ def load_sdc(Nc, directory=None, filename='sdc.out'):
 
     Args:
         Nc (int or list(int)):
-            Number of time correlation points the VAC/SDC is computed for.
+            Number of time correlation points the VAC/SDC is computed for
 
         directory (str):
             Directory to load 'sdc.out' file from (dir. of simulation)
@@ -476,65 +476,32 @@ def load_sdc(Nc, directory=None, filename='sdc.out'):
             File to load SDC from
 
     Returns:
-        tuple: sdc, vac
+        dict(dict):
+            Dictonary with SDC/VAC data. The outermost dictionary stores each individual run
 
-    sdc (dict(dict)):
-    Dictionary with SDC data. The outermost dictionary stores each individual run.
-    Each run is a dictionary with keys:\n
-    - t (ps)
-    - SDC_x (A^2/ps)
-    - SDC_y (A^2/ps)
-    - SDC_z (A^2/ps)
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
 
-    vac (dict(dict)):
-    Dictonary with VAC data. The outermost dictionary stores each individual run.
-    Each run is a dictionary with keys:\n
-    - t (ps)
-    - VAC_x (A^2/ps^2)
-    - VAC_y (A^2/ps^2)
-    - VAC_z (A^2/ps^2)
+       **key**,t,VACx,VACy,VACz,SDCx,SDCy,SDCz
+       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2,A^2/ps,A^2/ps,A^2/ps
+
     """
     Nc = __check_list(Nc, varname='Nc', dtype=int)
     sdc_path = __get_path(directory, filename)
-    with open(sdc_path, 'r') as f:
-        lines = f.readlines()
+    data = pd.read_csv(sdc_path, delim_whitespace=True, header=None)
+    __check_range(Nc, data.shape[0])
+    labels = ['t', 'VACx', 'VACy', 'VACz', 'SDCx', 'SDCy', 'SDCz']
 
-    sdc = dict()
-    vac = dict()
     start = 0
+    out = dict()
     for i, npoints in enumerate(Nc):
-        srun = dict()
-        vrun = dict()
         end = start + npoints
-        if end > len(lines):
-            raise IndexError("More data requested than exists.")
-
-        vrun['t'] = np.zeros(npoints)
-        vrun['VAC_x'] = np.zeros(npoints)
-        vrun['VAC_y'] = np.zeros(npoints)
-        vrun['VAC_z'] = np.zeros(npoints)
-
-        srun['t'] = np.zeros(npoints)
-        srun['SDC_x'] = np.zeros(npoints)
-        srun['SDC_y'] = np.zeros(npoints)
-        srun['SDC_z'] = np.zeros(npoints)
-        for j, line in enumerate(lines[start:end]):
-            data = line.split()
-
-            vrun['t'][j] = float(data[0]) / (2 * np.pi)
-            vrun['VAC_x'][j] = float(data[1])
-            vrun['VAC_y'][j] = float(data[2])
-            vrun['VAC_z'][j] = float(data[3])
-
-            srun['t'][j] = float(data[0]) / (2 * np.pi)
-            srun['SDC_x'][j] = float(data[4])
-            srun['SDC_y'][j] = float(data[5])
-            srun['SDC_z'][j] = float(data[6])
+        run = dict()
+        for j, key in enumerate(labels):
+            run[key] = data[j][start:end].to_numpy()
         start = end
-        vac['run{}'.format(i)] = vrun
-        sdc['run{}'.format(i)] = srun
-
-    return sdc, vac
+        out['run{}'.format(i)] = run
+    return out
 
 
 def load_vac(Nc, directory=None, filename='mvac.out'):
@@ -543,17 +510,17 @@ def load_vac(Nc, directory=None, filename='mvac.out'):
 
     Args:
         Nc (int or list(int)):
-            Number of time correlation points the VAC is computed for.
+            Number of time correlation points the VAC is computed for
 
         directory (str):
             Directory to load 'mvac.out' file from
 
         filename (str):
-            File to load VAC from.
+            File to load VAC from
 
     Returns:
         dict(dict):
-            Dictonary with VAC data. The outermost dictionary stores each individual run.
+            Dictonary with VAC data. The outermost dictionary stores each individual run
 
     Each run is a dictionary with keys:\n
     - t (ps)
@@ -581,7 +548,7 @@ def load_vac(Nc, directory=None, filename='mvac.out'):
         run['VAC_z'] = np.zeros(npoints)
         for j, line in enumerate(lines[start:end]):
             data = line.split()
-            run['t'][j] = float(data[0]) / (2 * np.pi)
+            run['t'][j] = float(data[0])
             run['VAC_x'][j] = float(data[1])
             run['VAC_y'][j] = float(data[2])
             run['VAC_z'][j] = float(data[3])
