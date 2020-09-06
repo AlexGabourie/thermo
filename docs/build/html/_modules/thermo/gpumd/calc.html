@@ -335,7 +335,7 @@
 <span class="sd">            HNEMD force in (1/A)</span>
 
 <span class="sd">        T (float):</span>
-<span class="sd">            HNEMD run temperature (in K)</span>
+<span class="sd">            HNEMD run temperature (K)</span>
 
 <span class="sd">        V (float):</span>
 <span class="sd">            Volume (A^3) during HNEMD run</span>
@@ -347,7 +347,9 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,kwi,kwo</span>
-<span class="sd">       **units**,W/m/K/THz,W/m/K/THz</span>
+<span class="sd">       **units**,|sh3|,|sh3|</span>
+
+<span class="sd">    .. |sh3| replace:: Wm\ :sup:`-1` K\ :sup:`-1` THz\ :sup:`-1`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s1">&#39;jwi&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shc</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;jwo&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shc</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;shc argument must be from load_shc and contain in/out heat currents.&quot;</span><span class="p">)</span>

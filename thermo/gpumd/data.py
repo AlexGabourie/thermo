@@ -330,6 +330,17 @@ def load_heatmode(nbins, nsamples, directory=None,
 
         Returns:
                 dict: Dictionary with all modal heat fluxes requested
+
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,nbins, nsamples, jmxi, jmxo, jmyi, jmyo, jmz
+       **units**,N/A, N/A,|jm1|,|jm1|,|jm1|,|jm1|,|jm1|
+
+    .. |jm1| replace:: eV\ :sup:`3/2` amu\ :sup:`-1/2` *x*\ :sup:`-1`
+
+
+    Here *x* is the size of the bins in THz. For example, if there are 4 bins per THz, *x* = 0.25 THz.
     """
     jm_path = __get_path(directory, inputfile)
     out_path = __get_path(directory, outputfile)
@@ -529,8 +540,9 @@ def load_vac(Nc, directory=None, filename='mvac.out'):
        :stub-columns: 1
 
        **key**,t,VACx,VACy,VACz
-       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2
+       **units**,ps,|v1|,|v1|,|v1|
 
+    .. |v1| replace:: A\ :sup:`2` ps\ :sup:`-2`
     """
     Nc = __check_list(Nc, varname='Nc', dtype=int)
     sdc_path = __get_path(directory, filename)
@@ -562,7 +574,9 @@ def load_dos(num_dos_points, directory=None, filename='dos.out'):
        :stub-columns: 1
 
        **key**,nu,DOSx,DOSy,DODz
-       **units**,THz,1/THz,1/THz,1/THz
+       **units**,THz,|d1|,|d1|,|d1|
+
+    .. |d1| replace:: THz\ :sup:`-1`
 
     """
     num_dos_points = __check_list(num_dos_points, varname='num_dos_points', dtype=int)
@@ -600,7 +614,10 @@ def load_shc(Nc, num_omega, directory=None, filename='shc.out'):
        :stub-columns: 1
 
        **key**,t, Ki, Ko, nu, jwi, jwo
-       **units**,ps, A*eV/ps, A*eV/ps, THz, A*eV/ps/THz, A*eV/ps/THz
+       **units**,ps, |sh1|,|sh1|, THz, |sh2|, |sh2|
+
+    .. |sh1| replace:: A eV ps\ :sup:`-1`
+    .. |sh2| replace:: A eV ps\ :sup:`-1` THz\ :sup:`-1`
     """
 
     Nc = __check_list(Nc, varname='Nc', dtype=int)
@@ -652,7 +669,10 @@ def load_kappa(directory=None, filename='kappa.out'):
        :stub-columns: 1
 
        **key**,kxi, kxo, kyi, kyo, kz
-       **units**,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K
+       **units**,|k1|,|k1|,|k1|,|k1|,|k1|
+
+    .. |k1| replace:: Wm\ :sup:`-1` K\ :sup:`-1`
+
     """
 
     kappa_path = __get_path(directory, filename)
@@ -688,7 +708,10 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
        :stub-columns: 1
 
        **key**,t, kxi, kxo, kyi, kyo, kz, jxijx, jxojx, jyijy, jyoJy, jzjz
-       **units**,ps,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu
+       **units**,ps,|h1|,|h1|,|h1|,|h1|,|h1|,|h2|,|h2|,|h2|,|h2|,|h2|
+
+    .. |h1| replace:: Wm\ :sup:`-1` K\ :sup:`-1`
+    .. |h2| replace:: eV\ :sup:`3` amu\ :sup:`-1`
     """
 
     Nc = __check_list(Nc, varname='Nc', dtype=int)

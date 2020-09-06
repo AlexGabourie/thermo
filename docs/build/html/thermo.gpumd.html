@@ -211,7 +211,7 @@ save is True</p>
 </dd>
 <dt>Fe (float):</dt><dd><p>HNEMD force in (1/A)</p>
 </dd>
-<dt>T (float):</dt><dd><p>HNEMD run temperature (in K)</p>
+<dt>T (float):</dt><dd><p>HNEMD run temperature (K)</p>
 </dd>
 <dt>V (float):</dt><dd><p>Volume (A^3) during HNEMD run</p>
 </dd>
@@ -233,8 +233,8 @@ save is True</p>
 <td><p>kwo</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
-<td><p>W/m/K/THz</p></td>
-<td><p>W/m/K/THz</p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> THz<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> THz<sup>-1</sup></p></td>
 </tr>
 </tbody>
 </table>
@@ -335,9 +335,9 @@ each individual run.</p>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
 <td><p>THz</p></td>
-<td><p>1/THz</p></td>
-<td><p>1/THz</p></td>
-<td><p>1/THz</p></td>
+<td><p>THz<sup>-1</sup></p></td>
+<td><p>THz<sup>-1</sup></p></td>
+<td><p>THz<sup>-1</sup></p></td>
 </tr>
 </tbody>
 </table>
@@ -394,16 +394,16 @@ each individual run.</p>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
 <td><p>ps</p></td>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup></p></td>
 </tr>
 </tbody>
 </table>
@@ -450,6 +450,40 @@ save is True</p>
 </dl>
 </dd>
 </dl>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>nbins</p></td>
+<td><p>nsamples</p></td>
+<td><p>jmxi</p></td>
+<td><p>jmxo</p></td>
+<td><p>jmyi</p></td>
+<td><p>jmyo</p></td>
+<td><p>jmz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>eV<sup>3/2</sup> amu<sup>-1/2</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3/2</sup> amu<sup>-1/2</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3/2</sup> amu<sup>-1/2</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3/2</sup> amu<sup>-1/2</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3/2</sup> amu<sup>-1/2</sup> <em>x</em><sup>-1</sup></p></td>
+</tr>
+</tbody>
+</table>
+<p>Here <em>x</em> is the size of the bins in THz. For example, if there are 4 bins per THz, <em>x</em> = 0.25 THz.</p>
 </dd></dl>
 
 <dl class="function">
@@ -467,8 +501,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in ‘kappa.out’</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id4">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 17%" />
 <col style="width: 17%" />
@@ -486,11 +520,11 @@ save is True</p>
 <td><p>kz</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
-<td><p>W/m/K</p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
 </tr>
 </tbody>
 </table>
@@ -593,8 +627,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id5">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 13%" />
 <col style="width: 13%" />
@@ -647,8 +681,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: Dictionary of in- and out-of-plane shc results (average)</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id6">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 14%" />
@@ -669,11 +703,11 @@ save is True</p>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
 <td><p>ps</p></td>
-<td><p>A*eV/ps</p></td>
-<td><p>A*eV/ps</p></td>
+<td><p>A eV ps<sup>-1</sup></p></td>
+<td><p>A eV ps<sup>-1</sup></p></td>
 <td><p>THz</p></td>
-<td><p>A*eV/ps/THz</p></td>
-<td><p>A*eV/ps/THz</p></td>
+<td><p>A eV ps<sup>-1</sup> THz<sup>-1</sup></p></td>
+<td><p>A eV ps<sup>-1</sup> THz<sup>-1</sup></p></td>
 </tr>
 </tbody>
 </table>
@@ -694,8 +728,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id7">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 5%" />
 <col style="width: 5%" />
@@ -782,8 +816,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id8">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id9">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -800,9 +834,9 @@ save is True</p>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
 <td><p>ps</p></td>
-<td><p>A^2/ps^2</p></td>
-<td><p>A^2/ps^2</p></td>
-<td><p>A^2/ps^2</p></td>
+<td><p>A<sup>2</sup> ps<sup>-2</sup></p></td>
+<td><p>A<sup>2</sup> ps<sup>-2</sup></p></td>
+<td><p>A<sup>2</sup> ps<sup>-2</sup></p></td>
 </tr>
 </tbody>
 </table>

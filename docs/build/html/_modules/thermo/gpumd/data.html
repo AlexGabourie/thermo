@@ -478,6 +478,17 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">                dict: Dictionary with all modal heat fluxes requested</span>
+
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
+
+<span class="sd">       **key**,nbins, nsamples, jmxi, jmxo, jmyi, jmyo, jmz</span>
+<span class="sd">       **units**,N/A, N/A,|jm1|,|jm1|,|jm1|,|jm1|,|jm1|</span>
+
+<span class="sd">    .. |jm1| replace:: eV\ :sup:`3/2` amu\ :sup:`-1/2` *x*\ :sup:`-1`</span>
+
+
+<span class="sd">    Here *x* is the size of the bins in THz. For example, if there are 4 bins per THz, *x* = 0.25 THz.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">jm_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">)</span>
     <span class="n">out_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
@@ -677,8 +688,9 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,t,VACx,VACy,VACz</span>
-<span class="sd">       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2</span>
+<span class="sd">       **units**,ps,|v1|,|v1|,|v1|</span>
 
+<span class="sd">    .. |v1| replace:: A\ :sup:`2` ps\ :sup:`-2`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -710,7 +722,9 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,nu,DOSx,DOSy,DODz</span>
-<span class="sd">       **units**,THz,1/THz,1/THz,1/THz</span>
+<span class="sd">       **units**,THz,|d1|,|d1|,|d1|</span>
+
+<span class="sd">    .. |d1| replace:: THz\ :sup:`-1`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num_dos_points</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">num_dos_points</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;num_dos_points&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -748,7 +762,10 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,t, Ki, Ko, nu, jwi, jwo</span>
-<span class="sd">       **units**,ps, A*eV/ps, A*eV/ps, THz, A*eV/ps/THz, A*eV/ps/THz</span>
+<span class="sd">       **units**,ps, |sh1|,|sh1|, THz, |sh2|, |sh2|</span>
+
+<span class="sd">    .. |sh1| replace:: A eV ps\ :sup:`-1`</span>
+<span class="sd">    .. |sh2| replace:: A eV ps\ :sup:`-1` THz\ :sup:`-1`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -800,7 +817,10 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,kxi, kxo, kyi, kyo, kz</span>
-<span class="sd">       **units**,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K</span>
+<span class="sd">       **units**,|k1|,|k1|,|k1|,|k1|,|k1|</span>
+
+<span class="sd">    .. |k1| replace:: Wm\ :sup:`-1` K\ :sup:`-1`</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">kappa_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -836,7 +856,10 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,t, kxi, kxo, kyi, kyo, kz, jxijx, jxojx, jyijy, jyoJy, jzjz</span>
-<span class="sd">       **units**,ps,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu</span>
+<span class="sd">       **units**,ps,|h1|,|h1|,|h1|,|h1|,|h1|,|h2|,|h2|,|h2|,|h2|,|h2|</span>
+
+<span class="sd">    .. |h1| replace:: Wm\ :sup:`-1` K\ :sup:`-1`</span>
+<span class="sd">    .. |h2| replace:: eV\ :sup:`3` amu\ :sup:`-1`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>

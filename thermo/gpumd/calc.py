@@ -199,7 +199,9 @@ def hnemd_spectral_kappa(shc, Fe, T, V):
        :stub-columns: 1
 
        **key**,kwi,kwo
-       **units**,W/m/K/THz,W/m/K/THz
+       **units**,|sh3|,|sh3|
+
+    .. |sh3| replace:: Wm\ :sup:`-1` K\ :sup:`-1` THz\ :sup:`-1`
     """
     if 'jwi' not in shc.keys() or 'jwo' not in shc.keys():
         raise ValueError("shc argument must be from load_shc and contain in/out heat currents.")
