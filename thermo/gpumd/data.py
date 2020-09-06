@@ -596,58 +596,41 @@ def load_shc(Nc, num_omega, directory=None, filename='shc.out'):
     Returns:
         dict: Dictionary of in- and out-of-plane shc results (average)
 
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
 
-    Each run is a dictionary with keys:\n
-    - t (ps)
-    - K_in (ev*A/ps)
-    - K_out (ev*A/ps)
-    - nu (THz)
-    - J_in (A*eV/ps/THz)
-    - J_out (A*eV/ps/THz)
+       **key**,t, Ki, Ko, nu, jwi, jwo
+       **units**,ps, A*eV/ps, A*eV/ps, THz, A*eV/ps/THz, A*eV/ps/THz
     """
 
-    Nc = __check_list(Nc, varname='Nc',dtype=int)
+    Nc = __check_list(Nc, varname='Nc', dtype=int)
     num_omega = __check_list(num_omega, varname='num_omega', dtype=int)
     if not len(Nc) == len(num_omega):
         raise ValueError('Nc and num_omega must be the same length.')
     shc_path = __get_path(directory, filename)
-
-    with open(shc_path, 'r') as f:
-        lines = f.readlines()
+    data = pd.read_csv(shc_path, delim_whitespace=True, header=None)
+    __check_range(np.array(Nc) * 2 - 1 + np.array(num_omega), data.shape[0])
+    if not all([i>0 for i in Nc]) or not all([i>0 for i in num_omega]):
+        raise ValueError('Only strictly positive numbers are allowed.')
+    labels_corr = ['t', 'Ki', 'Ko']
+    labels_omega = ['nu', 'jwi', 'jwo']
 
     out = dict()
     start = 0
     for i, varlen in enumerate(zip(Nc, num_omega)):
-        Nc_i, num_omega_i = varlen
-        ndata = 2*Nc_i-1
-        end = start + ndata
-        print(end, end + num_omega_i, len(lines))
-        if end > len(lines) or end + num_omega_i > len(lines):
-            raise IndexError("More data requested than exists.")
         run = dict()
-        run['t'] = np.zeros(ndata)  # ps
-        run['K_in'] = np.zeros(ndata)  # eV*A/ps
-        run['K_out'] = np.zeros(ndata)  # eV*A/ps
-        # correlation data
-        for j, line in enumerate(lines[start:end]):
-            data = line.split()
-            run['t'][j] = float(data[0])
-            run['K_in'][j] = float(data[1])
-            run['K_out'][j] = float(data[2])
+        Nc_i = varlen[0] * 2 - 1
+        num_omega_i = varlen[1]
+        end = start + Nc_i
+        for j, key in enumerate(labels_corr):
+            run[key] = data[j][start:end].to_numpy()
         start = end
         end += num_omega_i
-        # spectral heat current
-        run['nu'] = np.zeros(num_omega_i)  # THz
-        run['J_in'] = np.zeros(num_omega_i)  # A*eV/ps/THz
-        run['J_out'] = np.zeros(num_omega_i)  # A*eV/ps/THz
-        for j, line in enumerate(lines[start:end]):
-            data = line.split()
-            run['nu'][j] = float(data[0])/(2*np.pi)
-            run['J_in'][j] = float(data[1])
-            run['J_out'][j] = float(data[2])
+        for j, key in enumerate(labels_omega):
+            run[key] = data[j][start:end].to_numpy()
+        run['nu'] /= (2 * np.pi)
         start = end
         out['run{}'.format(i)] = run
-
     return out
 
 

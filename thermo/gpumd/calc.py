@@ -187,7 +187,7 @@ def hnemd_spectral_kappa(shc, Fe, T, V):
             HNEMD force in (1/A)
 
         T (float):
-            HNEMD run temperature (in K)
+            HNEMD run temperature (K)
 
         V (float):
             Volume (A^3) during HNEMD run
@@ -195,14 +195,16 @@ def hnemd_spectral_kappa(shc, Fe, T, V):
     Returns:
         dict: Same as shc argument, but with spectral thermal conductivity included
 
-    Adds the following keys to the shc dictionary:\n
-    - k_in (W/m/K/THz)
-    - k_out (W/m/K/THz)
+    .. csv-table:: Output dictionary (new entries)
+       :stub-columns: 1
+
+       **key**,kwi,kwo
+       **units**,W/m/K/THz,W/m/K/THz
     """
-    if 'J_in' not in shc.keys() or 'J_out' not in shc.keys():
+    if 'jwi' not in shc.keys() or 'jwo' not in shc.keys():
         raise ValueError("shc argument must be from load_shc and contain in/out heat currents.")
 
     # ev*A/ps/THz * 1/A^3 *1/K * A ==> W/m/K/THz
     convert = 1602.17662
-    shc['k_in'] = shc['J_in']*convert/(Fe*T*V)
-    shc['k_out'] = shc['J_out'] * convert / (Fe * T * V)
+    shc['kwi'] = shc['jwi']*convert/(Fe*T*V)
+    shc['kwo'] = shc['jwo'] * convert / (Fe * T * V)
