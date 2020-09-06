@@ -220,11 +220,24 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: Same as shc argument, but with spectral thermal conductivity included</p>
 </dd>
 </dl>
-<p>Adds the following keys to the shc dictionary:</p>
-<ul class="simple">
-<li><p>k_in (W/m/K/THz)</p></li>
-<li><p>k_out (W/m/K/THz)</p></li>
-</ul>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Output dictionary (new entries)</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>kwi</p></td>
+<td><p>kwo</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>W/m/K/THz</p></td>
+<td><p>W/m/K/THz</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -304,13 +317,30 @@ with binning information</p>
 each individual run.</p>
 </dd>
 </dl>
-<p>Each run is a dictionary with keys:</p>
-<ul class="simple">
-<li><p>nu (THz)</p></li>
-<li><p>DOS_x (1/THz)</p></li>
-<li><p>DOS_y (1/THz)</p></li>
-<li><p>DOS_z (1/THz)</p></li>
-</ul>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>nu</p></td>
+<td><p>DOSx</p></td>
+<td><p>DOSy</p></td>
+<td><p>DODz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>THz</p></td>
+<td><p>1/THz</p></td>
+<td><p>1/THz</p></td>
+<td><p>1/THz</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -332,8 +362,8 @@ each individual run.</p>
 <dt>Returns:</dt><dd><p>dict: A dictionary containing the data from hac runs</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 8%" />
 <col style="width: 8%" />
@@ -351,29 +381,29 @@ each individual run.</p>
 <tbody>
 <tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
 <td><p>t</p></td>
-<td><p>corr_xi_x</p></td>
-<td><p>corr_xo_x</p></td>
-<td><p>corr_yi_y</p></td>
-<td><p>corr_yo_y</p></td>
-<td><p>corr_z_z</p></td>
 <td><p>kxi</p></td>
 <td><p>kxo</p></td>
 <td><p>kyi</p></td>
 <td><p>kyo</p></td>
 <td><p>kz</p></td>
+<td><p>jxijx</p></td>
+<td><p>jxojx</p></td>
+<td><p>jyijy</p></td>
+<td><p>jyoJy</p></td>
+<td><p>jzjz</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
 <td><p>ps</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
-<td><p>ev^3/amu</p></td>
 <td><p>W/m/K</p></td>
 <td><p>W/m/K</p></td>
 <td><p>W/m/K</p></td>
 <td><p>W/m/K</p></td>
 <td><p>W/m/K</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
+<td><p>ev^3/amu</p></td>
 </tr>
 </tbody>
 </table>
@@ -437,8 +467,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in ‘kappa.out’</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id2">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 17%" />
 <col style="width: 17%" />
@@ -549,7 +579,7 @@ save is True</p>
 <dd><p>Loads data from sdc.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC/SDC is computed for.</p>
+<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC/SDC is computed for</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘sdc.out’ file from (dir. of simulation)</p>
 </dd>
@@ -557,27 +587,45 @@ save is True</p>
 </dd>
 </dl>
 </dd>
-<dt>Returns:</dt><dd><p>tuple: sdc, vac</p>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict(dict):</dt><dd><p>Dictonary with SDC/VAC data. The outermost dictionary stores each individual run</p>
 </dd>
 </dl>
-<p>sdc (dict(dict)):
-Dictionary with SDC data. The outermost dictionary stores each individual run.
-Each run is a dictionary with keys:</p>
-<ul class="simple">
-<li><p>t (ps)</p></li>
-<li><p>SDC_x (A^2/ps)</p></li>
-<li><p>SDC_y (A^2/ps)</p></li>
-<li><p>SDC_z (A^2/ps)</p></li>
-</ul>
-<p>vac (dict(dict)):
-Dictonary with VAC data. The outermost dictionary stores each individual run.
-Each run is a dictionary with keys:</p>
-<ul class="simple">
-<li><p>t (ps)</p></li>
-<li><p>VAC_x (A^2/ps^2)</p></li>
-<li><p>VAC_y (A^2/ps^2)</p></li>
-<li><p>VAC_z (A^2/ps^2)</p></li>
-</ul>
+</dd>
+</dl>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>t</p></td>
+<td><p>VACx</p></td>
+<td><p>VACy</p></td>
+<td><p>VACz</p></td>
+<td><p>SDCx</p></td>
+<td><p>SDCy</p></td>
+<td><p>SDCz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>ps</p></td>
+<td><p>A^2/ps^2</p></td>
+<td><p>A^2/ps^2</p></td>
+<td><p>A^2/ps^2</p></td>
+<td><p>A^2/ps</p></td>
+<td><p>A^2/ps</p></td>
+<td><p>A^2/ps</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -599,15 +647,36 @@ Each run is a dictionary with keys:</p>
 <dt>Returns:</dt><dd><p>dict: Dictionary of in- and out-of-plane shc results (average)</p>
 </dd>
 </dl>
-<p>Each run is a dictionary with keys:</p>
-<ul class="simple">
-<li><p>t (ps)</p></li>
-<li><p>K_in (ev*A/ps)</p></li>
-<li><p>K_out (ev*A/ps)</p></li>
-<li><p>nu (THz)</p></li>
-<li><p>J_in (A*eV/ps/THz)</p></li>
-<li><p>J_out (A*eV/ps/THz)</p></li>
-</ul>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>t</p></td>
+<td><p>Ki</p></td>
+<td><p>Ko</p></td>
+<td><p>nu</p></td>
+<td><p>jwi</p></td>
+<td><p>jwo</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>ps</p></td>
+<td><p>A*eV/ps</p></td>
+<td><p>A*eV/ps</p></td>
+<td><p>THz</p></td>
+<td><p>A*eV/ps/THz</p></td>
+<td><p>A*eV/ps/THz</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -625,8 +694,8 @@ Each run is a dictionary with keys:</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id3">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 5%" />
 <col style="width: 5%" />
@@ -699,27 +768,44 @@ Each run is a dictionary with keys:</p>
 <dd><p>Loads data from mvac.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC is computed for.</p>
+<dt>Nc (int or list(int)):</dt><dd><p>Number of time correlation points the VAC is computed for</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘mvac.out’ file from</p>
 </dd>
-<dt>filename (str):</dt><dd><p>File to load VAC from.</p>
+<dt>filename (str):</dt><dd><p>File to load VAC from</p>
 </dd>
 </dl>
 </dd>
 <dt>Returns:</dt><dd><dl class="simple">
-<dt>dict(dict):</dt><dd><p>Dictonary with VAC data. The outermost dictionary stores each individual run.</p>
+<dt>dict(dict):</dt><dd><p>Dictonary with VAC data. The outermost dictionary stores each individual run</p>
 </dd>
 </dl>
 </dd>
 </dl>
-<p>Each run is a dictionary with keys:</p>
-<ul class="simple">
-<li><p>t (ps)</p></li>
-<li><p>VAC_x (Angstrom^2/ps^2)</p></li>
-<li><p>VAC_y (Angstrom^2/ps^2)</p></li>
-<li><p>VAC_z (Angstrom^2/ps^2)</p></li>
-</ul>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>t</p></td>
+<td><p>VACx</p></td>
+<td><p>VACy</p></td>
+<td><p>VACz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>ps</p></td>
+<td><p>A^2/ps^2</p></td>
+<td><p>A^2/ps^2</p></td>
+<td><p>A^2/ps^2</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">

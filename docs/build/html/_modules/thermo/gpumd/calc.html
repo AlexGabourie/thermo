@@ -343,17 +343,19 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Same as shc argument, but with spectral thermal conductivity included</span>
 
-<span class="sd">    Adds the following keys to the shc dictionary:\n</span>
-<span class="sd">    - k_in (W/m/K/THz)</span>
-<span class="sd">    - k_out (W/m/K/THz)</span>
+<span class="sd">    .. csv-table:: Output dictionary (new entries)</span>
+<span class="sd">       :stub-columns: 1</span>
+
+<span class="sd">       **key**,kwi,kwo</span>
+<span class="sd">       **units**,W/m/K/THz,W/m/K/THz</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;J_in&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shc</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;J_out&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shc</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s1">&#39;jwi&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shc</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;jwo&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shc</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;shc argument must be from load_shc and contain in/out heat currents.&quot;</span><span class="p">)</span>
 
     <span class="c1"># ev*A/ps/THz * 1/A^3 *1/K * A ==&gt; W/m/K/THz</span>
     <span class="n">convert</span> <span class="o">=</span> <span class="mf">1602.17662</span>
-    <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;k_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;J_in&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">convert</span><span class="o">/</span><span class="p">(</span><span class="n">Fe</span><span class="o">*</span><span class="n">T</span><span class="o">*</span><span class="n">V</span><span class="p">)</span>
-    <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;k_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;J_out&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">convert</span> <span class="o">/</span> <span class="p">(</span><span class="n">Fe</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">V</span><span class="p">)</span></div>
+    <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;kwi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;jwi&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">convert</span><span class="o">/</span><span class="p">(</span><span class="n">Fe</span><span class="o">*</span><span class="n">T</span><span class="o">*</span><span class="n">V</span><span class="p">)</span>
+    <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;kwo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shc</span><span class="p">[</span><span class="s1">&#39;jwo&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">convert</span> <span class="o">/</span> <span class="p">(</span><span class="n">Fe</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">V</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

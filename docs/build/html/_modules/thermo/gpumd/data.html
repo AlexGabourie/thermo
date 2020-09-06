@@ -153,7 +153,7 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">deque</span>
-<span class="kn">from</span> <span class="nn">.common</span> <span class="k">import</span> <span class="n">__get_path</span><span class="p">,</span> <span class="n">__get_direction</span><span class="p">,</span> <span class="n">__check_list</span>
+<span class="kn">from</span> <span class="nn">.common</span> <span class="k">import</span> <span class="n">__get_path</span><span class="p">,</span> <span class="n">__get_direction</span><span class="p">,</span> <span class="n">__check_list</span><span class="p">,</span> <span class="n">__check_range</span>
 
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
@@ -305,6 +305,19 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ndiv</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">__basic_reader</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">npoints</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">npoints</span>
+        <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+            <span class="n">run</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
+    <span class="k">return</span> <span class="n">out</span>
 
 
 <span class="c1">#########################################</span>
@@ -615,7 +628,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        Nc (int or list(int)):</span>
-<span class="sd">            Number of time correlation points the VAC/SDC is computed for.</span>
+<span class="sd">            Number of time correlation points the VAC/SDC is computed for</span>
 
 <span class="sd">        directory (str):</span>
 <span class="sd">            Directory to load &#39;sdc.out&#39; file from (dir. of simulation)</span>
@@ -624,65 +637,22 @@
 <span class="sd">            File to load SDC from</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: sdc, vac</span>
+<span class="sd">        dict(dict):</span>
+<span class="sd">            Dictonary with SDC/VAC data. The outermost dictionary stores each individual run</span>
 
-<span class="sd">    sdc (dict(dict)):</span>
-<span class="sd">    Dictionary with SDC data. The outermost dictionary stores each individual run.</span>
-<span class="sd">    Each run is a dictionary with keys:\n</span>
-<span class="sd">    - t (ps)</span>
-<span class="sd">    - SDC_x (A^2/ps)</span>
-<span class="sd">    - SDC_y (A^2/ps)</span>
-<span class="sd">    - SDC_z (A^2/ps)</span>
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
 
-<span class="sd">    vac (dict(dict)):</span>
-<span class="sd">    Dictonary with VAC data. The outermost dictionary stores each individual run.</span>
-<span class="sd">    Each run is a dictionary with keys:\n</span>
-<span class="sd">    - t (ps)</span>
-<span class="sd">    - VAC_x (A^2/ps^2)</span>
-<span class="sd">    - VAC_y (A^2/ps^2)</span>
-<span class="sd">    - VAC_z (A^2/ps^2)</span>
+<span class="sd">       **key**,t,VACx,VACy,VACz,SDCx,SDCy,SDCz</span>
+<span class="sd">       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2,A^2/ps,A^2/ps,A^2/ps</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">sdc_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-
-    <span class="n">sdc</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="n">vac</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">npoints</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Nc</span><span class="p">):</span>
-        <span class="n">srun</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">vrun</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">npoints</span>
-        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;More data requested than exists.&quot;</span><span class="p">)</span>
-
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-
-            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">vrun</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-
-            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_x&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_y&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
-            <span class="n">srun</span><span class="p">[</span><span class="s1">&#39;SDC_z&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
-        <span class="n">vac</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">vrun</span>
-        <span class="n">sdc</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">srun</span>
-
-    <span class="k">return</span> <span class="n">sdc</span><span class="p">,</span> <span class="n">vac</span></div>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">sdc_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">__check_range</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;VACx&#39;</span><span class="p">,</span> <span class="s1">&#39;VACy&#39;</span><span class="p">,</span> <span class="s1">&#39;VACz&#39;</span><span class="p">,</span> <span class="s1">&#39;SDCx&#39;</span><span class="p">,</span> <span class="s1">&#39;SDCy&#39;</span><span class="p">,</span> <span class="s1">&#39;SDCz&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">__basic_reader</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="load_vac"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_vac">[docs]</a><span class="k">def</span> <span class="nf">load_vac</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;mvac.out&#39;</span><span class="p">):</span>
@@ -691,52 +661,31 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        Nc (int or list(int)):</span>
-<span class="sd">            Number of time correlation points the VAC is computed for.</span>
+<span class="sd">            Number of time correlation points the VAC is computed for</span>
 
 <span class="sd">        directory (str):</span>
 <span class="sd">            Directory to load &#39;mvac.out&#39; file from</span>
 
 <span class="sd">        filename (str):</span>
-<span class="sd">            File to load VAC from.</span>
+<span class="sd">            File to load VAC from</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict(dict):</span>
-<span class="sd">            Dictonary with VAC data. The outermost dictionary stores each individual run.</span>
+<span class="sd">            Dictonary with VAC data. The outermost dictionary stores each individual run</span>
 
-<span class="sd">    Each run is a dictionary with keys:\n</span>
-<span class="sd">    - t (ps)</span>
-<span class="sd">    - VAC_x (Angstrom^2/ps^2)</span>
-<span class="sd">    - VAC_y (Angstrom^2/ps^2)</span>
-<span class="sd">    - VAC_z (Angstrom^2/ps^2)</span>
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
+
+<span class="sd">       **key**,t,VACx,VACy,VACz</span>
+<span class="sd">       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">vac_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">vac_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-
-    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">npoints</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">Nc</span><span class="p">):</span>
-        <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">npoints</span>
-        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;More data requested than exists.&quot;</span><span class="p">)</span>
-
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_x&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_y&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;VAC_z&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
-        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
-
-    <span class="k">return</span> <span class="n">out</span></div>
+    <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">sdc_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">__check_range</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;VACx&#39;</span><span class="p">,</span> <span class="s1">&#39;VACy&#39;</span><span class="p">,</span> <span class="s1">&#39;VACz&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">__basic_reader</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="load_dos"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_dos">[docs]</a><span class="k">def</span> <span class="nf">load_dos</span><span class="p">(</span><span class="n">num_dos_points</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;dos.out&#39;</span><span class="p">):</span>
@@ -757,39 +706,21 @@
 <span class="sd">        dict(dict)): Dictonary with DOS data. The outermost dictionary stores</span>
 <span class="sd">        each individual run.</span>
 
-<span class="sd">    Each run is a dictionary with keys:\n</span>
-<span class="sd">    - nu (THz)</span>
-<span class="sd">    - DOS_x (1/THz)</span>
-<span class="sd">    - DOS_y (1/THz)</span>
-<span class="sd">    - DOS_z (1/THz)</span>
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
+
+<span class="sd">       **key**,nu,DOSx,DOSy,DODz</span>
+<span class="sd">       **units**,THz,1/THz,1/THz,1/THz</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">num_dos_points</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">num_dos_points</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;num_dos_points&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">dos_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dos_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-
-    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">npoints</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">num_dos_points</span><span class="p">):</span>
-        <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">npoints</span>
-        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;More data requested than exists.&quot;</span><span class="p">)</span>
-
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_x&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_y&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;DOS_z&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
-        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
-
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">dos_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">__check_range</span><span class="p">(</span><span class="n">num_dos_points</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span> <span class="s1">&#39;DOSx&#39;</span><span class="p">,</span> <span class="s1">&#39;DOSy&#39;</span><span class="p">,</span> <span class="s1">&#39;DOSz&#39;</span><span class="p">]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">__basic_reader</span><span class="p">(</span><span class="n">num_dos_points</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
 
@@ -813,58 +744,41 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Dictionary of in- and out-of-plane shc results (average)</span>
 
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
 
-<span class="sd">    Each run is a dictionary with keys:\n</span>
-<span class="sd">    - t (ps)</span>
-<span class="sd">    - K_in (ev*A/ps)</span>
-<span class="sd">    - K_out (ev*A/ps)</span>
-<span class="sd">    - nu (THz)</span>
-<span class="sd">    - J_in (A*eV/ps/THz)</span>
-<span class="sd">    - J_out (A*eV/ps/THz)</span>
+<span class="sd">       **key**,t, Ki, Ko, nu, jwi, jwo</span>
+<span class="sd">       **units**,ps, A*eV/ps, A*eV/ps, THz, A*eV/ps/THz, A*eV/ps/THz</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">num_omega</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">num_omega</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;num_omega&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_omega</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Nc and num_omega must be the same length.&#39;</span><span class="p">)</span>
     <span class="n">shc_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">shc_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">shc_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">__check_range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Nc</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">num_omega</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Nc</span><span class="p">])</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">num_omega</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only strictly positive numbers are allowed.&#39;</span><span class="p">)</span>
+    <span class="n">labels_corr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;Ki&#39;</span><span class="p">,</span> <span class="s1">&#39;Ko&#39;</span><span class="p">]</span>
+    <span class="n">labels_omega</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span> <span class="s1">&#39;jwi&#39;</span><span class="p">,</span> <span class="s1">&#39;jwo&#39;</span><span class="p">]</span>
 
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">varlen</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">num_omega</span><span class="p">)):</span>
-        <span class="n">Nc_i</span><span class="p">,</span> <span class="n">num_omega_i</span> <span class="o">=</span> <span class="n">varlen</span>
-        <span class="n">ndata</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">Nc_i</span><span class="o">-</span><span class="mi">1</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">ndata</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="n">num_omega_i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="ow">or</span> <span class="n">end</span> <span class="o">+</span> <span class="n">num_omega_i</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;More data requested than exists.&quot;</span><span class="p">)</span>
         <span class="n">run</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ndata</span><span class="p">)</span>  <span class="c1"># ps</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ndata</span><span class="p">)</span>  <span class="c1"># eV*A/ps</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ndata</span><span class="p">)</span>  <span class="c1"># eV*A/ps</span>
-        <span class="c1"># correlation data</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_in&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;K_out&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">Nc_i</span> <span class="o">=</span> <span class="n">varlen</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">num_omega_i</span> <span class="o">=</span> <span class="n">varlen</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">Nc_i</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels_corr</span><span class="p">):</span>
+            <span class="n">run</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
         <span class="n">end</span> <span class="o">+=</span> <span class="n">num_omega_i</span>
-        <span class="c1"># spectral heat current</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_omega_i</span><span class="p">)</span>  <span class="c1"># THz</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_omega_i</span><span class="p">)</span>  <span class="c1"># A*eV/ps/THz</span>
-        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_omega_i</span><span class="p">)</span>  <span class="c1"># A*eV/ps/THz</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_in&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">run</span><span class="p">[</span><span class="s1">&#39;J_out&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels_omega</span><span class="p">):</span>
+            <span class="n">run</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">run</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
         <span class="n">out</span><span class="p">[</span><span class="s1">&#39;run</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">run</span>
-
     <span class="k">return</span> <span class="n">out</span></div>
 
 
@@ -886,7 +800,7 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,kxi, kxo, kyi, kyo, kz</span>
-<span class="sd">       **units**,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K        </span>
+<span class="sd">       **units**,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">kappa_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -921,8 +835,8 @@
 <span class="sd">    .. csv-table:: Output dictionary</span>
 <span class="sd">       :stub-columns: 1</span>
 
-<span class="sd">       **key**,t, corr_xi_x, corr_xo_x, corr_yi_y, corr_yo_y, corr_z_z, kxi, kxo, kyi, kyo, kz</span>
-<span class="sd">       **units**,ps,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K</span>
+<span class="sd">       **key**,t, kxi, kxo, kyi, kyo, kz, jxijx, jxojx, jyijy, jyoJy, jzjz</span>
+<span class="sd">       **units**,ps,W/m/K,W/m/K,W/m/K,W/m/K,W/m/K,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu,ev^3/amu</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
@@ -933,8 +847,9 @@
     <span class="n">npoints</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">output_interval</span><span class="p">)]</span>
     <span class="n">hac_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">hac_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_xi_x&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_xo_x&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_yi_y&#39;</span><span class="p">,</span> <span class="s1">&#39;corr_yo_y&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;corr_z_z&#39;</span><span class="p">,</span> <span class="s1">&#39;kxi&#39;</span><span class="p">,</span> <span class="s1">&#39;kxo&#39;</span><span class="p">,</span> <span class="s1">&#39;kyi&#39;</span><span class="p">,</span> <span class="s1">&#39;kyo&#39;</span><span class="p">,</span> <span class="s1">&#39;kz&#39;</span><span class="p">]</span>
+    <span class="n">__check_range</span><span class="p">(</span><span class="n">npoints</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;jxijx&#39;</span><span class="p">,</span> <span class="s1">&#39;jxojx&#39;</span><span class="p">,</span> <span class="s1">&#39;jyijy&#39;</span><span class="p">,</span> <span class="s1">&#39;jyoJy&#39;</span><span class="p">,</span> <span class="s1">&#39;jzjz&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;kxi&#39;</span><span class="p">,</span> <span class="s1">&#39;kxo&#39;</span><span class="p">,</span> <span class="s1">&#39;kyi&#39;</span><span class="p">,</span> <span class="s1">&#39;kyo&#39;</span><span class="p">,</span> <span class="s1">&#39;kz&#39;</span><span class="p">]</span>
     <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">varlen</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">npoints</span><span class="p">):</span>
