@@ -159,6 +159,19 @@ def __modal_analysis_read(nbins, nsamples, datapath,
     return data
 
 
+def __basic_reader(points, data, labels):
+    start = 0
+    out = dict()
+    for i, npoints in enumerate(points):
+        end = start + npoints
+        run = dict()
+        for j, key in enumerate(labels):
+            run[key] = data[j][start:end].to_numpy()
+        start = end
+        out['run{}'.format(i)] = run
+    return out
+
+
 #########################################
 # Data-loading Related
 #########################################
@@ -491,17 +504,7 @@ def load_sdc(Nc, directory=None, filename='sdc.out'):
     data = pd.read_csv(sdc_path, delim_whitespace=True, header=None)
     __check_range(Nc, data.shape[0])
     labels = ['t', 'VACx', 'VACy', 'VACz', 'SDCx', 'SDCy', 'SDCz']
-
-    start = 0
-    out = dict()
-    for i, npoints in enumerate(Nc):
-        end = start + npoints
-        run = dict()
-        for j, key in enumerate(labels):
-            run[key] = data[j][start:end].to_numpy()
-        start = end
-        out['run{}'.format(i)] = run
-    return out
+    return __basic_reader(Nc, data, labels)
 
 
 def load_vac(Nc, directory=None, filename='mvac.out'):
@@ -534,17 +537,7 @@ def load_vac(Nc, directory=None, filename='mvac.out'):
     data = pd.read_csv(sdc_path, delim_whitespace=True, header=None)
     __check_range(Nc, data.shape[0])
     labels = ['t', 'VACx', 'VACy', 'VACz']
-
-    start = 0
-    out = dict()
-    for i, npoints in enumerate(Nc):
-        end = start + npoints
-        run = dict()
-        for j, key in enumerate(labels):
-            run[key] = data[j][start:end].to_numpy()
-        start = end
-        out['run{}'.format(i)] = run
-    return out
+    return __basic_reader(Nc, data, labels)
 
 
 def load_dos(num_dos_points, directory=None, filename='dos.out'):
@@ -565,39 +558,21 @@ def load_dos(num_dos_points, directory=None, filename='dos.out'):
         dict(dict)): Dictonary with DOS data. The outermost dictionary stores
         each individual run.
 
-    Each run is a dictionary with keys:\n
-    - nu (THz)
-    - DOS_x (1/THz)
-    - DOS_y (1/THz)
-    - DOS_z (1/THz)
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,nu,DOSx,DOSy,DODz
+       **units**,THz,1/THz,1/THz,1/THz
 
     """
     num_dos_points = __check_list(num_dos_points, varname='num_dos_points', dtype=int)
     dos_path = __get_path(directory, filename)
-    with open(dos_path, 'r') as f:
-        lines = f.readlines()
-
-    out = dict()
-    start = 0
-    for i, npoints in enumerate(num_dos_points):
-        run = dict()
-        end = start + npoints
-        if end > len(lines):
-            raise IndexError("More data requested than exists.")
-
-        run['nu'] = np.zeros(npoints)
-        run['DOS_x'] = np.zeros(npoints)
-        run['DOS_y'] = np.zeros(npoints)
-        run['DOS_z'] = np.zeros(npoints)
-        for j, line in enumerate(lines[start:end]):
-            data = line.split()
-            run['nu'][j] = float(data[0])/(2*np.pi)
-            run['DOS_x'][j] = float(data[1])
-            run['DOS_y'][j] = float(data[2])
-            run['DOS_z'][j] = float(data[3])
-        start = end
-        out['run{}'.format(i)] = run
-
+    data = pd.read_csv(dos_path, delim_whitespace=True, header=None)
+    __check_range(num_dos_points, data.shape[0])
+    labels = ['nu', 'DOSx', 'DOSy', 'DOSz']
+    out = __basic_reader(num_dos_points, data, labels)
+    for key in out.keys():
+        out[key]['nu'] /= (2 * np.pi)
     return out
 
 
