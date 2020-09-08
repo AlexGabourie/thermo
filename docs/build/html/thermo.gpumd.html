@@ -361,21 +361,62 @@ with binning information</p>
 <dl class="function">
 <dt id="thermo.gpumd.data.load_compute">
 <code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_compute</code><span class="sig-paren">(</span><em class="sig-param">quantities=None</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='compute.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_compute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_compute" title="Permalink to this definition">¶</a></dt>
-<dd><p>loads data from compute.out GPUMD output file</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>quantities (str or list(str)):</dt><dd><p>Quantities to extract from compute.out Accepted quantities are:
-[‘temperature’, ‘potential’, ‘force’, ‘virial’, ‘jp’, ‘jk’]. Other quantity will be ignored.</p>
+<dd><blockquote>
+<div><p>Loads data from compute.out GPUMD output file.</p>
+<p>Currently supports loading a single run.</p>
+<dl>
+<dt>Args:</dt><dd><dl>
+<dt>quantities (str or list(str)):</dt><dd><p>Quantities to extract from compute.out Accepted quantities are:</p>
+<p>[‘T’, ‘U’, ‘F’, ‘W’, ‘jp’, ‘jk’].</p>
+<p>Other quantity will be ignored.</p>
+<p>T=temperature, U=potential, F=force, W=virial, jp=heat current (potential), jk=heat current (kinetic)</p>
 </dd>
 <dt>directory (str):</dt><dd><p>Directory to load ‘compute.out’ file from (dir. of simulation)</p>
 </dd>
 <dt>filename (str):</dt><dd><p>file to load compute from</p>
 </dd>
-<dt>Returns:</dt><dd><p>‘output’ dictionary containing the data from compute.out</p>
-</dd>
 </dl>
 </dd>
+<dt>Returns:</dt><dd><p>Dictionary containing the data from compute.out</p>
+</dd>
 </dl>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>T</p></td>
+<td><p>U</p></td>
+<td><p>F</p></td>
+<td><p>W</p></td>
+<td><p>jp</p></td>
+<td><p>jk</p></td>
+<td><p>Ein</p></td>
+<td><p>Eout</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>K</p></td>
+<td><p>eV</p></td>
+<td><p>eVA<sup>-1</sup></p></td>
+<td><p>eV</p></td>
+<td><p>eV<sup>3/2</sup> amu<sup>-1/2</sup></p></td>
+<td><p>eV<sup>3/2</sup> amu<sup>-1/2</sup></p></td>
+<td><p>eV</p></td>
+<td><p>eV</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -396,8 +437,8 @@ with binning information</p>
 each individual run.</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id4">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -441,8 +482,8 @@ each individual run.</p>
 <dt>Returns:</dt><dd><p>dict: A dictionary containing the data from hac runs</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id5">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 8%" />
 <col style="width: 8%" />
@@ -529,8 +570,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id6">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 13%" />
 <col style="width: 13%" />
@@ -580,8 +621,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in ‘kappa.out’</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id7">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 17%" />
 <col style="width: 17%" />
@@ -650,8 +691,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id8">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id9">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 13%" />
 <col style="width: 13%" />
@@ -740,8 +781,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id9">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id10">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 13%" />
 <col style="width: 13%" />
@@ -794,8 +835,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: Dictionary of in- and out-of-plane shc results (average)</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id10">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id11">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id11" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 14%" />
@@ -841,8 +882,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id11">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id11" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id12">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id12" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 5%" />
 <col style="width: 5%" />
@@ -929,8 +970,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id12">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id12" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id13">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id13" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />

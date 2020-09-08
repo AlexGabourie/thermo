@@ -326,12 +326,15 @@
 
 <div class="viewcode-block" id="load_compute"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_compute">[docs]</a><span class="k">def</span> <span class="nf">load_compute</span><span class="p">(</span><span class="n">quantities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;compute.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    loads data from compute.out GPUMD output file </span>
+<span class="sd">    Loads data from compute.out GPUMD output file.\n</span>
+<span class="sd">    Currently supports loading a single run.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        quantities (str or list(str)):</span>
-<span class="sd">            Quantities to extract from compute.out Accepted quantities are:</span>
-<span class="sd">            [&#39;temperature&#39;, &#39;potential&#39;, &#39;force&#39;, &#39;virial&#39;, &#39;jp&#39;, &#39;jk&#39;]. Other quantity will be ignored.</span>
+<span class="sd">            Quantities to extract from compute.out Accepted quantities are:\n</span>
+<span class="sd">            [&#39;T&#39;, &#39;U&#39;, &#39;F&#39;, &#39;W&#39;, &#39;jp&#39;, &#39;jk&#39;]. \n</span>
+<span class="sd">            Other quantity will be ignored.\n</span>
+<span class="sd">            T=temperature, U=potential, F=force, W=virial, jp=heat current (potential), jk=heat current (kinetic)</span>
 
 <span class="sd">        directory (str):</span>
 <span class="sd">            Directory to load &#39;compute.out&#39; file from (dir. of simulation)</span>
@@ -339,53 +342,46 @@
 <span class="sd">        filename (str):</span>
 <span class="sd">            file to load compute from</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            &#39;output&#39; dictionary containing the data from compute.out</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary containing the data from compute.out</span>
+
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
+
+<span class="sd">       **key**,T,U,F,W,jp,jk,Ein,Eout</span>
+<span class="sd">       **units**,K,eV,|c1|,eV,|c2|,|c2|,eV,eV</span>
+
+<span class="sd">   .. |c1| replace:: eVA\ :sup:`-1`</span>
+<span class="sd">   .. |c2| replace:: eV\ :sup:`3/2` amu\ :sup:`-1/2`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">quantities</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">com_n</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="n">com_n</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">com_n</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">compute_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">compute_path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-    <span class="n">total_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-    <span class="n">q_count</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;potential&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;virial&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;jp&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;jk&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">num_col</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">q_count</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;T&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;W&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;jp&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;jk&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
         <span class="n">count</span> <span class="o">+=</span> <span class="n">q_count</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
 
-    <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_cols</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_col</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
     <span class="k">if</span> <span class="s1">&#39;temperature&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">total_cols</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">num_col</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;Ein&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">num_col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span><span class="n">num_col</span><span class="p">])</span>
+        <span class="n">out</span><span class="p">[</span><span class="s1">&#39;Eout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">num_col</span><span class="p">:])</span>
 
+    <span class="n">out</span><span class="p">[</span><span class="s1">&#39;m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
     <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="s1">&#39;temperature&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="n">m</span><span class="p">])</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;heat_in&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">total_cols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span><span class="n">total_cols</span><span class="p">])</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;heat_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">total_cols</span><span class="p">:])</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">m</span>
+    <span class="k">for</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">q_count</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">q_count</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span><span class="o">*</span><span class="n">m</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
 
-    <span class="k">if</span> <span class="s1">&#39;potential&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;potential&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">m</span><span class="p">])</span>
-        <span class="n">start</span> <span class="o">+=</span> <span class="n">m</span>
-
-    <span class="k">if</span> <span class="s1">&#39;force&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;force&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
-        <span class="n">start</span> <span class="o">+=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">m</span>
-
-    <span class="k">if</span> <span class="s1">&#39;virial&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;virial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
-        <span class="n">start</span> <span class="o">+=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">m</span>
-
-    <span class="k">if</span> <span class="s1">&#39;jp&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;jp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
-        <span class="n">start</span> <span class="o">+=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">m</span>
-
-    <span class="k">if</span> <span class="s1">&#39;jk&#39;</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">:</span>
-        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;jk&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">com_n</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">m</span><span class="p">)])</span>
-
-    <span class="k">return</span> <span class="n">output</span></div>
+    <span class="k">return</span> <span class="n">out</span></div>
 
 
 <div class="viewcode-block" id="load_thermo"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_thermo">[docs]</a><span class="k">def</span> <span class="nf">load_thermo</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;thermo.out&#39;</span><span class="p">):</span>
