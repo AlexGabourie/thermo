@@ -178,12 +178,15 @@ def __basic_reader(points, data, labels):
 
 def load_compute(quantities=None, directory=None, filename='compute.out'):
     """
-    loads data from compute.out GPUMD output file 
+    Loads data from compute.out GPUMD output file.\n
+    Currently supports loading a single run.
 
     Args:
         quantities (str or list(str)):
-            Quantities to extract from compute.out Accepted quantities are:
-            ['temperature', 'potential', 'force', 'virial', 'jp', 'jk']. Other quantity will be ignored.
+            Quantities to extract from compute.out Accepted quantities are:\n
+            ['T', 'U', 'F', 'W', 'jp', 'jk']. \n
+            Other quantity will be ignored.\n
+            T=temperature, U=potential, F=force, W=virial, jp=heat current (potential), jk=heat current (kinetic)
 
         directory (str):
             Directory to load 'compute.out' file from (dir. of simulation)
@@ -191,53 +194,46 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
         filename (str):
             file to load compute from
 
-        Returns:
-            'output' dictionary containing the data from compute.out
+    Returns:
+        Dictionary containing the data from compute.out
+
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,T,U,F,W,jp,jk,Ein,Eout
+       **units**,K,eV,|c1|,eV,|c2|,|c2|,eV,eV
+
+   .. |c1| replace:: eVA\ :sup:`-1`
+   .. |c2| replace:: eV\ :sup:`3/2` amu\ :sup:`-1/2`
     """
     if not quantities:
         return None
-    com_n = __get_path(directory, filename)
-    com_n = pd.read_csv(com_n, sep="\s+", header=None)
+    compute_path = __get_path(directory, filename)
+    data = pd.read_csv(compute_path, delim_whitespace=True, header=None)
 
-    total_cols = len(com_n.columns)
-    q_count = {'temperature': 1, 'potential': 1, 'force': 3, 'virial': 3, 'jp': 3, 'jk': 3}
-    output = dict()
+    num_col = len(data.columns)
+    q_count = {'T': 1, 'U': 1, 'F': 3, 'W': 3, 'jp': 3, 'jk': 3}
+    out = dict()
 
     count = 0
     for value in quantities:
         count += q_count[value]
 
-    m = int(total_cols / count)
+    m = int(num_col / count)
     if 'temperature' in quantities:
-        m = int((total_cols - 2) / count)
+        m = int((num_col - 2) / count)
+        out['Ein'] = np.array(data.iloc[:, num_col - 1:num_col])
+        out['Eout'] = np.array(data.iloc[:, num_col:])
 
+    out['m'] = m
     start = 0
-    if 'temperature' in quantities:
-        output['temperature'] = np.array(com_n.iloc[:, :m])
-        output['heat_in'] = np.array(com_n.iloc[:, total_cols - 1:total_cols])
-        output['heat_out'] = np.array(com_n.iloc[:, total_cols:])
-        start = m
+    for quantity in q_count.keys():
+        if quantity in quantities:
+            end = start + q_count[quantity]*m
+            out[quantity] = data.iloc[:, start:end].to_numpy()
+            start = end
 
-    if 'potential' in quantities:
-        output['potential'] = np.array(com_n.iloc[:, start: m])
-        start += m
-
-    if 'force' in quantities:
-        output['force'] = np.array(com_n.iloc[:, start: start + (3 * m)])
-        start += 3 * m
-
-    if 'virial' in quantities:
-        output['virial'] = np.array(com_n.iloc[:, start: start + (3 * m)])
-        start += 3 * m
-
-    if 'jp' in quantities:
-        output['jp'] = np.array(com_n.iloc[:, start: start + (3 * m)])
-        start += 3 * m
-
-    if 'jk' in quantities:
-        output['jk'] = np.array(com_n.iloc[:, start: start + (3 * m)])
-
-    return output
+    return out
 
 
 def load_thermo(directory=None, filename='thermo.out'):
