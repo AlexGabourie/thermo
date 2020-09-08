@@ -172,9 +172,61 @@ def __basic_reader(points, data, labels):
     return out
 
 
+def __basic_frame_loader(n, directory, filename):
+    path = __get_path(directory, filename)
+    data = pd.read_csv(path, delim_whitespace=True, header=None).to_numpy()
+    if not (data.shape[0] / n).is_integer():
+        raise ValueError("An integer number of frames cannot be created. Please check n.")
+    return data.reshape(n, 3, -1)
+
+
 #########################################
 # Data-loading Related
 #########################################
+
+def load_force(n, directory=None, filename='force.out'):
+    """
+    Loads data from force.out GPUMD output file.\n
+    Currently supports loading a single run.
+
+    Args:
+        n (int):
+            Number of atoms force is output for
+
+        directory (str):
+            Directory to load force file from
+
+        filename (str):
+            Name of force data file
+
+    Returns:
+        Numpy array of shape (n,3,-1) containing all forces (ev/A) from filename
+
+    """
+    return __basic_frame_loader(n, directory, filename)
+
+
+def load_velocity(n, directory=None, filename='velocity.out'):
+    """
+    Loads data from velocity.out GPUMD output file.\n
+    Currently supports loading a single run.
+
+    Args:
+        n (int):
+            Number of atoms velocity is output for
+
+        directory (str):
+            Directory to load velocity file from
+
+        filename (str):
+            Name of velocity data file
+
+    Returns:
+        Numpy array of shape (n,3,-1) containing all forces (A/ps) from filename
+
+    """
+    return __basic_frame_loader(n, directory, filename)
+
 
 def load_compute(quantities=None, directory=None, filename='compute.out'):
     """
@@ -189,7 +241,7 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
             T=temperature, U=potential, F=force, W=virial, jp=heat current (potential), jk=heat current (kinetic)
 
         directory (str):
-            Directory to load 'compute.out' file from (dir. of simulation)
+            Directory to load compute file from
 
         filename (str):
             file to load compute from
@@ -206,6 +258,7 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
    .. |c1| replace:: eVA\ :sup:`-1`
    .. |c2| replace:: eV\ :sup:`3/2` amu\ :sup:`-1/2`
     """
+    # TODO Add input checking
     if not quantities:
         return None
     compute_path = __get_path(directory, filename)
@@ -242,7 +295,7 @@ def load_thermo(directory=None, filename='thermo.out'):
 
     Args:
         directory (str):
-            Directory to load 'thermo.out' file from
+            Directory to load thermal data file from
 
         filename (str):
             Name of thermal data file
