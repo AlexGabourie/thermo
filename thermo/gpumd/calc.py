@@ -81,6 +81,16 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
     Returns:
         dict: Input data dict but with correlation, thermal conductivity, and lag time data included
 
+    .. csv-table:: Output dictionary (new entries)
+       :stub-columns: 1
+
+       **key**,tau,kmxi,kmxo,kmyi,kmyo,kmz,jmxijx,jmxojx,jmyijy,jmyojy,jmzjz
+       **units**,ns,|gk1|,|gk1|,|gk1|,|gk1|,|gk1|,|gk2|,|gk2|,|gk2|,|gk2|,|gk2|
+
+    .. |gk1| replace:: Wm\ :sup:`-1` K\ :sup:`-1` *x*\ :sup:`-1`
+    .. |gk2| replace:: eV\ :sup:`3` amu\ :sup:`-1` *x*\ :sup:`-1`
+
+    Here *x* is the size of the bins in THz. For example, if there are 4 bins per THz, *x* = 0.25 THz.
     """
     out_path = __get_path(directory, outputfile)
     scale = __scale_gpumd_tc(vol, T)
@@ -110,16 +120,16 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
             raise ValueError("x direction data is missing")
 
         jx = np.sum(data['jmxi']+data['jmxo'], axis=0)
-        data['corr_xmi_x'] = np.zeros((nbins, size))
-        data['corr_xmo_x'] = np.zeros((nbins, size))
+        data['jmxijx'] = np.zeros((nbins, size))
+        data['jmxojx'] = np.zeros((nbins, size))
         data['kmxi'] = np.zeros((nbins, size))
         data['kmxo'] = np.zeros((nbins, size))
         for m in range(nbins):
-            data['corr_xmi_x'][m, :] = corr(data['jmxi'][m, :].astype(cplx), jx.astype(cplx), max_lag)
-            data['kmxi'][m, :] = integrate.cumtrapz(data['corr_xmi_x'][m, :], data['tau'], initial=0) * scale
+            data['jmxijx'][m, :] = corr(data['jmxi'][m, :].astype(cplx), jx.astype(cplx), max_lag)
+            data['kmxi'][m, :] = integrate.cumtrapz(data['jmxijx'][m, :], data['tau'], initial=0) * scale
 
-            data['corr_xmo_x'][m, :] = corr(data['jmxo'][m, :].astype(cplx), jx.astype(cplx), max_lag)
-            data['kmxo'][m, :] = integrate.cumtrapz(data['corr_xmo_x'][m, :], data['tau'], initial=0) * scale
+            data['jmxojx'][m, :] = corr(data['jmxo'][m, :].astype(cplx), jx.astype(cplx), max_lag)
+            data['kmxo'][m, :] = integrate.cumtrapz(data['jmxojx'][m, :], data['tau'], initial=0) * scale
         del jx
 
     if 'y' in directions:
@@ -127,16 +137,16 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
             raise ValueError("y direction data is missing")
 
         jy = np.sum(data['jmyi']+data['jmyo'], axis=0)
-        data['corr_ymi_y'] = np.zeros((nbins, size))
-        data['corr_ymo_y'] = np.zeros((nbins, size))
+        data['jmyijy'] = np.zeros((nbins, size))
+        data['jmyojy'] = np.zeros((nbins, size))
         data['kmyi'] = np.zeros((nbins, size))
         data['kmyo'] = np.zeros((nbins, size))
         for m in range(nbins):
-            data['corr_ymi_y'][m, :] = corr(data['jmyi'][m, :].astype(cplx), jy.astype(cplx), max_lag)
-            data['kmyi'][m, :] = integrate.cumtrapz(data['corr_ymi_y'][m, :], data['tau'], initial=0) * scale
+            data['jmyijy'][m, :] = corr(data['jmyi'][m, :].astype(cplx), jy.astype(cplx), max_lag)
+            data['kmyi'][m, :] = integrate.cumtrapz(data['jmyijy'][m, :], data['tau'], initial=0) * scale
 
-            data['corr_ymo_y'][m, :] = corr(data['jmyo'][m, :].astype(cplx), jy.astype(cplx), max_lag)
-            data['kmyo'][m, :] = integrate.cumtrapz(data['corr_ymo_y'][m, :], data['tau'], initial=0) * scale
+            data['jmyojy'][m, :] = corr(data['jmyo'][m, :].astype(cplx), jy.astype(cplx), max_lag)
+            data['kmyo'][m, :] = integrate.cumtrapz(data['jmyojy'][m, :], data['tau'], initial=0) * scale
         del jy
 
     if 'z' in directions:
@@ -144,11 +154,11 @@ def get_gkma_kappa(data, nbins, nsamples, dt, sample_interval, T=300, vol=1, max
             raise ValueError("z direction data is missing")
 
         jz = np.sum(data['jmz'], axis=0)
-        data['corr_zm_z'] = np.zeros((nbins, size))
+        data['jmzjz'] = np.zeros((nbins, size))
         data['kmz'] = np.zeros((nbins, size))
         for m in range(nbins):
-            data['corr_zm_z'][m, :] = corr(data['jmz'][m, :].astype(cplx), jz.astype(cplx), max_lag)
-            data['kmz'][m, :] = integrate.cumtrapz(data['corr_zm_z'][m, :], data['tau'], initial=0) * scale
+            data['jmzjz'][m, :] = corr(data['jmz'][m, :].astype(cplx), jz.astype(cplx), max_lag)
+            data['kmz'][m, :] = integrate.cumtrapz(data['jmzjz'][m, :], data['tau'], initial=0) * scale
         del jz
 
     data['tau'] = data['tau'] / 1.e6

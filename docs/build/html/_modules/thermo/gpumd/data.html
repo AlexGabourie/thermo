@@ -568,6 +568,16 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">                dict: Dictionary with all modal thermal conductivities requested</span>
+
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
+
+<span class="sd">       **key**,nbins,nsamples,kmxi,kmxo,kmyi,kmyo,kmz</span>
+<span class="sd">       **units**,N/A,N/A,|hn1|,|hn1|,|hn1|,|hn1|,|hn1|</span>
+
+<span class="sd">    .. |hn1| replace:: Wm\ :sup:`-1` K\ :sup:`-1` *x*\ :sup:`-1`</span>
+
+<span class="sd">    Here *x* is the size of the bins in THz. For example, if there are 4 bins per THz, *x* = 0.25 THz.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">km_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">)</span>
     <span class="n">out_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">outputfile</span><span class="p">)</span>
@@ -655,8 +665,10 @@
 <span class="sd">       :stub-columns: 1</span>
 
 <span class="sd">       **key**,t,VACx,VACy,VACz,SDCx,SDCy,SDCz</span>
-<span class="sd">       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2,A^2/ps,A^2/ps,A^2/ps</span>
+<span class="sd">       **units**,ps,|sd1|,|sd1|,|sd1|,|sd2|,|sd2|,|sd2|</span>
 
+<span class="sd">    .. |sd1| replace:: A\ :sup:`2` ps\ :sup:`-2`</span>
+<span class="sd">    .. |sd2| replace:: A\ :sup:`2` ps\ :sup:`-1`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Nc</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">Nc</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;Nc&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">sdc_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -721,7 +733,7 @@
 <span class="sd">    .. csv-table:: Output dictionary</span>
 <span class="sd">       :stub-columns: 1</span>
 
-<span class="sd">       **key**,nu,DOSx,DOSy,DODz</span>
+<span class="sd">       **key**,nu,DOSx,DOSy,DOSz</span>
 <span class="sd">       **units**,THz,|d1|,|d1|,|d1|</span>
 
 <span class="sd">    .. |d1| replace:: THz\ :sup:`-1`</span>
@@ -906,6 +918,11 @@
 <span class="sd">        dict: Dictionary with the system eigen-freqeuency information along</span>
 <span class="sd">        with binning information</span>
 
+<span class="sd">    .. csv-table:: Output dictionary</span>
+<span class="sd">       :stub-columns: 1</span>
+
+<span class="sd">       **key**,fq,fmax,fmin,shift,nbins,bin_count,bin_f_size</span>
+<span class="sd">       **units**,THz,THz,THz,N/A,N/A,N/A,THz</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">directory</span><span class="p">:</span>
         <span class="n">eigpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">eigfile</span><span class="p">)</span>

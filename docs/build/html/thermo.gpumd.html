@@ -199,6 +199,52 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: Input data dict but with correlation, thermal conductivity, and lag time data included</p>
 </dd>
 </dl>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Output dictionary (new entries)</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>tau</p></td>
+<td><p>kmxi</p></td>
+<td><p>kmxo</p></td>
+<td><p>kmyi</p></td>
+<td><p>kmyo</p></td>
+<td><p>kmz</p></td>
+<td><p>jmxijx</p></td>
+<td><p>jmxojx</p></td>
+<td><p>jmyijy</p></td>
+<td><p>jmyojy</p></td>
+<td><p>jmzjz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>ns</p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>eV<sup>3</sup> amu<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+</tr>
+</tbody>
+</table>
+<p>Here <em>x</em> is the size of the bins in THz. For example, if there are 4 bins per THz, <em>x</em> = 0.25 THz.</p>
 </dd></dl>
 
 <dl class="function">
@@ -220,8 +266,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: Same as shc argument, but with spectral thermal conductivity included</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Output dictionary (new entries)</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Output dictionary (new entries)</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -277,6 +323,39 @@ phonon package</p>
 with binning information</p>
 </dd>
 </dl>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>fq</p></td>
+<td><p>fmax</p></td>
+<td><p>fmin</p></td>
+<td><p>shift</p></td>
+<td><p>nbins</p></td>
+<td><p>bin_count</p></td>
+<td><p>bin_f_size</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>THz</p></td>
+<td><p>THz</p></td>
+<td><p>THz</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>THz</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -317,8 +396,8 @@ with binning information</p>
 each individual run.</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id2">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -331,7 +410,7 @@ each individual run.</p>
 <td><p>nu</p></td>
 <td><p>DOSx</p></td>
 <td><p>DOSy</p></td>
-<td><p>DODz</p></td>
+<td><p>DOSz</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
 <td><p>THz</p></td>
@@ -362,8 +441,8 @@ each individual run.</p>
 <dt>Returns:</dt><dd><p>dict: A dictionary containing the data from hac runs</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id3">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 8%" />
 <col style="width: 8%" />
@@ -450,8 +529,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id4">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 13%" />
 <col style="width: 13%" />
@@ -501,8 +580,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: A dictionary with keys corresponding to the columns in ‘kappa.out’</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id5">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 17%" />
 <col style="width: 17%" />
@@ -571,6 +650,40 @@ save is True</p>
 </dl>
 </dd>
 </dl>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>nbins</p></td>
+<td><p>nsamples</p></td>
+<td><p>kmxi</p></td>
+<td><p>kmxo</p></td>
+<td><p>kmyi</p></td>
+<td><p>kmyo</p></td>
+<td><p>kmz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup> <em>x</em><sup>-1</sup></p></td>
+</tr>
+</tbody>
+</table>
+<p>Here <em>x</em> is the size of the bins in THz. For example, if there are 4 bins per THz, <em>x</em> = 0.25 THz.</p>
 </dd></dl>
 
 <dl class="function">
@@ -627,8 +740,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id6">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id9">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 13%" />
 <col style="width: 13%" />
@@ -651,12 +764,12 @@ save is True</p>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
 <td><p>ps</p></td>
-<td><p>A^2/ps^2</p></td>
-<td><p>A^2/ps^2</p></td>
-<td><p>A^2/ps^2</p></td>
-<td><p>A^2/ps</p></td>
-<td><p>A^2/ps</p></td>
-<td><p>A^2/ps</p></td>
+<td><p>A<sup>2</sup> ps<sup>-2</sup></p></td>
+<td><p>A<sup>2</sup> ps<sup>-2</sup></p></td>
+<td><p>A<sup>2</sup> ps<sup>-2</sup></p></td>
+<td><p>A<sup>2</sup> ps<sup>-1</sup></p></td>
+<td><p>A<sup>2</sup> ps<sup>-1</sup></p></td>
+<td><p>A<sup>2</sup> ps<sup>-1</sup></p></td>
 </tr>
 </tbody>
 </table>
@@ -681,8 +794,8 @@ save is True</p>
 <dt>Returns:</dt><dd><p>dict: Dictionary of in- and out-of-plane shc results (average)</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id7">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id10">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 14%" />
@@ -728,8 +841,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id8">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id11">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id11" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 5%" />
 <col style="width: 5%" />
@@ -816,8 +929,8 @@ save is True</p>
 </dl>
 </dd>
 </dl>
-<table class="docutils align-default" id="id9">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id12">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id12" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />

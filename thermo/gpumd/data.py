@@ -420,6 +420,16 @@ def load_kappamode(nbins, nsamples, directory=None,
 
         Returns:
                 dict: Dictionary with all modal thermal conductivities requested
+
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,nbins,nsamples,kmxi,kmxo,kmyi,kmyo,kmz
+       **units**,N/A,N/A,|hn1|,|hn1|,|hn1|,|hn1|,|hn1|
+
+    .. |hn1| replace:: Wm\ :sup:`-1` K\ :sup:`-1` *x*\ :sup:`-1`
+
+    Here *x* is the size of the bins in THz. For example, if there are 4 bins per THz, *x* = 0.25 THz.
     """
     km_path = __get_path(directory, inputfile)
     out_path = __get_path(directory, outputfile)
@@ -507,8 +517,10 @@ def load_sdc(Nc, directory=None, filename='sdc.out'):
        :stub-columns: 1
 
        **key**,t,VACx,VACy,VACz,SDCx,SDCy,SDCz
-       **units**,ps,A^2/ps^2,A^2/ps^2,A^2/ps^2,A^2/ps,A^2/ps,A^2/ps
+       **units**,ps,|sd1|,|sd1|,|sd1|,|sd2|,|sd2|,|sd2|
 
+    .. |sd1| replace:: A\ :sup:`2` ps\ :sup:`-2`
+    .. |sd2| replace:: A\ :sup:`2` ps\ :sup:`-1`
     """
     Nc = __check_list(Nc, varname='Nc', dtype=int)
     sdc_path = __get_path(directory, filename)
@@ -573,7 +585,7 @@ def load_dos(num_dos_points, directory=None, filename='dos.out'):
     .. csv-table:: Output dictionary
        :stub-columns: 1
 
-       **key**,nu,DOSx,DOSy,DODz
+       **key**,nu,DOSx,DOSy,DOSz
        **units**,THz,|d1|,|d1|,|d1|
 
     .. |d1| replace:: THz\ :sup:`-1`
@@ -758,6 +770,11 @@ def get_frequency_info(bin_f_size, eigfile='eigenvector.out', directory=None):
         dict: Dictionary with the system eigen-freqeuency information along
         with binning information
 
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,fq,fmax,fmin,shift,nbins,bin_count,bin_f_size
+       **units**,THz,THz,THz,N/A,N/A,N/A,THz
     """
     if not directory:
         eigpath = os.path.join(os.getcwd(), eigfile)
