@@ -371,7 +371,7 @@ with binning information</p>
 <p>Other quantity will be ignored.</p>
 <p>T=temperature, U=potential, F=force, W=virial, jp=heat current (potential), jk=heat current (kinetic)</p>
 </dd>
-<dt>directory (str):</dt><dd><p>Directory to load ‘compute.out’ file from (dir. of simulation)</p>
+<dt>directory (str):</dt><dd><p>Directory to load compute file from</p>
 </dd>
 <dt>filename (str):</dt><dd><p>file to load compute from</p>
 </dd>
@@ -461,6 +461,26 @@ each individual run.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_force">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_force</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='force.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_force"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from force.out GPUMD output file.</p>
+<p>Currently supports loading a single run.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n (int):</dt><dd><p>Number of atoms force is output for</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory to load force file from</p>
+</dd>
+<dt>filename (str):</dt><dd><p>Name of force data file</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>Numpy array of shape (n,3,-1) containing all forces (ev/A) from filename</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -873,7 +893,7 @@ save is True</p>
 <dd><p>Loads data from thermo.out GPUMD output file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>directory (str):</dt><dd><p>Directory to load ‘thermo.out’ file from</p>
+<dt>directory (str):</dt><dd><p>Directory to load thermal data file from</p>
 </dd>
 <dt>filename (str):</dt><dd><p>Name of thermal data file</p>
 </dd>
@@ -994,6 +1014,26 @@ save is True</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_velocity">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_velocity</code><span class="sig-paren">(</span><em class="sig-param">n</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">filename='velocity.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_velocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_velocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from velocity.out GPUMD output file.</p>
+<p>Currently supports loading a single run.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>n (int):</dt><dd><p>Number of atoms velocity is output for</p>
+</dd>
+<dt>directory (str):</dt><dd><p>Directory to load velocity file from</p>
+</dd>
+<dt>filename (str):</dt><dd><p>Name of velocity data file</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>Numpy array of shape (n,3,-1) containing all forces (A/ps) from filename</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">

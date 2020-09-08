@@ -320,9 +320,61 @@
     <span class="k">return</span> <span class="n">out</span>
 
 
+<span class="k">def</span> <span class="nf">__basic_frame_loader</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">is_integer</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;An integer number of frames cannot be created. Please check n.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
 <span class="c1">#########################################</span>
 <span class="c1"># Data-loading Related</span>
 <span class="c1">#########################################</span>
+
+<div class="viewcode-block" id="load_force"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_force">[docs]</a><span class="k">def</span> <span class="nf">load_force</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;force.out&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data from force.out GPUMD output file.\n</span>
+<span class="sd">    Currently supports loading a single run.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n (int):</span>
+<span class="sd">            Number of atoms force is output for</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load force file from</span>
+
+<span class="sd">        filename (str):</span>
+<span class="sd">            Name of force data file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Numpy array of shape (n,3,-1) containing all forces (ev/A) from filename</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">__basic_frame_loader</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_velocity"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_velocity">[docs]</a><span class="k">def</span> <span class="nf">load_velocity</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;velocity.out&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads data from velocity.out GPUMD output file.\n</span>
+<span class="sd">    Currently supports loading a single run.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n (int):</span>
+<span class="sd">            Number of atoms velocity is output for</span>
+
+<span class="sd">        directory (str):</span>
+<span class="sd">            Directory to load velocity file from</span>
+
+<span class="sd">        filename (str):</span>
+<span class="sd">            Name of velocity data file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Numpy array of shape (n,3,-1) containing all forces (A/ps) from filename</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">__basic_frame_loader</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="load_compute"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.data.load_compute">[docs]</a><span class="k">def</span> <span class="nf">load_compute</span><span class="p">(</span><span class="n">quantities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;compute.out&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -337,7 +389,7 @@
 <span class="sd">            T=temperature, U=potential, F=force, W=virial, jp=heat current (potential), jk=heat current (kinetic)</span>
 
 <span class="sd">        directory (str):</span>
-<span class="sd">            Directory to load &#39;compute.out&#39; file from (dir. of simulation)</span>
+<span class="sd">            Directory to load compute file from</span>
 
 <span class="sd">        filename (str):</span>
 <span class="sd">            file to load compute from</span>
@@ -354,6 +406,7 @@
 <span class="sd">   .. |c1| replace:: eVA\ :sup:`-1`</span>
 <span class="sd">   .. |c2| replace:: eV\ :sup:`3/2` amu\ :sup:`-1/2`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO Add input checking</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">quantities</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">compute_path</span> <span class="o">=</span> <span class="n">__get_path</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -390,7 +443,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        directory (str):</span>
-<span class="sd">            Directory to load &#39;thermo.out&#39; file from</span>
+<span class="sd">            Directory to load thermal data file from</span>
 
 <span class="sd">        filename (str):</span>
 <span class="sd">            Name of thermal data file</span>
