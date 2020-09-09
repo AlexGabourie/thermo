@@ -1,3 +1,6 @@
+from .common import __check_list, __check_range
+from numpy import prod
+
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
 
@@ -63,7 +66,7 @@ def __init_index(index, info, num_atoms):
     """
     if index == num_atoms - 1:
         index = -1
-    if not index in info:
+    if index not in info:
         info[index] = dict()
     return index
 
@@ -192,3 +195,55 @@ def set_velocities(atoms, custom=None):
         info[index]['velocity'] = velocity
     __handle_end(info, num_atoms)
     atoms.info = info
+
+
+def add_basis(atoms, index=None):
+    """
+    Assigns a basis index for each atom in atoms. Updates atoms.
+
+    Args:
+        atoms (ase.Atoms):
+            Atoms to assign velocities to.
+
+        index (list(int)):
+            The indices to assign to each atom in atoms.
+
+    """
+    n = atoms.get_number_of_atoms()
+    if not index:
+        index = range(n)
+    if not n == len(index):
+        raise ValueError("Must be an index for every atom.")
+    info = atoms.info
+    for i, idx in enumerate(index):
+        info[i]['basis'] = idx
+
+
+def repeat(atoms, rep):
+    """
+    A wrapper of ase.Atoms.repeat that is aware of GPUMD's basis information.
+
+    Args:
+        atoms (ase.Atoms):
+            Atoms to assign velocities to.
+
+        rep (int | 3 ints):
+            Sequence of three positive integers or a single integer
+
+    """
+    rep = __check_list(rep, varname='rep', dtype=int)
+    replen = len(rep)
+    if replen == 1:
+        rep = rep*3
+    elif not replen == 3:
+        raise ValueError("rep must be a sequence of 1 or 3 integers.")
+    __check_range(rep, 2**64)
+    supercell = atoms.repeat(rep)
+    sinfo = supercell.info
+    ainfo = atoms.info
+    n = atoms.get_number_of_atoms()
+    for i in range(1, prod(rep, dtype=int)):
+        for j in range(n):
+            sinfo[i*n+j] = {'basis': ainfo[j]['basis']}
+
+    return supercell
