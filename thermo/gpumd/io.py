@@ -274,33 +274,24 @@ def create_kpoints(atoms, special_points='G', npoints=1):
     np.savetxt('kpoints.in', path.kpts, header=str(npoints), comments='', fmt='%1.8f')
 
 
-def create_basis(atoms, transform):
+def create_basis(atoms):
     """
-    Creates the file "basis.in", which maps atoms in the supercell to the atoms in the unit cell
+    Creates the basis.in file. Atoms passed to this must already have the basis of every atom defined.\n
+    Related: preproc.add_basis, preproc.repeat
 
     Args:
         atoms (ase.Atoms):
             Atoms of unit cell used to generate basis.in
-
-        transform (int | 3 floats):
-            Creates the supercell by repeating the unit cell by these 3 amounts.
-            ex: (2, 2, 2)
-    
-    Returns:
-        Atoms of supercell created from transform.
     """
-    unit_mass = atoms.get_masses()
-    supercell = atoms.repeat(transform)
-
-    with open("basis.in", "w") as f:
-        f.write(str(len(unit_mass)) + '\n')
-        for i in range(len(unit_mass)):
-            f.write(str(i) + ' ' + str(round(unit_mass[i])) + '\n')
-        for i in range(len(supercell)):
-            for j in range(len(atoms)):
-                f.write(str(j) + '\n')
-                
-    return supercell
+    out = '{}\n'.format(len(atoms.info['unitcell']))
+    masses = atoms.get_masses()
+    info = atoms.info
+    for i in info['unitcell']:
+        out += '{} {}\n'.format(i, masses[i])
+    for i in range(atoms.get_number_of_atoms()):
+        out += '{}\n'.format(info[i]['basis'])
+    with open("basis.in", 'w') as file:
+        file.write(out)
 
 
 def convert_gpumd_atoms(in_file='xyz.in', out_filename='in.xyz',

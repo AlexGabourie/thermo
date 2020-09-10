@@ -197,26 +197,44 @@ def set_velocities(atoms, custom=None):
     atoms.info = info
 
 
-def add_basis(atoms, index=None):
+def __init_index2(index, info): # TODO merge this with other __init_index function
+    if index not in info.keys():
+        info[index] = dict()
+
+
+def add_basis(atoms, index=None, mapping=None):
     """
     Assigns a basis index for each atom in atoms. Updates atoms.
 
     Args:
         atoms (ase.Atoms):
-            Atoms to assign velocities to.
+            Atoms to assign basis to.
 
         index (list(int)):
-            The indices to assign to each atom in atoms.
+            Atom indices of those in the unit cell. Order is important.
+
+        mapping (list(int)):
+            Mapping of all atoms to the relevant basis positions
+
 
     """
     n = atoms.get_number_of_atoms()
-    if not index:
-        index = range(n)
-    if not n == len(index):
-        raise ValueError("Must be an index for every atom.")
     info = atoms.info
-    for i, idx in enumerate(index):
-        info[i]['basis'] = idx
+    info['unitcell'] = list()
+    if index:
+        if (mapping is None) or (len(mapping) != n):
+            raise ValueError("Full atom mapping required if index is provided.")
+        for idx in index:
+            info['unitcell'].append(idx)
+        for idx in range(n):
+            __init_index2(idx, info)
+            info[idx]['basis'] = mapping[idx]
+    else:
+        for idx in range(n):
+            info['unitcell'].append(idx)
+            # if no index provided, assume atoms is unit cell
+            __init_index2(idx, info)
+            info[idx]['basis'] = idx
 
 
 def repeat(atoms, rep):
@@ -227,8 +245,8 @@ def repeat(atoms, rep):
         atoms (ase.Atoms):
             Atoms to assign velocities to.
 
-        rep (int | 3 ints):
-            Sequence of three positive integers or a single integer
+        rep (int | list(3 ints)):
+            List of three positive integers or a single integer
 
     """
     rep = __check_list(rep, varname='rep', dtype=int)
