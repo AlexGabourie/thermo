@@ -273,7 +273,7 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
         count += q_count[value]
 
     m = int(num_col / count)
-    if 'temperature' in quantities:
+    if 'T' in quantities:
         m = int((num_col - 2) / count)
         out['Ein'] = np.array(data.iloc[:, num_col - 1:num_col])
         out['Eout'] = np.array(data.iloc[:, num_col:])
