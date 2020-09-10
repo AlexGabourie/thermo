@@ -275,8 +275,8 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
     m = int(num_col / count)
     if 'T' in quantities:
         m = int((num_col - 2) / count)
-        out['Ein'] = np.array(data.iloc[:, num_col - 1:num_col])
-        out['Eout'] = np.array(data.iloc[:, num_col:])
+        out['Ein'] = np.array(data.iloc[:, -2])
+        out['Eout'] = np.array(data.iloc[:, -1])
 
     out['m'] = m
     start = 0
