@@ -768,7 +768,7 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
     .. csv-table:: Output dictionary
        :stub-columns: 1
 
-       **key**,t, kxi, kxo, kyi, kyo, kz, jxijx, jxojx, jyijy, jyoJy, jzjz
+       **key**,t, kxi, kxo, kyi, kyo, kz, jxijx, jxojx, jyijy, jyojy, jzjz
        **units**,ps,|h1|,|h1|,|h1|,|h1|,|h1|,|h2|,|h2|,|h2|,|h2|,|h2|
 
     .. |h1| replace:: Wm\ :sup:`-1` K\ :sup:`-1`
@@ -784,7 +784,7 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
     hac_path = __get_path(directory, filename)
     data = pd.read_csv(hac_path, delim_whitespace=True, header=None)
     __check_range(npoints, data.shape[0])
-    labels = ['t', 'jxijx', 'jxojx', 'jyijy', 'jyoJy', 'jzjz',
+    labels = ['t', 'jxijx', 'jxojx', 'jyijy', 'jyojy', 'jzjz',
               'kxi', 'kxo', 'kyi', 'kyo', 'kz']
     start = 0
     out = dict()
