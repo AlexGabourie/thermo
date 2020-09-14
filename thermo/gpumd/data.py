@@ -166,7 +166,7 @@ def __basic_reader(points, data, labels):
         end = start + npoints
         run = dict()
         for j, key in enumerate(labels):
-            run[key] = data[j][start:end].to_numpy()
+            run[key] = data[j][start:end].to_numpy(dtype='float')
         start = end
         out['run{}'.format(i)] = run
     return out
@@ -174,7 +174,7 @@ def __basic_reader(points, data, labels):
 
 def __basic_frame_loader(n, directory, filename):
     path = __get_path(directory, filename)
-    data = pd.read_csv(path, delim_whitespace=True, header=None).to_numpy()
+    data = pd.read_csv(path, delim_whitespace=True, header=None).to_numpy(dtype='float')
     if not (data.shape[0] / n).is_integer():
         raise ValueError("An integer number of frames cannot be created. Please check n.")
     return data.reshape(n, 3, -1)
@@ -283,7 +283,7 @@ def load_compute(quantities=None, directory=None, filename='compute.out'):
     for quantity in q_count.keys():
         if quantity in quantities:
             end = start + q_count[quantity]*m
-            out[quantity] = data.iloc[:, start:end].to_numpy()
+            out[quantity] = data.iloc[:, start:end].to_numpy(dtype='float')
             start = end
 
     return out
@@ -321,7 +321,7 @@ def load_thermo(directory=None, filename='thermo.out'):
 
     out = dict()
     for i in range(data.shape[1]):
-        out[labels[i]] = data[i].to_numpy()
+        out[labels[i]] = data[i].to_numpy(dtype='float')
 
     return out
 
@@ -701,11 +701,11 @@ def load_shc(Nc, num_omega, directory=None, filename='shc.out'):
         num_omega_i = varlen[1]
         end = start + Nc_i
         for j, key in enumerate(labels_corr):
-            run[key] = data[j][start:end].to_numpy()
+            run[key] = data[j][start:end].to_numpy(dtype='float')
         start = end
         end += num_omega_i
         for j, key in enumerate(labels_omega):
-            run[key] = data[j][start:end].to_numpy()
+            run[key] = data[j][start:end].to_numpy(dtype='float')
         run['nu'] /= (2 * np.pi)
         start = end
         out['run{}'.format(i)] = run
@@ -741,7 +741,7 @@ def load_kappa(directory=None, filename='kappa.out'):
     labels = ['kxi', 'kxo', 'kyi', 'kyo', 'kz']
     out = dict()
     for i, key in enumerate(labels):
-        out[key] = data[i].to_numpy()
+        out[key] = data[i].to_numpy(dtype='float')
     return out
 
 
@@ -792,7 +792,7 @@ def load_hac(Nc, output_interval, directory=None,filename='hac.out'):
         end = start + varlen
         run = dict()
         for j, key in enumerate(labels):
-            run[key] = data[j][start:end].to_numpy()
+            run[key] = data[j][start:end].to_numpy(dtype='float')
         start = end
         out['run{}'.format(i)] = run
     return out
