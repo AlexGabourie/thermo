@@ -184,6 +184,28 @@ def __basic_frame_loader(n, directory, filename):
 # Data-loading Related
 #########################################
 
+def load_omega2(directory=None, filename='omega2.out'):
+    """
+    Loads data from omega2.out GPUMD output file.\n
+
+    Args:
+        directory (str):
+            Directory to load force file from
+
+        filename (str):
+            Name of force data file
+
+    Returns:
+        Numpy array of shape (N_kpoints,3*N_basis) in units of THz. N_kpoints is number of k points in kpoint.in and
+        N_basis is the number of basis atoms defined in basis.in
+
+    """
+    path = __get_path(directory, filename)
+    data = pd.read_csv(path, delim_whitespace=True, header=None).to_numpy(dtype='float')
+    data = np.sqrt(data)/(2*np.pi)
+    return data
+
+
 def load_force(n, directory=None, filename='force.out'):
     """
     Loads data from force.out GPUMD output file.\n

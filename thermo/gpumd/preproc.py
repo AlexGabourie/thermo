@@ -218,7 +218,7 @@ def add_basis(atoms, index=None, mapping=None):
 
 
     """
-    n = atoms.get_number_of_atoms()
+    n = atoms.get_global_number_of_atoms()
     info = atoms.info
     info['unitcell'] = list()
     if index:
@@ -259,7 +259,7 @@ def repeat(atoms, rep):
     supercell = atoms.repeat(rep)
     sinfo = supercell.info
     ainfo = atoms.info
-    n = atoms.get_number_of_atoms()
+    n = atoms.get_global_number_of_atoms()
     for i in range(1, prod(rep, dtype=int)):
         for j in range(n):
             sinfo[i*n+j] = {'basis': ainfo[j]['basis']}

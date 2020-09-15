@@ -13,6 +13,6 @@ setup(name='thermo',
       install_requires=['matplotlib',
                         'pyfftw',
                         'scipy',
-                        'ase',
+                        'ase>=3.20.1',
                         'atomman==1.2.3'],
      )

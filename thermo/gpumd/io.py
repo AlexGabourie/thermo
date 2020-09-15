@@ -255,23 +255,36 @@ def import_trajectory(filename='movie.xyz', in_file=None, atom_types=None):
 #########################################
 
 
-def create_kpoints(atoms, special_points='G', npoints=1):
+def create_kpoints(atoms, path='G', npoints=1, special_points=None):
     """
      Creates the file "kpoints.in", which specifies the kpoints needed for src/phonon
 
     Args:
         atoms (ase.Atoms):
-            Atoms used to generate kpoints.in.
+            Unit cell to use for phonon calculation
 
-        special_points (str):
-            Specifies special points for kpoint generation
+        path (str):
+            String of special point names defining the path, e.g. 'GXL'
 
         npoints (int):
-            Specifies the number of kpoints to generate
-    """
+            Number of points in total.  Note that at least one point
+            is added for each special point in the path
 
-    path = atoms.cell.bandpath(special_points, npoints)
-    np.savetxt('kpoints.in', path.kpts, header=str(npoints), comments='', fmt='%1.8f')
+        special_points (dict):
+            Dictionary mapping special points to scaled kpoint coordinates.
+            For example ``{'G': [0, 0, 0], 'X': [1, 0, 0]}``
+
+    Returns:
+        tuple: First element is the kpoints converted to x-coordinates, second the x-coordinates of the high symmetry
+        points, and third the labels of those points.
+    """
+    tol = 1e-15
+    path = atoms.cell.bandpath(path, npoints, special_points=special_points)
+    b = atoms.get_reciprocal_cell()*2*np.pi  # Reciprocal lattice vectors
+    gpumd_kpts = np.matmul(path.kpts, b)
+    gpumd_kpts[np.abs(gpumd_kpts)<tol] = 0.0
+    np.savetxt('kpoints.in', gpumd_kpts, header=str(npoints), comments='',fmt='%g')
+    return path.get_linear_kpoint_axis()
 
 
 def create_basis(atoms):
@@ -288,7 +301,7 @@ def create_basis(atoms):
     info = atoms.info
     for i in info['unitcell']:
         out += '{} {}\n'.format(i, masses[i])
-    for i in range(atoms.get_number_of_atoms()):
+    for i in range(atoms.get_global_number_of_atoms()):
         out += '{}\n'.format(info[i]['basis'])
     with open("basis.in", 'w') as file:
         file.write(out)
