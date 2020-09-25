@@ -68,12 +68,10 @@ def get_dimensions(filename, directory=None):
     """
     trjpath = __get_path(directory, filename)
     labels = ['x', 'y', 'z', 'A', 'V', 'xy', 'xz', 'yz']
-
     out = dict()
     for label in labels:
         out[label] = []
 
-    parse_flag = False
     with open(trjpath) as f:
         line = f.readline()
         while line:
