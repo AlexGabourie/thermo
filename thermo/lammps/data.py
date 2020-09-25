@@ -1,82 +1,90 @@
 import os
-import re
-import sys
+import numpy as np
 
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
 
-def get_sim_dimensions(lammpstrj_file):
-    '''
-    Reads a LAMMPS trajectory file and extracts simulation dimensions.
+
+def __get_path(directory, filename):
+    if not directory:
+        return os.path.join(os.getcwd(), filename)
+    return os.path.join(directory, filename)
+
+
+def __process_box(out, filehandle):
+    """
+    Processes the lines of a trajectory file dedicated to the box size and shape
 
     Args:
-        lammpstrj_file (str):
+        out (dict):
+            Stores all relevant box information
+
+        filehandle (TextIOWrapper):
+            The trajectory file handle
+
+    """
+    for pair in [('x', 'xy'), ('y', 'xz'), ('z', 'yz')]:
+        data = [float(i) for i in filehandle.readline().split()]
+        out[pair[0]].append(data[1]-data[0])
+        triclinic = len(data) == 3
+        out[pair[1]].append(data[2] if triclinic else None)
+
+    if triclinic:
+        a = np.array([out['x'][-1], 0, 0])
+        b = np.array([out['xy'][-1], out['y'], 0])
+        c = np.array([out['xz'][-1], out['yz'], out['z']])
+        Avec = np.cross(a, b)
+        out['A'].append(np.linalg.norm(Avec))
+        out['V'].append(np.abs(np.dot(Avec, c)))
+    else:
+        out['A'].append(out['x'][-1]*out['y'][-1])
+        out['V'].append(out['A'][-1]*out['z'][-1])
+
+
+def get_dimensions(filename, directory=None):
+    """
+    Gets the dimensions of a 3D simulation from a LAMMPS trajectory.
+
+    Args:
+        filename (str):
             LAMMPS trajectory file to extract dimensions from
 
+        directory (str):
+            The directory the trajectory file is found in
+
     Returns:
-        dict: x, y, z, area, volume
+        dict: Dictionary with keys given in the table below
 
-    Output keys:\n
-    - x (list(float)): x-dimension [angstroms]
-    - y (list(float)): y-dimension [angstroms]
-    - z (list(float)): z-dimension [angstroms]
-    - area (list(float)): [angstroms^2]
-    - volume (list(float)): [anstroms^3]
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
 
-    '''
+       **key**, x, y, z, A, V, xy, xz, yz
+       **units**,|d1|,|d1|,|d1|,|d2|,|d3|,|d1|,|d1|,|d1|
 
-    if os.path.isfile(lammpstrj_file):
-        area = list()
-        x = list()
-        y = list()
-        z = list()
-        volume = list()
-        flag = 0
-        cnt = 0
+    .. |d1| replace:: distance
+    .. |d2| replace:: distance\ :sup:`2`
+    .. |d3| replace:: distance\ :sup:`3`
 
-        xdata = -1
-        ydata = -1
-        zdata = -1
+    """
+    trjpath = __get_path(directory, filename)
+    labels = ['x', 'y', 'z', 'A', 'V', 'xy', 'xz', 'yz']
 
-        with open(lammpstrj_file, 'r') as trj:
-            for line in trj:
-                if flag == 1:
-                    if cnt == 0:
-                        xdata = re.findall('[-+]?\d+\.\d+e.\d+', line)
-                        if not xdata:
-                            xdata = re.findall('[-+]?\d+\.\d+', line)
-                        cnt += 1
-                    elif cnt == 1:
-                        ydata = re.findall('[-+]?\d+\.\d+e.\d+', line)
-                        if not ydata:
-                            ydata = re.findall('[-+]?\d+\.\d+', line)
-                            area.append(xwidth*ywidth)
-                        cnt += 1
-                    elif cnt == 2:
-                        zdata = re.findall('[-+]?\d+\.\d+e.\d+', line)
-                        if not zdata:
-                            zdata = re.findall('[-+]?\d+\.\d+', line)
-                        if not (len(ydata) == 1 or len(xdata) == 1 or len(zdata) == 1):
-                            xwidth = float(xdata[1])-float(xdata[0])
-                            ywidth = float(ydata[1])-float(ydata[0])
-                            zwidth = float(zdata[1])-float(zdata[0])
-                            area.append(xwidth*ywidth)
-                            volume.append(xwidth*ywidth*zwidth)
-                            x.append(xwidth)
-                            y.append(ywidth)
-                            z.append(zwidth)
-                        cnt = 0
-                        flag = 0
-                if not len(re.findall('BOX', line)) == 0:
-                    flag = 1
+    out = dict()
+    for label in labels:
+        out[label] = []
 
-        return {'x':x, 'y':y, 'z':z, 'area':area, 'volume':volume}
-    else:
-        raise Error('file {} not found'.format(lammpstrj_file))
+    parse_flag = False
+    with open(trjpath) as f:
+        line = f.readline()
+        while line:
+            if 'BOX' in line:
+                __process_box(out, f)
+            line = f.readline()
+    return out
 
 
 def extract_dt(log_file):
-    '''
+    """
     Finds all time steps given in the lammps output log
 
     Args:
@@ -85,7 +93,7 @@ def extract_dt(log_file):
 
     Returns:
         list(float): The timesteps found in log_file in [ps]
-    '''
+    """
     dt = list()
     if os.path.isfile(log_file):
         with open(log_file, 'r') as log:
