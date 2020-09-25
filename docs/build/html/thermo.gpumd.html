@@ -529,7 +529,7 @@ each individual run.</p>
 <td><p>jxijx</p></td>
 <td><p>jxojx</p></td>
 <td><p>jyijy</p></td>
-<td><p>jyoJy</p></td>
+<td><p>jyojy</p></td>
 <td><p>jzjz</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
@@ -745,6 +745,24 @@ save is True</p>
 </tbody>
 </table>
 <p>Here <em>x</em> is the size of the bins in THz. For example, if there are 4 bins per THz, <em>x</em> = 0.25 THz.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.data.load_omega2">
+<code class="sig-prename descclassname">thermo.gpumd.data.</code><code class="sig-name descname">load_omega2</code><span class="sig-paren">(</span><em class="sig-param">directory=None</em>, <em class="sig-param">filename='omega2.out'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/data.html#load_omega2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.data.load_omega2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads data from omega2.out GPUMD output file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>directory (str):</dt><dd><p>Directory to load force file from</p>
+</dd>
+<dt>filename (str):</dt><dd><p>Name of force data file</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>Numpy array of shape (N_kpoints,3*N_basis) in units of THz. N_kpoints is number of k points in kpoint.in and
+N_basis is the number of basis atoms defined in basis.in</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -1133,37 +1151,40 @@ output structure file.
 
 <dl class="function">
 <dt id="thermo.gpumd.io.create_basis">
-<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">create_basis</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">transform</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#create_basis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.create_basis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the file “basis.in”, which maps atoms in the supercell to the atoms in the unit cell</p>
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">create_basis</code><span class="sig-paren">(</span><em class="sig-param">atoms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#create_basis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.create_basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the basis.in file. Atoms passed to this must already have the basis of every atom defined.</p>
+<p>Related: preproc.add_basis, preproc.repeat</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
 <dt>atoms (ase.Atoms):</dt><dd><p>Atoms of unit cell used to generate basis.in</p>
 </dd>
-<dt>transform (int | 3 floats):</dt><dd><p>Creates the supercell by repeating the unit cell by these 3 amounts.
-ex: (2, 2, 2)</p>
-</dd>
 </dl>
-</dd>
-<dt>Returns:</dt><dd><p>Atoms of supercell created from transform.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="thermo.gpumd.io.create_kpoints">
-<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">create_kpoints</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">special_points='G'</em>, <em class="sig-param">npoints=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#create_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.create_kpoints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">thermo.gpumd.io.</code><code class="sig-name descname">create_kpoints</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">path='G'</em>, <em class="sig-param">npoints=1</em>, <em class="sig-param">special_points=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/io.html#create_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.io.create_kpoints" title="Permalink to this definition">¶</a></dt>
 <dd><blockquote>
 <div><p>Creates the file “kpoints.in”, which specifies the kpoints needed for src/phonon</p>
 </div></blockquote>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>atoms (ase.Atoms):</dt><dd><p>Atoms used to generate kpoints.in.</p>
+<dt>atoms (ase.Atoms):</dt><dd><p>Unit cell to use for phonon calculation</p>
 </dd>
-<dt>special_points (str):</dt><dd><p>Specifies special points for kpoint generation</p>
+<dt>path (str):</dt><dd><p>String of special point names defining the path, e.g. ‘GXL’</p>
 </dd>
-<dt>npoints (int):</dt><dd><p>Specifies the number of kpoints to generate</p>
+<dt>npoints (int):</dt><dd><p>Number of points in total.  Note that at least one point
+is added for each special point in the path</p>
+</dd>
+<dt>special_points (dict):</dt><dd><p>Dictionary mapping special points to scaled kpoint coordinates.
+For example <code class="docutils literal notranslate"><span class="pre">{'G':</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">'X':</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]}</span></code></p>
 </dd>
 </dl>
+</dd>
+<dt>Returns:</dt><dd><p>tuple: First element is the kpoints converted to x-coordinates, second the x-coordinates of the high symmetry
+points, and third the labels of those points.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1238,6 +1259,23 @@ Initial cutoff for neighbor list build</p>
 <div class="section" id="module-thermo.gpumd.preproc">
 <span id="preprocessing"></span><h2>Preprocessing<a class="headerlink" href="#module-thermo.gpumd.preproc" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="thermo.gpumd.preproc.add_basis">
+<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_basis</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">index=None</em>, <em class="sig-param">mapping=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_basis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_basis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assigns a basis index for each atom in atoms. Updates atoms.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms to assign basis to.</p>
+</dd>
+<dt>index (list(int)):</dt><dd><p>Atom indices of those in the unit cell. Order is important.</p>
+</dd>
+<dt>mapping (list(int)):</dt><dd><p>Mapping of all atoms to the relevant basis positions</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="thermo.gpumd.preproc.add_group_by_position">
 <code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">add_group_by_position</code><span class="sig-paren">(</span><em class="sig-param">split</em>, <em class="sig-param">atoms</em>, <em class="sig-param">direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#add_group_by_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.add_group_by_position" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assigns groups to all atoms based on its position. Only works in
@@ -1275,6 +1313,21 @@ starting at 0 and increasing in steps of 1. Ex. range(0,10).</p>
 </dl>
 </dd>
 <dt>Returns:</dt><dd><p>int: A list of number of atoms in each group.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="thermo.gpumd.preproc.repeat">
+<code class="sig-prename descclassname">thermo.gpumd.preproc.</code><code class="sig-name descname">repeat</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">rep</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/gpumd/preproc.html#repeat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.gpumd.preproc.repeat" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper of ase.Atoms.repeat that is aware of GPUMD’s basis information.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>atoms (ase.Atoms):</dt><dd><p>Atoms to assign velocities to.</p>
+</dd>
+<dt>rep (int | list(3 ints)):</dt><dd><p>List of three positive integers or a single integer</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>

@@ -146,7 +146,10 @@
            <div itemprop="articleBody">
             
   <h1>Source code for thermo.gpumd.preproc</h1><div class="highlight"><pre>
-<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
+<span></span><span class="kn">from</span> <span class="nn">.common</span> <span class="k">import</span> <span class="n">__check_list</span><span class="p">,</span> <span class="n">__check_range</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">prod</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Alexander Gabourie&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;gabourie@stanford.edu&quot;</span>
 
 
@@ -211,7 +214,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">num_atoms</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
         <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">index</span>
 
@@ -340,6 +343,76 @@
         <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocity</span>
     <span class="n">__handle_end</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">num_atoms</span><span class="p">)</span>
     <span class="n">atoms</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span></div>
+
+
+<span class="k">def</span> <span class="nf">__init_index2</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span> <span class="c1"># TODO merge this with other __init_index function</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">info</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="add_basis"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.add_basis">[docs]</a><span class="k">def</span> <span class="nf">add_basis</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assigns a basis index for each atom in atoms. Updates atoms.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atoms (ase.Atoms):</span>
+<span class="sd">            Atoms to assign basis to.</span>
+
+<span class="sd">        index (list(int)):</span>
+<span class="sd">            Atom indices of those in the unit cell. Order is important.</span>
+
+<span class="sd">        mapping (list(int)):</span>
+<span class="sd">            Mapping of all atoms to the relevant basis positions</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_global_number_of_atoms</span><span class="p">()</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span>
+    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;unitcell&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">index</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Full atom mapping required if index is provided.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">index</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;unitcell&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">__init_index2</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="n">info</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;basis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;unitcell&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="c1"># if no index provided, assume atoms is unit cell</span>
+            <span class="n">__init_index2</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="n">info</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="s1">&#39;basis&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span></div>
+
+
+<div class="viewcode-block" id="repeat"><a class="viewcode-back" href="../../../thermo.gpumd.html#thermo.gpumd.preproc.repeat">[docs]</a><span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">rep</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper of ase.Atoms.repeat that is aware of GPUMD&#39;s basis information.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        atoms (ase.Atoms):</span>
+<span class="sd">            Atoms to assign velocities to.</span>
+
+<span class="sd">        rep (int | list(3 ints)):</span>
+<span class="sd">            List of three positive integers or a single integer</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rep</span> <span class="o">=</span> <span class="n">__check_list</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="n">varname</span><span class="o">=</span><span class="s1">&#39;rep&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">replen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">replen</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">rep</span> <span class="o">=</span> <span class="n">rep</span><span class="o">*</span><span class="mi">3</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">replen</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;rep must be a sequence of 1 or 3 integers.&quot;</span><span class="p">)</span>
+    <span class="n">__check_range</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">64</span><span class="p">)</span>
+    <span class="n">supercell</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">rep</span><span class="p">)</span>
+    <span class="n">sinfo</span> <span class="o">=</span> <span class="n">supercell</span><span class="o">.</span><span class="n">info</span>
+    <span class="n">ainfo</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">info</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">atoms</span><span class="o">.</span><span class="n">get_global_number_of_atoms</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">prod</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">sinfo</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">n</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;basis&#39;</span><span class="p">:</span> <span class="n">ainfo</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;basis&#39;</span><span class="p">]}</span>
+
+    <span class="k">return</span> <span class="n">supercell</span></div>
 </pre></div>
 
            </div>

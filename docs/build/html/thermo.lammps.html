@@ -255,26 +255,56 @@ file.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="thermo.lammps.data.get_sim_dimensions">
-<code class="sig-prename descclassname">thermo.lammps.data.</code><code class="sig-name descname">get_sim_dimensions</code><span class="sig-paren">(</span><em class="sig-param">lammpstrj_file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/data.html#get_sim_dimensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.data.get_sim_dimensions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads a LAMMPS trajectory file and extracts simulation dimensions.</p>
+<dt id="thermo.lammps.data.get_dimensions">
+<code class="sig-prename descclassname">thermo.lammps.data.</code><code class="sig-name descname">get_dimensions</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">directory=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/data.html#get_dimensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.data.get_dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the dimensions of a 3D simulation from a LAMMPS trajectory.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>lammpstrj_file (str):</dt><dd><p>LAMMPS trajectory file to extract dimensions from</p>
+<dt>filename (str):</dt><dd><p>LAMMPS trajectory file to extract dimensions from</p>
+</dd>
+<dt>directory (str):</dt><dd><p>The directory the trajectory file is found in</p>
 </dd>
 </dl>
 </dd>
-<dt>Returns:</dt><dd><p>dict: x, y, z, area, volume</p>
+<dt>Returns:</dt><dd><p>dict: Dictionary with keys given in the table below</p>
 </dd>
 </dl>
-<p>Output keys:</p>
-<ul class="simple">
-<li><p>x (list(float)): x-dimension [angstroms]</p></li>
-<li><p>y (list(float)): y-dimension [angstroms]</p></li>
-<li><p>z (list(float)): z-dimension [angstroms]</p></li>
-<li><p>area (list(float)): [angstroms^2]</p></li>
-<li><p>volume (list(float)): [anstroms^3]</p></li>
-</ul>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>x</p></td>
+<td><p>y</p></td>
+<td><p>z</p></td>
+<td><p>A</p></td>
+<td><p>V</p></td>
+<td><p>xy</p></td>
+<td><p>xz</p></td>
+<td><p>yz</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>distance</p></td>
+<td><p>distance</p></td>
+<td><p>distance</p></td>
+<td><p>distance<sup>2</sup></p></td>
+<td><p>distance<sup>3</sup></p></td>
+<td><p>distance</p></td>
+<td><p>distance</p></td>
+<td><p>distance</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
