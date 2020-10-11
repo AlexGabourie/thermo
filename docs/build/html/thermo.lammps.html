@@ -161,58 +161,86 @@
 <dl class="function">
 <dt id="thermo.lammps.calc.get_GKTC">
 <code class="sig-prename descclassname">thermo.lammps.calc.</code><code class="sig-name descname">get_GKTC</code><span class="sig-paren">(</span><em class="sig-param">directory='.'</em>, <em class="sig-param">T=300</em>, <em class="sig-param">vol=1</em>, <em class="sig-param">dt=None</em>, <em class="sig-param">rate=None</em>, <em class="sig-param">tau=None</em>, <em class="sig-param">heatflux_file='heat_out.heatflux'</em>, <em class="sig-param">mat_file='heat_flux.mat'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/thermo/lammps/calc.html#get_GKTC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#thermo.lammps.calc.get_GKTC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
-thermal conductivity vector and time vector.
-Assumptions with no info given by user:
-dt = 1 fs, vol = 1, T=300, rate=dt, tau=total time</p>
+<dd><p>Calculates the thermal conductivity (TC) using the Green-Kubo (GK) formalism.
+The ‘metal’ units in LAMMPS must be used.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>directory (string):</dt><dd><p>This is the directory in which the simulation results are located.
-If not provided, the current directory is used.</p>
+<dt>directory (string):</dt><dd><p>Directory of simulation</p>
 </dd>
-<dt>T (float):</dt><dd><p>This is the temperature at which the equlibrium simulation was run at.
-If not provided, T=300 is used. Units are in [K]</p>
+<dt>T (float):</dt><dd><p>Temperature of simulation. Units of K</p>
 </dd>
-<dt>vol (float):</dt><dd><p>This is the volume of the simulation system.
-If not provided, vol=1 is used. Units are [angstroms^3].</p>
+<dt>vol (float):</dt><dd><p>Volume of the simulation cell. Units of A^3</p>
 </dd>
-<dt>dt (float):</dt><dd><p>This is the timestep of the green-kubo part of the simulation.
-If not provided, dt=1 fs is used. units are in [fs]</p>
+<dt>dt (float):</dt><dd><p>Timestep of the of simulation. Units are fs</p>
 </dd>
-<dt>rate (int):</dt><dd><p>This is the rate at which the heat flux is sampled. This is in
-number of timesteps. If not provided, we assume we sample once per
-timestep so, rate=dt</p>
+<dt>rate (int):</dt><dd><p>Rate at which the heat flux is sampled in number of timesteps. Default of rate=dt</p>
 </dd>
-<dt>tau (int):</dt><dd><p>max lag time to integrate over. This is in units of [ns]</p>
+<dt>tau (int):</dt><dd><p>max lag time to integrate over. Units of ns and default of tau=total time</p>
 </dd>
-<dt>heatflux_file (str): Filename of heatflux output. If not provided</dt><dd><p>‘heat_out.heatflux’ is used.</p>
+<dt>heatflux_file (str):</dt><dd><p>Heatflux output filename.</p>
 </dd>
-<dt>mat_file (str): MATLAB file to load, if exists. If not provided,</dt><dd><p>‘heat_flux.mat’ will be used. Also used as filename for saved MATLAB
-file.</p>
+<dt>mat_file (str):</dt><dd><p>MATLAB file to load, if exists, or save to, if does not exist.
+Default save name of ‘heat_flux.mat’</p>
 </dd>
 </dl>
 </dd>
-<dt>Returns:</dt><dd><p>dict: kx, ky, kz, t, directory, dt, tot_time, tau, T, vol, srate,
-jxjx, jyjy, jzjz</p>
+<dt>Returns:</dt><dd><p>dict: Dictionary with Green-Kubo thermal conductivity data</p>
 </dd>
 </dl>
-<p>Output keys:</p>
-<ul class="simple">
-<li><p>kx (ndarray): x-direction thermal conductivity [W/m/K]</p></li>
-<li><p>ky (ndarray): y-direction thermal conductivity [W/m/K]</p></li>
-<li><p>kz (ndarray): z-direction thermal conductivity [W/m/K]</p></li>
-<li><p>t (ndarray): time [ns]</p></li>
-<li><p>directory (str): directory of results</p></li>
-<li><p>dt (float): timestep [fs]</p></li>
-<li><p>tot_time (float): total simulated time [ns]</p></li>
-<li><p>tau (int): Lag time [ns]</p></li>
-<li><p>T (float): [K]</p></li>
-<li><p>vol (float): Volume of simulation cell  [angstroms^3]</p></li>
-<li><p>srate (float): See above</p></li>
-<li><p>jxjx (ndarray): x-direction heat flux autocorrelation</p></li>
-<li><p>jyjy (ndarray): y-direction heat flux autocorrelation</p></li>
-<li><p>jzjz (ndarray): z-direction heat flux autocorrelation</p></li>
-</ul>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>kx</p></td>
+<td><p>ky</p></td>
+<td><p>kz</p></td>
+<td><p>t</p></td>
+<td><p>dt</p></td>
+<td><p>T</p></td>
+<td><p>V</p></td>
+<td><p>jxjx</p></td>
+<td><p>jyjy</p></td>
+<td><p>jzjz</p></td>
+<td><p>tot_time</p></td>
+<td><p>tau</p></td>
+<td><p>srate</p></td>
+<td><p>directory</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>Wm<sup>-1</sup> K<sup>-1</sup></p></td>
+<td><p>ns</p></td>
+<td><p>fs</p></td>
+<td><p>K</p></td>
+<td><p>A<sup>3</sup></p></td>
+<td><p>(eV ps<sup>-1</sup> A<sup>-2</sup>)<sup>2</sup></p></td>
+<td><p>(eV ps<sup>-1</sup> A<sup>-2</sup>)<sup>2</sup></p></td>
+<td><p>(eV ps<sup>-1</sup> A<sup>-2</sup>)<sup>2</sup></p></td>
+<td><p>ns</p></td>
+<td><p>ns</p></td>
+<td><p>ns</p></td>
+<td><p>N/A</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -222,18 +250,42 @@ jxjx, jyjy, jzjz</p>
 file if only in text form. Loads .mat form if exists.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>directory (str): This is the directory in which the simulation results</dt><dd><p>are located. If not provided, the current directory is used.</p>
+<dt>directory (str):</dt><dd><p>Directory of simulation results</p>
 </dd>
-<dt>heatflux_file (str): Filename of heatflux output. If not provided</dt><dd><p>‘heat_out.heatflux’ is used.</p>
+<dt>heatflux_file (str):</dt><dd><p>Filename of heatflux output</p>
 </dd>
-<dt>mat_file (str): MATLAB file to load, if exists. If not provided,</dt><dd><p>‘heat_flux.mat’ will be used. Also used as filename for saved MATLAB
-file.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><p><a class="reference external" href="dict:Jx">dict:Jx</a> (list), Jy (list), Jz (list), rate (float)</p>
+<dt>mat_file (str):</dt><dd><p>MATLAB file to load, if exists, or save to, if does not exist.
+Default save name of ‘heat_flux.mat’</p>
 </dd>
 </dl>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with heat flux data</p>
+</dd>
+</dl>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Output dictionary (metal units)</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p><strong>key</strong></p></th>
+<td><p>jx</p></td>
+<td><p>jy</p></td>
+<td><p>jz</p></td>
+<td><p>rate</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><strong>units</strong></p></th>
+<td><p>eV ps<sup>-1</sup> A<sup>-2</sup></p></td>
+<td><p>eV ps<sup>-1</sup> A<sup>-2</sup></p></td>
+<td><p>eV ps<sup>-1</sup> A<sup>-2</sup></p></td>
+<td><p>timestep</p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -249,7 +301,7 @@ file.</p>
 </dd>
 </dl>
 </dd>
-<dt>Returns:</dt><dd><p>list(float): The timesteps found in log_file in [ps]</p>
+<dt>Returns:</dt><dd><p>list(float): The timesteps found in log_file in units of time</p>
 </dd>
 </dl>
 </dd></dl>
@@ -269,8 +321,8 @@ file.</p>
 <dt>Returns:</dt><dd><p>dict: Dictionary with keys given in the table below</p>
 </dd>
 </dl>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Output dictionary</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 11%" />
 <col style="width: 11%" />
@@ -318,7 +370,9 @@ file.</p>
 <dt>Args:</dt><dd><dl class="simple">
 <dt>atoms (ase.Atoms):</dt><dd><p>Atoms to write to lammps data file</p>
 </dd>
-<dt>gpumd_file (str):</dt><dd><p>File to save the structure data to</p>
+<dt>out_file (str):</dt><dd><p>File to save the structure data to</p>
+</dd>
+<dt>add_masses (Bool):</dt><dd><p>Determines if atom masses are written to data file</p>
 </dd>
 </dl>
 </dd>

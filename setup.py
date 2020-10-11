@@ -4,7 +4,7 @@ from distutils.core import setup
 import setuptools
 
 setup(name='thermo',
-      version='0.2',
+      version='0.3',
       description='MD thermal properties functions',
       author='Alexander Gabourie',
       author_email='gabourie@stanford.edu',
