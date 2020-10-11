@@ -90,7 +90,7 @@ def extract_dt(log_file):
             LAMMPS log file to examine
 
     Returns:
-        list(float): The timesteps found in log_file in [ps]
+        list(float): The timesteps found in log_file in units of time
     """
     dt = list()
     if os.path.isfile(log_file):

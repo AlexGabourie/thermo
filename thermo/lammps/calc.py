@@ -1,6 +1,5 @@
 import numpy as np
 import os
-import sys
 from scipy import integrate
 from math import floor
 import scipy.io as sio
@@ -9,8 +8,9 @@ from thermo.math.correlate import autocorr
 __author__ = "Alexander Gabourie"
 __email__ = "gabourie@stanford.edu"
 
-def __metal_to_SI( vol, T ):
-    '''
+
+def __metal_to_SI(vol, T):
+    """
     Converts LAMMPS metal units to SI units for thermal conductivity calculations.
 
     Args:
@@ -22,33 +22,41 @@ def __metal_to_SI( vol, T ):
 
     Returns:
         float: Converted value
-    '''
-    kb = 1.38064852e-23 #m^3*kg/(s^2*K)
-    vol = vol/(1.0e10)**3 #to m^3
-    #eV^2*ns/(ps^2*angstrom^4) to J^2/(s*m^4)
+    """
+    kb = 1.38064852e-23  # m3*kg/(s2*K)
+    vol = vol/(1.0e10)**3  # to m3
+    # eV2*ns/(ps2*A4) to J2/(s*m4)
     to_SI = (1.602e-19)**2.*1.0e12*(1.0e10)**4.0*1000.
     return vol*to_SI/(kb*T**2)
 
-def get_heat_flux(directory='.', heatflux_file='heat_out.heatflux',
-                  mat_file='heat_flux.mat'):
-    '''
+
+def get_heat_flux(directory='.', heatflux_file='heat_out.heatflux', mat_file='heat_flux.mat'):
+    """
     Gets the heat flux from a LAMMPS EMD simulation. Creates a compressed .mat
     file if only in text form. Loads .mat form if exists.
 
     Args:
-        directory (str): This is the directory in which the simulation results
-            are located. If not provided, the current directory is used.
+        directory (str):
+            Directory of simulation results
 
-        heatflux_file (str): Filename of heatflux output. If not provided
-            'heat_out.heatflux' is used.
+        heatflux_file (str):
+            Filename of heatflux output
 
-        mat_file (str): MATLAB file to load, if exists. If not provided,
-            'heat_flux.mat' will be used. Also used as filename for saved MATLAB
-            file.
+        mat_file (str):
+            MATLAB file to load, if exists, or save to, if does not exist.
+            Default save name of 'heat_flux.mat'
 
     Returns:
-        dict:Jx (list), Jy (list), Jz (list), rate (float)
-    '''
+        dict: Dictionary with heat flux data
+
+    .. csv-table:: Output dictionary (metal units)
+       :stub-columns: 1
+
+       **key**,jx,jy,jz,rate
+       **units**,|j1|,|j1|,|j1|,timestep
+
+    .. |j1| replace:: eV ps\ :sup:`-1` A\ :sup:`-2`
+    """
     heatflux_file = os.path.join(directory, heatflux_file)
     mat_file = os.path.join(directory, mat_file)
 
@@ -83,113 +91,97 @@ def get_heat_flux(directory='.', heatflux_file='heat_out.heatflux',
         jy[i] = float(vals[2])
         jz[i] = float(vals[3])
 
-    output = {'Jx':jx, 'Jy':jy, 'Jz':jz, 'rate':rate}
+    output = {'jx':jx, 'jy':jy, 'jz':jz, 'rate':rate}
     sio.savemat(mat_file, output)
     return output
 
+
 def get_GKTC(directory='.', T=300, vol=1, dt=None, rate=None, tau=None,
              heatflux_file='heat_out.heatflux',mat_file='heat_flux.mat'):
-    '''
-    Gets the thermal conductivity vs. time profile using the Green-Kubo formalism.
-    thermal conductivity vector and time vector.
-    Assumptions with no info given by user:
-    dt = 1 fs, vol = 1, T=300, rate=dt, tau=total time
+    """
+    Calculates the thermal conductivity (TC) using the Green-Kubo (GK) formalism.
+    The 'metal' units in LAMMPS must be used.
 
     Args:
         directory (string):
-            This is the directory in which the simulation results are located.
-            If not provided, the current directory is used.
+            Directory of simulation
 
         T (float):
-            This is the temperature at which the equlibrium simulation was run at.
-            If not provided, T=300 is used. Units are in [K]
+            Temperature of simulation. Units of K
 
         vol (float):
-            This is the volume of the simulation system.
-            If not provided, vol=1 is used. Units are [angstroms^3].
+            Volume of the simulation cell. Units of A^3
 
         dt (float):
-            This is the timestep of the green-kubo part of the simulation.
-            If not provided, dt=1 fs is used. units are in [fs]
+            Timestep of the of simulation. Units are fs
 
         rate (int):
-            This is the rate at which the heat flux is sampled. This is in
-            number of timesteps. If not provided, we assume we sample once per
-            timestep so, rate=dt
+            Rate at which the heat flux is sampled in number of timesteps. Default of rate=dt
 
         tau (int):
-            max lag time to integrate over. This is in units of [ns]
+            max lag time to integrate over. Units of ns and default of tau=total time
 
-        heatflux_file (str): Filename of heatflux output. If not provided
-            'heat_out.heatflux' is used.
+        heatflux_file (str):
+            Heatflux output filename.
 
-        mat_file (str): MATLAB file to load, if exists. If not provided,
-            'heat_flux.mat' will be used. Also used as filename for saved MATLAB
-            file.
+        mat_file (str):
+            MATLAB file to load, if exists, or save to, if does not exist.
+            Default save name of 'heat_flux.mat'
 
     Returns:
-        dict: kx, ky, kz, t, directory, dt, tot_time, tau, T, vol, srate,
-        jxjx, jyjy, jzjz
+        dict: Dictionary with Green-Kubo thermal conductivity data
 
-    Output keys:\n
-    - kx (ndarray): x-direction thermal conductivity [W/m/K]
-    - ky (ndarray): y-direction thermal conductivity [W/m/K]
-    - kz (ndarray): z-direction thermal conductivity [W/m/K]
-    - t (ndarray): time [ns]
-    - directory (str): directory of results
-    - dt (float): timestep [fs]
-    - tot_time (float): total simulated time [ns]
-    - tau (int): Lag time [ns]
-    - T (float): [K]
-    - vol (float): Volume of simulation cell  [angstroms^3]
-    - srate (float): See above
-    - jxjx (ndarray): x-direction heat flux autocorrelation
-    - jyjy (ndarray): y-direction heat flux autocorrelation
-    - jzjz (ndarray): z-direction heat flux autocorrelation
-    '''
+    .. csv-table:: Output dictionary
+       :stub-columns: 1
+
+       **key**,kx,ky,kz,t,dt,T,V,jxjx,jyjy,jzjz,tot_time,tau,srate,directory
+       **units**,|gk1|,|gk1|,|gk1|,ns,fs,K,|gk2|,|gk3|,|gk3|,|gk3|,ns,ns,ns,N/A
+
+    .. |gk1| replace:: Wm\ :sup:`-1` K\ :sup:`-1`
+    .. |gk2| replace:: A\ :sup:`3`
+    .. |gk3| replace:: (eV ps\ :sup:`-1` A\ :sup:`-2`)\ :sup:`2`
+    """
     # Check that directory exists
     if not os.path.isdir(directory):
         raise IOError('The path: {} is not a directory.'.format(directory))
 
     # get heat flux, pass args
     hf = get_heat_flux(directory, heatflux_file,mat_file)
-    Jx = np.squeeze(hf['Jx'])
-    Jy = np.squeeze(hf['Jy'])
-    Jz = np.squeeze(hf['Jz'])
+    jx = np.squeeze(hf['jx'])
+    jy = np.squeeze(hf['jy'])
+    jz = np.squeeze(hf['jz'])
 
     scale = __metal_to_SI(vol, T)
 
     # Set timestep if not set
     if dt is None:
-        dt = 1.0e-6 # [ns]
+        dt = 1.0e-6  # [ns]
     else:
-        dt = dt*1.0e-6 # [fs] -> [ns]
+        dt = dt*1.0e-6  # [fs] -> [ns]
 
     # set the heat flux sampling rate: rate*timestep*scaling
-    srate = rate*dt # [ns]
+    srate = rate*dt  # [ns]
 
     # Calculate total time
-    tot_time = srate*(len(Jx)-1) # [ns]
+    tot_time = srate*(len(jx)-1)  # [ns]
 
     # set the integration limit (i.e. tau)
     if tau is None:
-        tau = tot_time # [ns]
+        tau = tot_time  # [ns]
 
     max_lag = int(floor(tau/(srate)))
-    t = np.squeeze(np.linspace(0, (max_lag)*srate, max_lag+1)) # [ns]
+    t = np.squeeze(np.linspace(0, (max_lag)*srate, max_lag+1))  # [ns]
 
-    ### AUTOCORRELATION ###
-    jxjx = autocorr(np.squeeze(Jx).astype(np.complex128), max_lag)
-    jyjy = autocorr(np.squeeze(Jy).astype(np.complex128), max_lag)
-    jzjz = autocorr(np.squeeze(Jz).astype(np.complex128), max_lag)
+    jxjx = autocorr(np.squeeze(jx).astype(np.complex128), max_lag)
+    jyjy = autocorr(np.squeeze(jy).astype(np.complex128), max_lag)
+    jzjz = autocorr(np.squeeze(jz).astype(np.complex128), max_lag)
 
-    ### INTEGRATION ###
     kx = integrate.cumtrapz(jxjx, t, initial=0)*scale
     ky = integrate.cumtrapz(jyjy, t, initial=0)*scale
     kz = integrate.cumtrapz(jzjz, t, initial=0)*scale
 
-    dt/=1e6 # [ns] -> [fs]
+    dt /= 1e6  # [ns] -> [fs]
 
     return {'kx':kx, 'ky':ky, 'kz':kz, 't':t, 'directory':directory,
             'dt':dt, 'tot_time':tot_time,'tau':tau, 'T':T,
-            'vol':vol, 'srate':srate, 'jxjx':jxjx, 'jyjy':jyjy, 'jzjz':jzjz}
+            'V':vol, 'srate':srate, 'jxjx':jxjx, 'jyjy':jyjy, 'jzjz':jzjz}
