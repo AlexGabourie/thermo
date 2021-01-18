@@ -855,11 +855,12 @@ def get_frequency_info(bin_f_size, eigfile='eigenvector.out', directory=None):
     with open(eigpath, 'r') as f:
         om2 = [float(x) for x in f.readline().split()]
 
+    epsilon = 1.e-6  # tolerance for float errors
     fq = np.sign(om2) * np.sqrt(abs(np.array(om2))) / (2 * np.pi)
     fmax = (np.floor(np.abs(fq[-1]) / bin_f_size) + 1) * bin_f_size
     fmin = np.floor(np.abs(fq[0]) / bin_f_size) * bin_f_size
-    shift = int(np.floor(np.abs(fmin) / bin_f_size))
-    nbins = int(np.floor((fmax - fmin) / bin_f_size))
+    shift = int(np.floor(np.abs(fmin) / bin_f_size + epsilon))
+    nbins = int(np.floor((fmax - fmin) / bin_f_size + epsilon))
     bin_count = np.zeros(nbins)
     for freq in fq:
         bin_count[int(np.floor(np.abs(freq) / bin_f_size) - shift)] += 1
@@ -882,10 +883,11 @@ def reduce_frequency_info(freq, ndiv=1):
         dict: Dictionary with the system eigen freqeuency information along with binning information
 
     """
+    epsilon = 1.e-6  # tolerance for float errors
     freq = copy.deepcopy(freq)
     freq['bin_f_size'] = freq['bin_f_size'] * ndiv
     freq['fmax'] = (np.floor(np.abs(freq['fq'][-1]) / freq['bin_f_size']) + 1) * freq['bin_f_size']
-    nbins_new = int(np.ceil(freq['nbins'] / ndiv))
+    nbins_new = int(np.ceil(freq['nbins'] / ndiv - epsilon))
     npad = nbins_new * ndiv - freq['nbins']
     freq['nbins'] = nbins_new
     freq['bin_count'] = np.pad(freq['bin_count'], [(0, npad)])
