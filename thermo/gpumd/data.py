@@ -177,7 +177,7 @@ def __basic_frame_loader(n, directory, filename):
     data = pd.read_csv(path, delim_whitespace=True, header=None).to_numpy(dtype='float')
     if not (data.shape[0] / n).is_integer():
         raise ValueError("An integer number of frames cannot be created. Please check n.")
-    return data.reshape(n, 3, -1)
+    return data.reshape(-1, n, 3)
 
 
 #########################################
@@ -222,7 +222,7 @@ def load_force(n, directory=None, filename='force.out'):
             Name of force data file
 
     Returns:
-        Numpy array of shape (n,3,-1) containing all forces (ev/A) from filename
+        Numpy array of shape (-1,n,3) containing all forces (ev/A) from filename
 
     """
     return __basic_frame_loader(n, directory, filename)
@@ -244,7 +244,7 @@ def load_velocity(n, directory=None, filename='velocity.out'):
             Name of velocity data file
 
     Returns:
-        Numpy array of shape (n,3,-1) containing all forces (A/ps) from filename
+        Numpy array of shape (-1,n,3) containing all forces (A/ps) from filename
 
     """
     return __basic_frame_loader(n, directory, filename)
