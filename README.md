@@ -1,4 +1,4 @@
-**Note**: `thermo` will no longer be updated. Please see the new project [gpyumd](https://github.com/AlexGabourie/gpyumd) for a more up-to-date Python interface for [GPUMD](https://github.com/brucefan1983/GPUMD)
+**Note**: `thermo` will no longer be updated. Please see the [gpyumd](https://github.com/AlexGabourie/gpyumd) package for a more up-to-date Python interface for [GPUMD](https://github.com/brucefan1983/GPUMD).
 
 # `thermo`
 
