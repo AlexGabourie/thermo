@@ -1,4 +1,6 @@
-# thermo
+**Note**: `thermo` will no longer be updated. Please see the new project [gpyumd](https://github.com/AlexGabourie/gpyumd) for a more up-to-date Python interface for [GPUMD](https://github.com/brucefan1983/GPUMD)
+
+# `thermo`
 
 This repository is a collection of structure and data processing functions geared towards calculating thermal properties from molecular dynamics simulations. The code is primarily designed to interface with [GPUMD](https://github.com/brucefan1983/GPUMD) with some supporting [LAMMPS](https://lammps.sandia.gov/) code. 
 
